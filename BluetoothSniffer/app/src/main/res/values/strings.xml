@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">BluetoothSniffer</string>
+
+    <!-- activity_main -->
+    <string name="textview_bluetooth">Bluetooth information</string>
+    <string name="button_enableBluetooth">Enable Bluetooth</string>
+</resources>
