@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Simulator</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+
+    <!-- Strings related to MainActivity -->
+    <string name="main_vehicleSimTitle">Vehicle Simulator</string>
+    <string name="main_roadSimTitle">Road Conditions Simulator</string>
+
+    <!-- Strings related to VehicleSimulatorFragment -->
+    <string name="vehicleSimulator_drive">Drive</string>
+    <string name="vehicleSimulator_cars">Cars</string>
+</resources>
