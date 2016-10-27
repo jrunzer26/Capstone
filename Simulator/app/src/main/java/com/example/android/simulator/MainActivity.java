@@ -17,10 +17,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity {
 
+    private VehicleSimulatorFragment vehicleSimulatorFragment;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -50,15 +52,6 @@ public class MainActivity extends AppCompatActivity {
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         getSupportActionBar().hide();
     }
@@ -102,7 +95,8 @@ public class MainActivity extends AppCompatActivity {
             // Return a PlaceholderFragment (defined as a static inner class below).
 
             if (position == 0) {
-                return new VehicleSimulatorFragment();
+                vehicleSimulatorFragment = new VehicleSimulatorFragment();
+                return vehicleSimulatorFragment;
             } else {
                 return new EnvironmentSimulatorFragment();
             }
@@ -110,8 +104,28 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
+            // Show 2 total pages.
             return 2;
         }
+    }
+
+    public void pause(View view) {
+        vehicleSimulatorFragment.pause();
+    }
+
+    public void cruise(View view) {
+        Toast.makeText(this,"Cruise", Toast.LENGTH_SHORT).show();
+    }
+
+    public void park(View view) {
+        Toast.makeText(this,"Park", Toast.LENGTH_SHORT).show();
+    }
+
+    public void drive(View view) {
+        Toast.makeText(this,"drive", Toast.LENGTH_SHORT).show();
+    }
+
+    public void reverse(View view) {
+        Toast.makeText(this,"Reverse", Toast.LENGTH_SHORT).show();
     }
 }

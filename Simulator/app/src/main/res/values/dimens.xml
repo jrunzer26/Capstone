@@ -4,4 +4,13 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="appbar_padding_top">8dp</dimen>
+    <dimen name="padding_drivetab_border">10dp</dimen>
+
+    <!-- dimensions related to vechilesimulator_drive -->
+    <dimen name="margin_vehiclesimulatordrive_betweenbuttons">44dp</dimen>
+    <dimen name="paddingtop_vehiclesimulatordrive_beforebuttons">30dp</dimen>
+    <dimen name="margin_vehiclesimulatordrive_between">44dp</dimen>
+    <dimen name="margin_vehiclesimulatordrive_understeering">30dp</dimen>
+    <dimen name="textsize_vehiclesimulatordrive_speed">44sp</dimen>
+
 </resources>

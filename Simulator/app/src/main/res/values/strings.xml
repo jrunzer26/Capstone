@@ -10,4 +10,23 @@
     <!-- Strings related to VehicleSimulatorFragment -->
     <string name="vehicleSimulator_drive">Drive</string>
     <string name="vehicleSimulator_cars">Cars</string>
+    <string name="vehicleSimulatorDrive_park">P</string>
+    <string name="vehicleSimulatorDrive_reverse">R</string>
+    <string name="vehicleSimulatorDrive_drive">D</string>
+    <string name="vehicleSimulatorDrive_cruise">Cruise</string>
+    <string name="vehicleSimulatorDrive_pause">Pause</string>
+    <string name="vehicleSimulatorDrive_negativeMaxAcceleration">-15km/h/s</string>
+    <string name="vehicleSimulatorDrive_positiveMaxAcceleration">50km/h/s</string>
+    <string name="vehicleSimulatorDrive_zeroAcceleration">0 km/h/s</string>
+    <string name="vehicleSimulatorDrive_negativeMaxSteering">-30 Deg</string>
+    <string name="vehicleSimulatorDrive_positiveMaxSteering">30 Deg</string>
+    <string name="vehicleSimulatorDrive_zeroSteering">0 Deg</string>
+    <string name="vehicleSimulatorDrive_signalLeft">Signal Left</string>
+    <string name="vehicleSimulatorDrive_signalRight">Signal Right</string>
+    <string name="vehicleSimulatorDrive_changeLeft">Change Left</string>
+    <string name="vehicleSimulatorDrive_changeRight">Change Right</string>
+    <string name="vehicleSimulatorDrive_initialSpeed">0 Km/h</string>
+    <string name="vehicleSimulatorDrive_acceleration">Acceleration</string>
+    <string name="vehicleSimulatorDrive_steering">Steering</string>
+
 </resources>

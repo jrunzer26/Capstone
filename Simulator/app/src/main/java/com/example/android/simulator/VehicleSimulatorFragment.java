@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TabHost;
+import android.widget.Toast;
 
 
 /**
@@ -44,5 +45,9 @@ public class VehicleSimulatorFragment extends Fragment {
         host.addTab(carTab);
 
         return view;
+    }
+
+    public void pause() {
+        Toast.makeText(getContext(),"Pause", Toast.LENGTH_SHORT).show();
     }
 }
