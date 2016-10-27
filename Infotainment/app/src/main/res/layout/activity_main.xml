@@ -11,6 +11,7 @@
     tools:context="com.example.android.infotainment.MainActivity">
 
     <TabHost
+        android:id="@+id/tabhost_mainactivity_tabs"
         android:layout_width="200dip"
         android:layout_height="300dip"
         android:layout_alignParentTop="true"
@@ -31,26 +32,27 @@
 
 
                 <LinearLayout
-                    android:id="@+id/tab2"
+                    android:id="@+id/radioTab_linear"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical">
-
+                    <include layout="@layout/fragment_radio"/>
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/tab3"
+                    android:id="@+id/menuTab_linear"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical">
-
+                    <include layout="@layout/fragment_menu"/>
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/tab1"
+                    android:id="@+id/gpsTab_linear"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical">
+                    <include layout="@layout/fragment_gps"/>
                 </LinearLayout>
             </FrameLayout>
             <TabWidget
