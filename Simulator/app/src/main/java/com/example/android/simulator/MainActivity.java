@@ -128,4 +128,23 @@ public class MainActivity extends AppCompatActivity {
     public void reverse(View view) {
         Toast.makeText(this,"Reverse", Toast.LENGTH_SHORT).show();
     }
+
+    public void sunny(View view) {
+        Toast.makeText(this,"Sunny", Toast.LENGTH_SHORT).show();
+    }
+
+    public void hail(View view) {
+        Toast.makeText(this,"hail", Toast.LENGTH_SHORT).show();
+    }
+
+    public void snow(View view) {
+        Toast.makeText(this,"snow", Toast.LENGTH_SHORT).show();
+    }
+
+    public void rain(View view) {
+        Toast.makeText(this,"rain", Toast.LENGTH_SHORT).show();
+    }
+
+
+
 }
