@@ -31,21 +31,21 @@
 
     <!-- Strings related to EnvironmentSimulatorFragment -->
     <string name="environmentSimulator_climate">Climate</string>
-    <string name="environmentSimulatorClimate_roadconditions">Road Conditions</string>
+    <string name="environmentSimulatorClimate_roadConditions">Road Conditions</string>
     <string name="environmentSimulatorClimate_sunny">Sunny</string>
     <string name="environmentSimulator_hail">Hail</string>
     <string name="environmentSimulator_snowy">Snowy</string>
     <string name="environmentSimulator_rain">Rain</string>
-    <string name="environmentSimulator_timeofday">Time of Day:</string>
-    <string name="environmentsimulatorclimate_light">Light</string>
-    <string name="environmentsimulatorclimate_heavy">Heavy</string>
-    <string name="environmentsimulatorclimate_visibility">Visibility</string>
-    <string name="environmentsimulatorclimate_zeropercent">0%</string>
-    <string name="environmentsimulatorclimate_100percent">100%</string>
+    <string name="environmentSimulator_timeOfDay">Time of Day:</string>
+    <string name="environmentSimulatorClimate_light">Light</string>
+    <string name="environmentSimulatorClimate_heavy">Heavy</string>
+    <string name="environmentSimulatorClimate_visibility">Visibility</string>
+    <string name="environmentSimulatorClimate_zeroPercent">0%</string>
+    <string name="environmentSimulatorClimate_100Percent">100%</string>
     <string name="environmentSimulatorRoadConditions_ice">Ice</string>
     <string name="environmentsimulatorRoadConditions_warmice">Warm Ice</string>
     <string name="environmentsimulatorRoadConditions_wet">Wet</string>
-    <string name="environmentsimulatorRoadConditions_typesofroad">Types of Road</string>
+    <string name="environmentsimulatorRoadConditions_typesOfRoad">Types of Road</string>
     <string name="environmentsimulatorRoadConditions_paved">Paved</string>
     <string name="environmentsimulatorRoadConditions_gravel">Gravel</string>
     <string name="environmentsimulatorRoadConditions_dirt">Dirt</string>

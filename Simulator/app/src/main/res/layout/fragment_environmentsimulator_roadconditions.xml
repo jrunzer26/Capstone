@@ -2,30 +2,30 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/margin_vehiclesimulatordrive_betweenbuttons">
+    android:padding="@dimen/margin_all_betweenButtons">
 
     <RadioGroup
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="center"
-        android:layout_marginBottom="@dimen/margin_vehiclesimulatordrive_betweenbuttons">
+        android:layout_marginBottom="@dimen/margin_all_betweenButtons">
         <RadioButton
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/environmentSimulatorRoadConditions_ice"
             android:onClick="sunny"
-            android:paddingStart="@dimen/margin_vehiclesimulatordrive_betweenbuttons"
-            android:paddingEnd="@dimen/margin_vehiclesimulatordrive_betweenbuttons"/>
+            android:paddingStart="@dimen/margin_all_betweenButtons"
+            android:paddingEnd="@dimen/margin_all_betweenButtons"/>
         <RadioButton
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/environmentsimulatorRoadConditions_warmice"
             android:onClick="hail"
-            android:paddingStart="@dimen/margin_vehiclesimulatordrive_betweenbuttons"
-            android:paddingEnd="@dimen/margin_vehiclesimulatordrive_betweenbuttons"/>
+            android:paddingStart="@dimen/margin_all_betweenButtons"
+            android:paddingEnd="@dimen/margin_all_betweenButtons"/>
 
         <RadioButton
             android:layout_width="0dp"
@@ -33,8 +33,8 @@
             android:layout_weight="1"
             android:text="@string/environmentsimulatorRoadConditions_wet"
             android:onClick="snow"
-            android:paddingStart="@dimen/margin_vehiclesimulatordrive_betweenbuttons"
-            android:paddingEnd="@dimen/margin_vehiclesimulatordrive_betweenbuttons"/>
+            android:paddingStart="@dimen/margin_all_betweenButtons"
+            android:paddingEnd="@dimen/margin_all_betweenButtons"/>
 
     </RadioGroup>
 
@@ -43,22 +43,22 @@
         android:layout_height="wrap_content"
         android:text="@string/environmentsimulatorRoadConditions_severity"
         android:gravity="center"
-        android:textSize="@dimen/textsize_environmentsimulator_heading"
-        android:layout_marginBottom="@dimen/margin_environmentsimulator_belowheader"/>
+        android:textSize="@dimen/textSize_environmentSimulator_heading"
+        android:layout_marginBottom="@dimen/margin_environmentSimulator_belowHeader"/>
 
     <SeekBar
         android:layout_width="450dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="@dimen/margin_vehiclesimulatordrive_betweenbuttons"/>
+        android:layout_marginBottom="@dimen/margin_all_betweenButtons"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/environmentsimulatorRoadConditions_typesofroad"
+        android:text="@string/environmentsimulatorRoadConditions_typesOfRoad"
         android:gravity="center"
-        android:textSize="@dimen/textsize_environmentsimulator_heading"
-        android:layout_marginBottom="@dimen/margin_environmentsimulator_belowheader"/>
+        android:textSize="@dimen/textSize_environmentSimulator_heading"
+        android:layout_marginBottom="@dimen/margin_environmentSimulator_belowHeader"/>
 
     <RadioGroup
         android:layout_width="match_parent"
@@ -70,16 +70,16 @@
             android:layout_weight="1"
             android:text="@string/environmentSimulatorClimate_sunny"
             android:onClick="sunny"
-            android:paddingStart="@dimen/margin_vehiclesimulatordrive_betweenbuttons"
-            android:paddingEnd="@dimen/margin_vehiclesimulatordrive_betweenbuttons"/>
+            android:paddingStart="@dimen/margin_all_betweenButtons"
+            android:paddingEnd="@dimen/margin_all_betweenButtons"/>
         <RadioButton
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/environmentSimulator_hail"
             android:onClick="hail"
-            android:paddingStart="@dimen/margin_vehiclesimulatordrive_betweenbuttons"
-            android:paddingEnd="@dimen/margin_vehiclesimulatordrive_betweenbuttons"/>
+            android:paddingStart="@dimen/margin_all_betweenButtons"
+            android:paddingEnd="@dimen/margin_all_betweenButtons"/>
 
         <RadioButton
             android:layout_width="0dp"
@@ -87,8 +87,8 @@
             android:layout_weight="1"
             android:text="@string/environmentSimulator_snowy"
             android:onClick="snow"
-            android:paddingStart="@dimen/margin_vehiclesimulatordrive_betweenbuttons"
-            android:paddingEnd="@dimen/margin_vehiclesimulatordrive_betweenbuttons"/>
+            android:paddingStart="@dimen/margin_all_betweenButtons"
+            android:paddingEnd="@dimen/margin_all_betweenButtons"/>
 
     </RadioGroup>
 

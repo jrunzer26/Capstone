@@ -11,6 +11,9 @@ import android.widget.TabHost;
  * Created by 100520993 on 10/26/2016.
  */
 
+/**
+ * Fragment for the environment simulation slider tab.
+ */
 public class EnvironmentSimulatorFragment extends Fragment {
 
     @Override
@@ -27,14 +30,14 @@ public class EnvironmentSimulatorFragment extends Fragment {
 
         // set the contents of the drive tab
         TabHost.TabSpec climateTab = host.newTabSpec(getString(R.string.environmentSimulator_climate));
-        climateTab.setContent(R.id.linearlayout_environmentsimulator_climatetab);
+        climateTab.setContent(R.id.linearLayout_environmentSimulator_climateTab);
         climateTab.setIndicator(getString(R.string.environmentSimulator_climate));
         host.addTab(climateTab);
 
         // set the contents of the cars tab
-        TabHost.TabSpec roadConditionsTab = host.newTabSpec(getString(R.string.environmentSimulatorClimate_roadconditions));
-        roadConditionsTab.setContent(R.id.linearlayout_environmentsimulator_roadconditionstab);
-        roadConditionsTab.setIndicator(getString(R.string.environmentSimulatorClimate_roadconditions));
+        TabHost.TabSpec roadConditionsTab = host.newTabSpec(getString(R.string.environmentSimulatorClimate_roadConditions));
+        roadConditionsTab.setContent(R.id.linearLayout_environmentSimulator_roadConditionsTab);
+        roadConditionsTab.setIndicator(getString(R.string.environmentSimulatorClimate_roadConditions));
         host.addTab(roadConditionsTab);
         return view;
     }

@@ -39,10 +39,10 @@ public class VehicleSimulatorFragment extends Fragment {
         host.addTab(driveTab);
 
         // set the contents of the cars tab
-        TabHost.TabSpec carTab = host.newTabSpec(getString(R.string.vehicleSimulator_cars));
-        carTab.setContent(R.id.linearlayout_vehiclesimulator_cars);
-        carTab.setIndicator(getString(R.string.vehicleSimulator_cars));
-        host.addTab(carTab);
+        TabHost.TabSpec roadConditionsTab = host.newTabSpec(getString(R.string.vehicleSimulator_cars));
+        roadConditionsTab.setContent(R.id.linearlayout_vehiclesimulator_cars);
+        roadConditionsTab.setIndicator(getString(R.string.vehicleSimulator_cars));
+        host.addTab(roadConditionsTab);
 
         return view;
     }

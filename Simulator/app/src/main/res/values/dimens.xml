@@ -4,17 +4,20 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="appbar_padding_top">8dp</dimen>
-    <dimen name="padding_drivetab_border">10dp</dimen>
+    <dimen name="padding_driveTab_border">10dp</dimen>
+
+    <!-- Dimensions related to all activities -->
+    <dimen name="margin_all_betweenButtons">44dp</dimen>
 
     <!-- dimensions related to vechilesimulator_drive -->
-    <dimen name="margin_vehiclesimulatordrive_betweenbuttons">44dp</dimen>
-    <dimen name="paddingtop_vehiclesimulatordrive_beforebuttons">30dp</dimen>
-    <dimen name="margin_vehiclesimulatordrive_between">44dp</dimen>
-    <dimen name="margin_vehiclesimulatordrive_understeering">30dp</dimen>
-    <dimen name="textsize_vehiclesimulatordrive_speed">44sp</dimen>
+
+    <dimen name="paddingTop_vehicleSimulatorDrive_beforeButtons">30dp</dimen>
+    <dimen name="margin_vehicleSimulatorDrive_between">44dp</dimen>
+    <dimen name="margin_vehicleSimulatorDrive_underSteering">30dp</dimen>
+    <dimen name="textSize_vehicleSimulatorDrive_speed">44sp</dimen>
     
     <!-- Dimensions related to envornmnetsimulator_roadconditions -->
-    <dimen name="textsize_environmentsimulator_heading">38sp</dimen>
-    <dimen name="margin_environmentsimulator_belowheader">20dp</dimen>
+    <dimen name="textSize_environmentSimulator_heading">38sp</dimen>
+    <dimen name="margin_environmentSimulator_belowHeader">20dp</dimen>
 
 </resources>

@@ -24,7 +24,7 @@
                 android:layout_height="match_parent">
 
                 <LinearLayout
-                    android:id="@+id/linearlayout_environmentsimulator_climatetab"
+                    android:id="@+id/linearLayout_environmentSimulator_climateTab"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical">
@@ -34,7 +34,7 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/linearlayout_environmentsimulator_roadconditionstab"
+                    android:id="@+id/linearLayout_environmentSimulator_roadConditionsTab"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical">
