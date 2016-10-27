@@ -12,5 +12,9 @@
     <dimen name="margin_vehiclesimulatordrive_between">44dp</dimen>
     <dimen name="margin_vehiclesimulatordrive_understeering">30dp</dimen>
     <dimen name="textsize_vehiclesimulatordrive_speed">44sp</dimen>
+    
+    <!-- Dimensions related to envornmnetsimulator_roadconditions -->
+    <dimen name="textsize_environmentsimulator_heading">38sp</dimen>
+    <dimen name="margin_environmentsimulator_belowheader">20dp</dimen>
 
 </resources>
