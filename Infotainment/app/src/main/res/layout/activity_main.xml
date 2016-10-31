@@ -33,8 +33,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical">
-                    <include layout="@layout/fragment_radio"
-                        android:layout_width="570dp" />
+                    <include layout="@layout/fragment_radio" />
                 </LinearLayout>
 
                 <LinearLayout
