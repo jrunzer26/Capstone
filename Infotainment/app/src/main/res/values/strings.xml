@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Infotainment</string>
+    //Strings for main Activity
+    <string name="main_gps">GPS</string>
+    <string name="main_menu">Menu</string>
+    <string name="main_radio">Radio</string>
 </resources>

@@ -16,19 +16,19 @@ public class MainActivity extends AppCompatActivity {
         TabHost host = (TabHost) findViewById(R.id.tabhost_mainactivity_tabs);
         host.setup();
 
-        TabHost.TabSpec gpsTab = host.newTabSpec("GPS");
+        TabHost.TabSpec gpsTab = host.newTabSpec(getString(R.string.main_gps));
         gpsTab.setContent(R.id.gpsTab_linear);
-        gpsTab.setIndicator("GPS");
+        gpsTab.setIndicator(getString(R.string.main_gps));
         host.addTab(gpsTab);
 
-        TabHost.TabSpec radioTab = host.newTabSpec("Radio");
+        TabHost.TabSpec radioTab = host.newTabSpec(getString(R.string.main_radio));
         radioTab.setContent(R.id.radioTab_linear);
-        radioTab.setIndicator("Radio");
+        radioTab.setIndicator(getString(R.string.main_radio));
         host.addTab(radioTab);
 
-        TabHost.TabSpec menuTab = host.newTabSpec("Menu");
+        TabHost.TabSpec menuTab = host.newTabSpec(getString(R.string.main_menu));
         menuTab.setContent(R.id.menuTab_linear);
-        menuTab.setIndicator("Menu");
+        menuTab.setIndicator(getString(R.string.main_menu));
         host.addTab(menuTab);
     }
 }
