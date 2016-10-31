@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingStart="@dimen/margin_all_betweenButtons">
+    <LinearLayout android:layout_weight="25"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+        <RadioGroup
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent">
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/environmentSimulatorClimate_sunny"
+                android:onClick="sunny" />
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/environmentSimulator_hail"
+                android:onClick="hail"/>
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/environmentSimulator_snowy"
+                android:onClick="snow"/>
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/environmentSimulator_rain"
+                android:onClick="rain"/>
+
+        </RadioGroup>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="7"
+            android:orientation="vertical"
+            android:padding="@dimen/margin_all_betweenButtons">
+
+            <RelativeLayout android:id="@+id/relativeLayout_environmentSimulatorClimate_density"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_all_betweenButtons">
+
+                <TextView android:id="@+id/textview_environmentSimulatorClimate_light"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/environmentSimulatorClimate_light"
+                    android:layout_alignStart="@+id/seekbar_environmentSimulatorClimate_density"/>
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/environmentSimulatorClimate_heavy"
+                    android:layout_alignEnd="@id/seekbar_environmentSimulatorClimate_density"/>
+
+
+                <SeekBar android:id="@+id/seekbar_environmentSimulatorClimate_density"
+                    android:layout_width="400dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_below="@id/textview_environmentSimulatorClimate_light"/>
+
+
+            </RelativeLayout>
+
+
+            <RelativeLayout android:id="@+id/relativeLayout_environmentSimulatorClimate_visibility"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_all_betweenButtons">
+
+                <TextView android:id="@+id/textView_environmentSimulatorClimate_zeroPercent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/environmentSimulatorClimate_zeroPercent"
+                    android:layout_alignStart="@+id/seekbar_environmentSimulatorClimate_visibility"/>
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/environmentSimulatorClimate_100Percent"
+                    android:layout_alignEnd="@id/seekbar_environmentSimulatorClimate_visibility"/>
+
+
+                <SeekBar android:id="@+id/seekbar_environmentSimulatorClimate_visibility"
+                    android:layout_width="400dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_below="@id/textView_environmentSimulatorClimate_zeroPercent"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/environmentSimulatorClimate_visibility"
+                    android:layout_toStartOf="@id/seekbar_environmentSimulatorClimate_visibility"
+                    android:layout_below="@id/textView_environmentSimulatorClimate_zeroPercent"
+                    android:layout_marginEnd="@dimen/margin_all_betweenButtons"/>
+
+            </RelativeLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_weight="10"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/environmentSimulator_timeOfDay"
+            android:layout_gravity="center_vertical"/>
+        <TimePicker
+            android:timePickerMode="spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+        </TimePicker>
+    </LinearLayout>
+
+
+</LinearLayout>

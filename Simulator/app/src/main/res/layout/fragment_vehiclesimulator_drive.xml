@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingRight="@dimen/padding_driveTab_border"
+    android:paddingLeft="@dimen/padding_driveTab_border"
+    android:paddingBottom="@dimen/padding_driveTab_border"
+    android:paddingTop="@dimen/paddingTop_vehicleSimulatorDrive_beforeButtons">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginStart="@dimen/margin_all_betweenButtons"
+            android:layout_marginEnd="@dimen/margin_all_betweenButtons"
+            android:layout_weight="1" >
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:text="@string/vehicleSimulatorDrive_park"
+                android:onClick="park" />
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:text="@string/vehicleSimulatorDrive_reverse"
+                android:onClick="reverse"/>
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:text="@string/vehicleSimulatorDrive_drive"
+                android:onClick="drive"/>
+        </RadioGroup>
+
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/vehicleSimulatorDrive_cruise"
+            android:layout_marginStart="@dimen/margin_all_betweenButtons"
+            android:layout_marginEnd="@dimen/margin_all_betweenButtons"
+            android:layout_weight="1"
+            android:onClick="cruise"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/vehicleSimulatorDrive_pause"
+            android:layout_marginStart="@dimen/margin_all_betweenButtons"
+            android:layout_marginEnd="@dimen/margin_all_betweenButtons"
+            android:layout_weight="1"
+            android:onClick="pause"/>
+    </LinearLayout>
+
+    <RelativeLayout android:id="@+id/relativeLayout_vehicleSimulatorDrive_accelerationBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_all_betweenButtons">
+
+        <TextView android:id="@+id/textView_vehicleSimulatorDrive_maxNegativeAcceleration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/vehicleSimulatorDrive_negativeMaxAcceleration"
+            android:layout_alignStart="@+id/seekBar_vehicleSimulatorDrive_acceleration"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/vehicleSimulatorDrive_zeroAcceleration"
+            android:layout_centerHorizontal="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/vehicleSimulatorDrive_positiveMaxAcceleration"
+            android:layout_alignEnd="@id/seekBar_vehicleSimulatorDrive_acceleration"/>
+
+
+        <SeekBar android:id="@+id/seekBar_vehicleSimulatorDrive_acceleration"
+            android:layout_width="450dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/textView_vehicleSimulatorDrive_maxNegativeAcceleration"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/vehicleSimulatorDrive_acceleration"
+            android:layout_marginStart="@dimen/margin_all_betweenButtons"
+            android:layout_alignParentStart="true"
+            android:layout_below="@id/textView_vehicleSimulatorDrive_maxNegativeAcceleration"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_all_betweenButtons">
+
+        <TextView android:id="@+id/textview_vehicleSimulatorDrive_maxNegativeSteering"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/vehicleSimulatorDrive_negativeMaxSteering"
+            android:layout_alignStart="@+id/seekBar_vehicleSimulatorDrive_steering"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/vehicleSimulatorDrive_zeroSteering"
+            android:layout_centerHorizontal="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/vehicleSimulatorDrive_positiveMaxSteering"
+            android:layout_alignEnd="@id/seekBar_vehicleSimulatorDrive_steering"/>
+
+
+        <SeekBar android:id="@+id/seekBar_vehicleSimulatorDrive_steering"
+            android:layout_width="450dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/textview_vehicleSimulatorDrive_maxNegativeSteering"/>
+
+        <TextView android:id="@+id/vehicleSimulatorDrive_steering"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/vehicleSimulatorDrive_steering"
+            android:layout_marginStart="@dimen/margin_all_betweenButtons"
+            android:layout_alignParentStart="true"
+            android:layout_below="@id/textview_vehicleSimulatorDrive_maxNegativeSteering"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_vehicleSimulatorDrive_underSteering">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="@dimen/margin_all_betweenButtons">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/vehicleSimulatorDrive_signalLeft"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/vehicleSimulatorDrive_changeLeft"/>
+        </LinearLayout>
+
+        <TextView android:id="@+id/textView_vehicleSimulatorDrive_speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerInParent="true"
+            android:text="@string/vehicleSimulatorDrive_initialSpeed"
+            android:textSize="@dimen/textSize_vehicleSimulatorDrive_speed"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/margin_all_betweenButtons">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/vehicleSimulatorDrive_signalRight"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/vehicleSimulatorDrive_changeRight"/>
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>

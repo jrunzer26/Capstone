@@ -2,4 +2,52 @@
     <string name="app_name">Simulator</string>
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
+
+    <!-- Strings related to MainActivity -->
+    <string name="main_vehicleSimTitle">Vehicle Simulator</string>
+    <string name="main_roadSimTitle">Road Conditions Simulator</string>
+
+    <!-- Strings related to VehicleSimulatorFragment -->
+    <string name="vehicleSimulator_drive">Drive</string>
+    <string name="vehicleSimulator_cars">Cars</string>
+    <string name="vehicleSimulatorDrive_park">P</string>
+    <string name="vehicleSimulatorDrive_reverse">R</string>
+    <string name="vehicleSimulatorDrive_drive">D</string>
+    <string name="vehicleSimulatorDrive_cruise">Cruise</string>
+    <string name="vehicleSimulatorDrive_pause">Pause</string>
+    <string name="vehicleSimulatorDrive_negativeMaxAcceleration">-15km/h/s</string>
+    <string name="vehicleSimulatorDrive_positiveMaxAcceleration">50km/h/s</string>
+    <string name="vehicleSimulatorDrive_zeroAcceleration">0 km/h/s</string>
+    <string name="vehicleSimulatorDrive_negativeMaxSteering">-30 Deg</string>
+    <string name="vehicleSimulatorDrive_positiveMaxSteering">30 Deg</string>
+    <string name="vehicleSimulatorDrive_zeroSteering">0 Deg</string>
+    <string name="vehicleSimulatorDrive_signalLeft">Signal Left</string>
+    <string name="vehicleSimulatorDrive_signalRight">Signal Right</string>
+    <string name="vehicleSimulatorDrive_changeLeft">Change Left</string>
+    <string name="vehicleSimulatorDrive_changeRight">Change Right</string>
+    <string name="vehicleSimulatorDrive_initialSpeed">0 Km/h</string>
+    <string name="vehicleSimulatorDrive_acceleration">Acceleration</string>
+    <string name="vehicleSimulatorDrive_steering">Steering</string>
+
+    <!-- Strings related to EnvironmentSimulatorFragment -->
+    <string name="environmentSimulator_climate">Climate</string>
+    <string name="environmentSimulatorClimate_roadConditions">Road Conditions</string>
+    <string name="environmentSimulatorClimate_sunny">Sunny</string>
+    <string name="environmentSimulator_hail">Hail</string>
+    <string name="environmentSimulator_snowy">Snowy</string>
+    <string name="environmentSimulator_rain">Rain</string>
+    <string name="environmentSimulator_timeOfDay">Time of Day:</string>
+    <string name="environmentSimulatorClimate_light">Light</string>
+    <string name="environmentSimulatorClimate_heavy">Heavy</string>
+    <string name="environmentSimulatorClimate_visibility">Visibility</string>
+    <string name="environmentSimulatorClimate_zeroPercent">0%</string>
+    <string name="environmentSimulatorClimate_100Percent">100%</string>
+    <string name="environmentSimulatorRoadConditions_ice">Ice</string>
+    <string name="environmentsimulatorRoadConditions_warmice">Warm Ice</string>
+    <string name="environmentsimulatorRoadConditions_wet">Wet</string>
+    <string name="environmentsimulatorRoadConditions_typesOfRoad">Types of Road</string>
+    <string name="environmentsimulatorRoadConditions_paved">Paved</string>
+    <string name="environmentsimulatorRoadConditions_gravel">Gravel</string>
+    <string name="environmentsimulatorRoadConditions_dirt">Dirt</string>
+    <string name="environmentsimulatorRoadConditions_severity">Severity</string>
 </resources>
