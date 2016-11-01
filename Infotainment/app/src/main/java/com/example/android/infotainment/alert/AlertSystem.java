@@ -12,6 +12,8 @@ public class AlertSystem {
     public static final int ALERT_TYPE_WARNING = 1;
     public static final int ALERT_TYPE_FATAL = 2;
 
+    private Alert currentAlert; //stores the current alert
+
     // Default messages in strings
 
     /**
