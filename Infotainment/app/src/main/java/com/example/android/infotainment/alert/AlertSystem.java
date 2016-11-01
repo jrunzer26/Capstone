@@ -1,4 +1,4 @@
-package com.example.android.infotainment;
+package com.example.android.infotainment.alert;
 
 import android.content.Context;
 
@@ -11,10 +11,8 @@ public class AlertSystem {
     /* ALERT TYPES */
     public static final int ALERT_TYPE_WARNING = 1;
     public static final int ALERT_TYPE_FATAL = 2;
-    /* DEFAULT MESSAGES */
-    private static final String DEFAULT_MESSAGE_WARNING = "Warning! Dangerous Driving Detected.";
-    private static final String DEFAULT_MESSAGE_FATAL = "CAUTION. Aggressive and Dangerous Driving detected";
-    private static final String DEFAULT_MESSAGE_LIGHT = "Unusual aggressive driving detected.";
+
+    // Default messages in strings
 
     /**
      * Alerts the driver.
