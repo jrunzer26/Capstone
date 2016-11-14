@@ -1,11 +1,12 @@
 package com.example.android.infotainment;
 
-import android.support.v4.app.FragmentTabHost;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.widget.TabHost;
+
+import com.example.android.infotainment.backend.DataAnalyst;
+import com.example.android.infotainment.backend.DataParser;
+import com.example.android.infotainment.backend.ThreadBeConnected;
 
 import java.util.UUID;
 
@@ -44,6 +45,10 @@ public class MainActivity extends AppCompatActivity {
         menuTab.setContent(R.id.menuTab_linear);
         menuTab.setIndicator(getString(R.string.main_menu));
         host.addTab(menuTab);
+
+        // create the DataParser and Analyst
+        //DataParser dataParser = new DataParser();
+        DataAnalyst dataAnalyst = new DataAnalyst(getApplicationContext());
     }
 
     public void setup(){
