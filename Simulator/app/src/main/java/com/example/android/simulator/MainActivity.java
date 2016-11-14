@@ -1,5 +1,7 @@
 package com.example.android.simulator;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +12,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,6 +21,9 @@ import android.view.ViewGroup;
 
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Set;
+import java.util.UUID;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -38,13 +44,21 @@ public class MainActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
 
+    private UUID myUUID;
+    ThreadConnectBTdevice myThreadConnectBTdevice;
+    BluetoothAdapter bluetoothAdapter;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        myUUID = UUID.fromString("6804a970-a361-11e6-bdf4-0800200c9a66");
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        setup();
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -56,6 +70,24 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().hide();
     }
 
+
+    public void setup() {
+        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+        BluetoothDevice device;
+        Log.i("Setup", "we in here");
+        if(pairedDevices.size() > 0) {
+            for (BluetoothDevice dev: pairedDevices) {
+                device = dev;
+                Log.e("Name", device.getName());
+                if(device.getName().equals("Jason R (Galaxy Tab4)")){
+                    Log.i("Device", "Got in here");
+                    myThreadConnectBTdevice = new ThreadConnectBTdevice(device, myUUID);
+                    myThreadConnectBTdevice.start();
+                    break;
+                }
+            }
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -123,6 +155,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void drive(View view) {
         Toast.makeText(this,"drive", Toast.LENGTH_SHORT).show();
+    }
+
+    public void sendMessage(View view) {
+        String message = "SUH DUDE what it do";
+        byte[] array = message.getBytes();
+        myThreadConnectBTdevice.connectedThread.write(array);
     }
 
     public void reverse(View view) {

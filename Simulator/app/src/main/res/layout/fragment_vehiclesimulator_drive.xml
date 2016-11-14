@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
         <RadioGroup
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -60,6 +61,15 @@
             android:layout_marginEnd="@dimen/margin_all_betweenButtons"
             android:layout_weight="1"
             android:onClick="pause"/>
+
+        <Button
+            android:text="Send"
+            android:onClick="sendMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/sendMessage_button"
+            android:layout_weight="1" />
+
     </LinearLayout>
 
     <RelativeLayout android:id="@+id/relativeLayout_vehicleSimulatorDrive_accelerationBar"
@@ -77,7 +87,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/vehicleSimulatorDrive_zeroAcceleration"
-            android:layout_centerHorizontal="true"/>
+            android:layout_centerHorizontal="true"
+            android:id="@+id/textView_vehicleSimulatorDrive_acceleration" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -87,6 +98,7 @@
 
 
         <SeekBar android:id="@+id/seekBar_vehicleSimulatorDrive_acceleration"
+            android:progress="14"
             android:layout_width="450dp"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
@@ -116,7 +128,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/vehicleSimulatorDrive_zeroSteering"
-            android:layout_centerHorizontal="true"/>
+            android:layout_centerHorizontal="true"
+            android:id="@+id/textView_vehicleSimulatorDrive_steering" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -126,6 +139,7 @@
 
 
         <SeekBar android:id="@+id/seekBar_vehicleSimulatorDrive_steering"
+            android:progress="31"
             android:layout_width="450dp"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
