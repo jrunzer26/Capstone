@@ -13,11 +13,9 @@
         android:src="@drawable/warning_sign"
         android:layout_weight="0"/>
 
-
     <TextView android:id="@+id/textview_alertSystem_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Fatal Alert"
         android:layout_weight="20"
         android:gravity="center"
         android:textColor="@color/alertSystem_white"/>
@@ -32,9 +30,7 @@
         <Button android:id="@+id/button_alertSystem_dismiss"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="X"
+            android:text="@string/alertSystem_x"
             android:layout_alignParentTop="true" />
     </RelativeLayout>
-
-
 </LinearLayout>

@@ -8,4 +8,5 @@
 
     <!-- Strings related to AlertSystem -->
     <string name="alertSystem_default_warning">WARNING</string>
- </resources>
+    <string name="alertSystem_x">X</string>
+</resources>
