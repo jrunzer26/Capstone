@@ -6,4 +6,6 @@
 
     <!-- Colours related to AlertSystem -->
     <color name="alertSystem_yellowWarning">#FFCC00</color>
+    <color name="alertSystem_redWarning">#F44336</color>
+    <color name="alertSystem_white">#FFFFFF</color>
 </resources>
