@@ -1,4 +1,4 @@
-package com.example.android.infotainment;
+package com.example.android.infotainment.backend;
 
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
