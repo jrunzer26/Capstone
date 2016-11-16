@@ -15,7 +15,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/environmentSimulatorRoadConditions_ice"
-            android:onClick="sunny"
+            android:onClick="ice"
             android:paddingStart="@dimen/margin_all_betweenButtons"
             android:paddingEnd="@dimen/margin_all_betweenButtons"/>
         <RadioButton
@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/environmentsimulatorRoadConditions_warmice"
-            android:onClick="hail"
+            android:onClick="warm_ice"
             android:paddingStart="@dimen/margin_all_betweenButtons"
             android:paddingEnd="@dimen/margin_all_betweenButtons"/>
 
@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/environmentsimulatorRoadConditions_wet"
-            android:onClick="snow"
+            android:onClick="wet"
             android:paddingStart="@dimen/margin_all_betweenButtons"
             android:paddingEnd="@dimen/margin_all_betweenButtons"/>
 
@@ -50,7 +50,8 @@
         android:layout_width="450dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="@dimen/margin_all_betweenButtons"/>
+        android:layout_marginBottom="@dimen/margin_all_betweenButtons"
+        android:id="@+id/seekbar_environmentSimulatorRoadConditions_severity" />
 
     <TextView
         android:layout_width="match_parent"
@@ -68,16 +69,16 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/environmentSimulatorClimate_sunny"
-            android:onClick="sunny"
+            android:text="@string/environmentsimulatorRoadConditions_paved"
+            android:onClick="paved"
             android:paddingStart="@dimen/margin_all_betweenButtons"
             android:paddingEnd="@dimen/margin_all_betweenButtons"/>
         <RadioButton
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/environmentSimulator_hail"
-            android:onClick="hail"
+            android:text="@string/environmentsimulatorRoadConditions_gravel"
+            android:onClick="gravel"
             android:paddingStart="@dimen/margin_all_betweenButtons"
             android:paddingEnd="@dimen/margin_all_betweenButtons"/>
 
@@ -85,8 +86,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/environmentSimulator_snowy"
-            android:onClick="snow"
+            android:text="@string/environmentsimulatorRoadConditions_dirt"
+            android:onClick="dirt"
             android:paddingStart="@dimen/margin_all_betweenButtons"
             android:paddingEnd="@dimen/margin_all_betweenButtons"/>
 

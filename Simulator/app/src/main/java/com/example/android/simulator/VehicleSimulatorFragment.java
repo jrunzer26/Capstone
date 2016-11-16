@@ -12,6 +12,8 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.simulator.backend.Simulator;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -30,11 +32,13 @@ public class VehicleSimulatorFragment extends Fragment {
     final int ACC_MIN = -15;
     final int DEG_MAX = 30;
     final int DEG_MIN = -30;
+    private Simulator sim;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -47,6 +51,8 @@ public class VehicleSimulatorFragment extends Fragment {
         seekBarAcc.setMax((ACC_MAX-ACC_MIN)/STEP);
         seekBarDeg.setMax((DEG_MAX-DEG_MIN)/STEP);
 
+        sim = ((MainActivity)this.getActivity()).getSimulator();
+
         final TextView seekBarAccValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_acceleration);
         final TextView seekBarDegValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_steering);
 
@@ -54,6 +60,7 @@ public class VehicleSimulatorFragment extends Fragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 seekBarAccValue.setText(String.valueOf(ACC_MIN+(progress * STEP))+" km/h/s");
+                sim.setAcceleration((DEG_MIN)+(progress*STEP));
             }
 
             @Override
@@ -71,6 +78,7 @@ public class VehicleSimulatorFragment extends Fragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 seekBarDegValue.setText(String.valueOf(DEG_MIN+(progress * STEP))+" Deg");
+                sim.setSteering((DEG_MIN)+(progress*STEP));
             }
 
             @Override
@@ -80,7 +88,8 @@ public class VehicleSimulatorFragment extends Fragment {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                // TODO Auto-generated method stub
+                //double degValue = Double.parseDouble(seekBarDegValue.getText().toString().substring(0, seekBarDegValue.getText().toString().indexOf(' ')));
+               // sim.setSteering(degValue);
             }
         });
 
@@ -115,12 +124,12 @@ public class VehicleSimulatorFragment extends Fragment {
         final TextView speedValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_speed);
         double accelerationValue = Double.parseDouble(seekBarAccValue.getText().toString().substring(0, seekBarAccValue.getText().toString().indexOf(' ')));
         double currentSpeed = Double.parseDouble(speedValue.getText().toString().substring(0, speedValue.getText().toString().indexOf(' ')));
-       // System.out.println(accelerationValue+ " "+ currentSpeed);
         final double speed = currentSpeed + (accelerationValue*0.5);
         Activity temp = getActivity();
         temp.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                sim.setSpeed(speed);
                 speedValue.setText(String.valueOf(speed) + " Km/h");
             }
         });

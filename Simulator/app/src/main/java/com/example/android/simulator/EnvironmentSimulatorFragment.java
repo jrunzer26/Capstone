@@ -1,11 +1,19 @@
 package com.example.android.simulator;
 
+import android.app.Activity;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SeekBar;
 import android.widget.TabHost;
+import android.widget.TimePicker;
+
+import com.example.android.simulator.backend.Simulator;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by 100520993 on 10/26/2016.
@@ -15,6 +23,10 @@ import android.widget.TabHost;
  * Fragment for the environment simulation slider tab.
  */
 public class EnvironmentSimulatorFragment extends Fragment {
+
+    private Simulator sim;
+    private int seconds;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -28,6 +40,9 @@ public class EnvironmentSimulatorFragment extends Fragment {
         TabHost host = (TabHost) view.findViewById(R.id.tabhost_environmentsimulator_tabhost);
         host.setup();
 
+        sim = ((MainActivity)this.getActivity()).getSimulator();
+
+        final TimePicker timerPicker = (TimePicker) view.findViewById(R.id.timerPicker_environmentsimulator_timeOfDay);
         // set the contents of the drive tab
         TabHost.TabSpec climateTab = host.newTabSpec(getString(R.string.environmentSimulator_climate));
         climateTab.setContent(R.id.linearLayout_environmentSimulator_climateTab);
@@ -39,6 +54,103 @@ public class EnvironmentSimulatorFragment extends Fragment {
         roadConditionsTab.setContent(R.id.linearLayout_environmentSimulator_roadConditionsTab);
         roadConditionsTab.setIndicator(getString(R.string.environmentSimulatorClimate_roadConditions));
         host.addTab(roadConditionsTab);
+
+        SeekBar seekBarVisibility = (SeekBar)view.findViewById(R.id.seekbar_environmentSimulatorClimate_visibility);
+        seekBarVisibility.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                sim.setVisibility(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+        });
+
+        SeekBar seekBarDensity = (SeekBar)view.findViewById(R.id.seekbar_environmentSimulatorClimate_density);
+        seekBarDensity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                sim.setClimateFeel(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+        });
+
+        SeekBar seekBarSeverity = (SeekBar)view.findViewById(R.id.seekbar_environmentSimulatorRoadConditions_severity);
+        seekBarSeverity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                sim.setSeverity(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+        });
+
+        timerPicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
+            public void onTimeChanged(TimePicker view, int hourOfDay, int minute){
+                seconds = 0;
+                sim.setHour(hourOfDay);
+                sim.setMin(minute);
+            }
+        });
+
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                Activity temp = getActivity();
+                temp.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        seconds++;
+                        if(seconds == 60){
+                            seconds = 0;
+                            int min = timerPicker.getMinute();
+                            if(min == 59){
+                                timerPicker.setMinute(0);
+                                int hour = timerPicker.getHour();
+                                if(hour == 23){
+                                    timerPicker.setHour(1);
+                                } else {
+                                    timerPicker.setHour(hour+1);
+                                }
+                            } else {
+                                timerPicker.setMinute(min+1);
+                            }
+                        }
+                        sim.setHour(timerPicker.getHour());
+                        sim.setMin(timerPicker.getMinute());
+                        sim.setSecond(seconds);
+                    }
+                });
+
+            }
+        }, 0, 1000);
+
         return view;
     }
+
+
 }
