@@ -36,7 +36,7 @@ public class Simulator implements Runnable, Car {
 
 
     private double speed = 0;
-    private String gear = " ";
+    private String gear = "Park";
     private boolean crusieControl = false;
     private boolean pause = false;
     private int signal = 0;
@@ -80,7 +80,6 @@ public class Simulator implements Runnable, Car {
             dos.writeDouble(speed);
             dos.writeDouble(acceleration);
             dos.writeDouble(steering);
-            dos.writeDouble(climateVisibility);
             dos.writeInt(signal);
             dos.writeInt(climate);
             dos.writeInt(climateVisibility);
