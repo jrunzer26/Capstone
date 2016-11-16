@@ -44,7 +44,7 @@ public class ConnectedThread extends Thread {
 
     public void write(byte[] bytes) {
         try {
-            Log.e("Writing", "SUH MY DUDE");
+            Log.e("Writing", "Message");
             mmOutStream.write(bytes);
         } catch (IOException e) { }
     }
