@@ -12,15 +12,19 @@ public class SimData {
     private double speed = 0;
     private String gear = null;
     private boolean cruseControl = false;
+    private boolean pause = false;
     private int signal = 0;
     private double steering = 0;
     private double acceleration = 0;
     private int climate = 0;
-    private double climateVisibility = 0;
+    private int climateVisibility = 0;
+    private int climateDensity = 0;
+    private int roadSeverity = 0;
     private int timeHour = 0;
     private int timeMinute = 0;
     private int timeSecond = 0;
     private int roadCondition = 0;
+    private int roadType =0;
 
     private int heartRate = 0;
 
@@ -37,15 +41,19 @@ public class SimData {
         stringBuilder.append("speed: ").append(speed).append("\n");
         stringBuilder.append("gear: ").append(gear).append("\n");
         stringBuilder.append("cruseControl: ").append(cruseControl).append("\n");
+        stringBuilder.append("pause: ").append(pause).append("\n");
         stringBuilder.append("signal: ").append(signal).append("\n");
         stringBuilder.append("steering: ").append(steering).append("\n");
         stringBuilder.append("acceleration: ").append(acceleration).append("\n");
         stringBuilder.append("climate: ").append(climate).append("\n");
         stringBuilder.append("climateVisibility: ").append(climateVisibility).append("\n");
+        stringBuilder.append("climateDensity: ").append(climateDensity).append("\n");
+        stringBuilder.append("roadSeverity: ").append(roadSeverity).append("\n");
         stringBuilder.append("timeHour: ").append(timeHour).append("\n");
         stringBuilder.append("timeMinute: ").append(timeMinute).append("\n");
         stringBuilder.append("timeSecond: ").append(timeSecond).append("\n");
         stringBuilder.append("roadCondition: ").append(roadCondition).append("\n");
+        stringBuilder.append("roadType: ").append(roadType).append("\n");
         stringBuilder.append("heartRate: ").append(heartRate).append("\n");
         return stringBuilder.toString();
     }
@@ -73,6 +81,10 @@ public class SimData {
     public void setCruseControl(boolean cruseControl) {
         this.cruseControl = cruseControl;
     }
+
+    public void setPause(boolean pause) {this.pause = pause; }
+
+    public boolean isPaused() {return pause;}
 
     public int getSignal() {
         return signal;
@@ -106,13 +118,25 @@ public class SimData {
         this.climate = climate;
     }
 
-    public double getClimateVisibility() {
+    public int getClimateVisibility() {
         return climateVisibility;
     }
 
-    public void setClimateVisibility(double climateVisibility) {
+    public void setClimateVisibility(int climateVisibility) {
         this.climateVisibility = climateVisibility;
     }
+
+    public void setClimateDensity(int density){
+        this.climateDensity = density;
+    }
+
+    public int getClimateDensity() {return climateDensity;}
+
+    public void setRoadSeverity(int severity){
+        this.roadSeverity = severity;
+    }
+
+    public int getRoadSeverity() {return roadSeverity;}
 
     public int getTimeHour() {
         return timeHour;
@@ -145,6 +169,10 @@ public class SimData {
     public void setRoadCondition(int roadCondition) {
         this.roadCondition = roadCondition;
     }
+
+    public void setRoadType(int roadType) {this.roadType = roadType; }
+
+    public int getRoadType() {return roadType;}
 
     public int getHeartRate() {
         return heartRate;

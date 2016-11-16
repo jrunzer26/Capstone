@@ -70,8 +70,8 @@ public class MainActivity extends AppCompatActivity {
      * Setup the bluetooth connection.
      */
     private void bluetoothSetup(){
-        myThreadBeConnected = new ThreadBeConnected(myName, myUUID);
-        myThreadBeConnected2 = new ThreadBeConnected(myName2, myUUID);
+        myThreadBeConnected = new ThreadBeConnected(myName, myUUID, MainActivity.this);
+        myThreadBeConnected2 = new ThreadBeConnected(myName2, myUUID, MainActivity.this);
         myThreadBeConnected.start();
         myThreadBeConnected2.start();
     }

@@ -45,7 +45,7 @@ public class VehicleSimulatorFragment extends Fragment {
 
         final View view = inflater.inflate(R.layout.fragment_vehiclesimulator, container, false);
 
-        SeekBar seekBarAcc = (SeekBar)view.findViewById(R.id.seekBar_vehicleSimulatorDrive_acceleration);
+        final SeekBar seekBarAcc = (SeekBar)view.findViewById(R.id.seekBar_vehicleSimulatorDrive_acceleration);
         SeekBar seekBarDeg = (SeekBar)view.findViewById(R.id.seekBar_vehicleSimulatorDrive_steering);
 
         seekBarAcc.setMax((ACC_MAX-ACC_MIN)/STEP);
@@ -60,7 +60,8 @@ public class VehicleSimulatorFragment extends Fragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 seekBarAccValue.setText(String.valueOf(ACC_MIN+(progress * STEP))+" km/h/s");
-                sim.setAcceleration((DEG_MIN)+(progress*STEP));
+                String temp = seekBarAccValue.getText().toString();
+                sim.setAcceleration(Double.parseDouble(temp.substring(0, temp.indexOf(' '))));
             }
 
             @Override

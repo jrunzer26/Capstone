@@ -1,7 +1,10 @@
 package com.example.android.infotainment.backend;
 
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.util.Log;
+
+import com.example.android.infotainment.MainActivity;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -19,11 +22,13 @@ public class ConnectedThread extends Thread {
     private final InputStream mmInStream;
     private final OutputStream mmOutStream;
     private final DataInputStream mmDataIS;
+    private final Context act;
 
-    public ConnectedThread(BluetoothSocket socket){
+    public ConnectedThread(BluetoothSocket socket, Context mainContext){
         mmSocket = socket;
         InputStream tmpIn = null;
         OutputStream tmpOut = null;
+        act = mainContext;
 
 
         try {
@@ -39,7 +44,6 @@ public class ConnectedThread extends Thread {
     public void run() {
         byte[] buffer = new byte[1024];
         int bytes;
-
         while (true) {
             try {
                 bytes = mmInStream.read(buffer);
@@ -48,20 +52,27 @@ public class ConnectedThread extends Thread {
                     System.arraycopy(buffer, 0, bfcopy, 0, bytes);
                     ByteArrayInputStream bais = new ByteArrayInputStream(bfcopy);
                     DataInputStream dis = new DataInputStream(bais);
-                    System.out.println("The value is: "+ dis.readUTF());
-                    System.out.println("The boolean value for cruis is: "+ dis.readBoolean());
-                    System.out.println("The boolean vlaue for pause is: "+ dis.readBoolean());
-                    System.out.println("The value of the speed is: "+ dis.readDouble());
-                    System.out.println("The value for acceleration is: "+ dis.readDouble());
-                    System.out.println("The value for the steering is: "+ dis.readDouble());
-                    System.out.println("The value of signal is: "+ dis.readInt());
-                    System.out.println("THe value of climate is: "+ dis.readInt());
-                    System.out.println("The value of visibility is: "+ dis.readInt());
-                    System.out.println("The value of feel is: "+ dis.readInt());
-                    System.out.println("THe value of severity is: "+ dis.readInt());
-                    System.out.println("The value of time is: "+ dis.readInt()+":"+dis.readInt()+"."+dis.readInt());
-                    System.out.println("The value of roadCondition: "+dis.readInt());
-                    System.out.println("The value of road type is: "+ dis.readInt());
+                    SimData temp = new SimData();
+                    temp.setGear(dis.readUTF());
+                    temp.setCruseControl(dis.readBoolean());
+                    temp.setPause(dis.readBoolean());
+                    temp.setSpeed(dis.readDouble());
+                    temp.setAcceleration(dis.readDouble());
+                    temp.setSteering(dis.readDouble());
+                    temp.setSignal(dis.readInt());
+                    temp.setClimate(dis.readInt());
+                    temp.setClimateVisibility(dis.readInt());
+                    temp.setClimateDensity(dis.readInt());
+                    temp.setRoadSeverity(dis.readInt());
+                    temp.setTimeHour(dis.readInt());
+                    temp.setTimeMinute(dis.readInt());
+                    temp.setTimeSecond(dis.readInt());
+                    temp.setRoadCondition(dis.readInt());
+                    temp.setRoadType(dis.readInt());
+                    System.out.println(temp.toString());
+
+                    UserDatabaseHelper inputData = new UserDatabaseHelper(act);
+                    inputData.insertSimData(temp);
                 }
 
 
