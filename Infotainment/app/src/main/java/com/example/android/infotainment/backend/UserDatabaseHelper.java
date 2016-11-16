@@ -36,12 +36,15 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
                 "steering single, " +
                 "acceleration single, " +
                 "climate int, " +
-                "climateVisibility single, " +
+                "climateVisibility int, " +
+                "climateDensity int, " +
+                "roadSeverity int, " +
                 "timeHour int, " +
                 "timeMinute int, " +
                 "timeSecond int, " +
                 "timeAM int, " +
                 "roadCondition int, " +
+                "roadType int, " +
                 "heartRate int " +
                 ")"
         );
@@ -65,10 +68,13 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         values.put("acceleration", simData.getAcceleration());
         values.put("climate", simData.getClimate());
         values.put("climateVisibility", simData.getClimateVisibility());
+        values.put("climateDensity", simData.getClimateDensity());
+        values.put("roadSeverity", simData.getRoadSeverity());
         values.put("timeHour", simData.getTimeHour());
         values.put("timeMinute", simData.getTimeMinute());
         values.put("timeSecond", simData.getTimeSecond());
         values.put("roadCondition", simData.getRoadCondition());
+        values.put("roadType", simData.getRoadType());
         values.put("heartRate", simData.getHeartRate());
         SQLiteDatabase db = getWritableDatabase();
         db.insert("Data", null, values);
@@ -95,7 +101,7 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
             simData.setSteering(cursor.getDouble(cursor.getColumnIndex("steering")));
             simData.setAcceleration(cursor.getDouble(cursor.getColumnIndex("acceleration")));
             simData.setClimate(cursor.getInt(cursor.getColumnIndex("climate")));
-            simData.setClimateVisibility(cursor.getDouble(cursor.getColumnIndex("climateVisibility")));
+            simData.setClimateVisibility(cursor.getInt(cursor.getColumnIndex("climateVisibility")));
             simData.setTimeHour(cursor.getInt(cursor.getColumnIndex("timeHour")));
             simData.setTimeMinute(cursor.getInt(cursor.getColumnIndex("timeMinute")));
             simData.setTimeSecond(cursor.getInt(cursor.getColumnIndex("timeSecond")));

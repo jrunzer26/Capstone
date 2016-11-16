@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.util.Log;
 
 import com.example.android.infotainment.backend.ConnectedThread;
@@ -20,10 +21,12 @@ public class ThreadBeConnected extends Thread{
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothSocket bluetoothSocket = null;
     private UUID myUUID;
+    private Context holder;
     public ConnectedThread connectedThread;
 
-    public ThreadBeConnected(String myName, UUID myUUID){
+    public ThreadBeConnected(String myName, UUID myUUID, Context temp){
         try {
+            holder = temp;
             mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
             bluetoothServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(myName, myUUID);
             Log.i("Attempting", "Waiting "+bluetoothServerSocket);
@@ -40,7 +43,7 @@ public class ThreadBeConnected extends Thread{
                 bluetoothSocket = bluetoothServerSocket.accept();
                 BluetoothDevice remoteDevice = bluetoothSocket.getRemoteDevice();
                 Log.i("Connected", "Device name: "+ remoteDevice.getName());
-                connectedThread = new ConnectedThread(bluetoothSocket);
+                connectedThread = new ConnectedThread(bluetoothSocket, holder);
                 connectedThread.start();
             } catch (Exception e){
                 Log.e("Error", "Not Correct, in the run of ThreadConnect class, please give up");
