@@ -70,7 +70,9 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         values.put("timeSecond", simData.getTimeSecond());
         values.put("roadCondition", simData.getRoadCondition());
         values.put("heartRate", simData.getHeartRate());
-        this.getWritableDatabase().insert("Data", null, values);
+        SQLiteDatabase db = getWritableDatabase();
+        db.insert("Data", null, values);
+        db.close();
     }
 
     /**
@@ -80,7 +82,8 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
     public ArrayList<SimData> getData() {
         ArrayList<SimData> simDatas = new ArrayList<>();
         String[] where = new String[0];
-        Cursor cursor = this.getReadableDatabase().rawQuery("SELECT * from Data", where);
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * from Data", where);
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             SimData simData = new SimData();
@@ -102,6 +105,8 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
             // next line in database
             cursor.moveToNext();
         }
+        cursor.close();
+        db.close();
         return simDatas;
     }
 
@@ -123,11 +128,15 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
      */
     public int getNextTripID() {
         String[] where = new String[0];
-        Cursor cursor = this.getReadableDatabase().rawQuery("SELECT tripID from Data", where);
+        SQLiteDatabase db = getReadableDatabase();
+        int id = 0;
+        Cursor cursor = db.rawQuery("SELECT tripID from Data", where);
         if (cursor.getCount() > 0) {
             cursor.moveToLast();
-            return cursor.getInt(0) + 1;
-        } else
-            return 0;
+            id = cursor.getInt(0) + 1;
+        }
+        db.close();
+        cursor.close();
+        return id;
     }
 }
