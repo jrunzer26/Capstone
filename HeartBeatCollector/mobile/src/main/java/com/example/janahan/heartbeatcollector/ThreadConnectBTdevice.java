@@ -1,4 +1,4 @@
-package com.example.android.simulator;
+package com.example.janahan.heartbeatcollector;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -25,6 +25,7 @@ public class ThreadConnectBTdevice extends Thread {
 
     public void run() {
         try {
+            System.out.println(bluetoothSocket.toString());
             bluetoothSocket.connect();
             System.out.println("The bluetooth socket is: "+bluetoothSocket.toString());
             connectedThread = new ConnectedThread(bluetoothSocket);

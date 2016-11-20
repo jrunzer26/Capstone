@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         View view = findViewById(android.R.id.content);
-        myUUID = UUID.fromString("6804a970-a361-11e6-bdf4-0800200c9a66");
+        myUUID = UUID.fromString("5fadfabe-166f-4607-a872-4a84c3546adb");
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
 
