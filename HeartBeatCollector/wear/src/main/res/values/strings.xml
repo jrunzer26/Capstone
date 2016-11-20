@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">HeartBeatCollector</string>
+    <string name="hello_world">Hello World!</string>
+    <string name="title_activity_main1">Main1Activity</string>
+</resources>
