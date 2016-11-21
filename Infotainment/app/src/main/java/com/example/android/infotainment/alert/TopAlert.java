@@ -25,7 +25,8 @@ public class TopAlert implements Alert {
     private WindowManager.LayoutParams defaultParams;
     private View alertView;
     private LayoutInflater layoutInflater;
-
+    private String message;
+    private int type;
     /**
      * Creates an alert that is shown at the top of the device.
      * @param context the current context
@@ -33,6 +34,8 @@ public class TopAlert implements Alert {
      * @param message the message to display
      */
     public TopAlert(Context context, int type, String message) {
+        this.message = message;
+        this.type = type;
         // get the window manager, and set the default parameters for the alert layout
         windowManager = (WindowManager) context.getSystemService(Activity.WINDOW_SERVICE);
         defaultParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT, 100, WindowManager.LayoutParams.TYPE_PHONE,
@@ -95,5 +98,29 @@ public class TopAlert implements Alert {
         }
     }
 
+    @Override
+    public boolean equals(Object object) {
+        if (object == null)
+            return false;
+        else if(!(object instanceof TopAlert)) {
+            return false;
+        } else {
+            TopAlert topAlert = (TopAlert) object;
+            if (this == topAlert) {
+                return true;
+            } else if(this.message.equals(topAlert.getMessage()) && this.type == topAlert.getType()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
+
+    public String getMessage() {
+        return message;
+    }
+
+    public int getType() {
+        return type;
+    }
 }
