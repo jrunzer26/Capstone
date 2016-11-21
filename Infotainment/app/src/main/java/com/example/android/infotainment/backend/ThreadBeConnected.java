@@ -7,8 +7,6 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.android.infotainment.backend.ConnectedThread;
-
 import java.io.IOException;
 import java.util.UUID;
 
@@ -22,9 +20,12 @@ public class ThreadBeConnected extends Thread{
     private BluetoothSocket bluetoothSocket = null;
     private UUID myUUID;
     private Context holder;
-    public ConnectedThread connectedThread;
+    private DataParser dataParser;
+    private boolean car;
 
-    public ThreadBeConnected(String myName, UUID myUUID, Context temp){
+    public ThreadBeConnected(String myName, UUID myUUID, Context temp, DataParser dataParser, boolean car){
+        this.dataParser = dataParser;
+        this.car = car;
         try {
             holder = temp;
             mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -43,8 +44,11 @@ public class ThreadBeConnected extends Thread{
                 bluetoothSocket = bluetoothServerSocket.accept();
                 BluetoothDevice remoteDevice = bluetoothSocket.getRemoteDevice();
                 Log.i("Connected", "Device name: "+ remoteDevice.getName());
-                connectedThread = new ConnectedThread(bluetoothSocket, holder);
-                connectedThread.start();
+                if (car) {
+                    new CarBluetoothHandler(bluetoothSocket, holder, dataParser).start();
+                } else {
+                    new WatchBluetoothHandler(bluetoothSocket, holder, dataParser).start();
+                }
             } catch (Exception e){
                 Log.e("Error", "Not Correct, in the run of ThreadConnect class, please give up");
             }

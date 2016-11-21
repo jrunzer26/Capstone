@@ -1,4 +1,4 @@
-package com.example.android.infotainment.backend;
+package com.example.android.infotainment.backend.models;
 
 /**
  * Created by 100520993 on 11/15/2016.
@@ -26,9 +26,6 @@ public class SimData {
     private int roadCondition = 0;
     private int roadType =0;
 
-    private int heartRate = 0;
-
-    private int tripID = 0;
 
     /**
      * Outputs the state of the SimData.
@@ -37,7 +34,6 @@ public class SimData {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("trip id: ").append(tripID).append("\n");
         stringBuilder.append("speed: ").append(speed).append("\n");
         stringBuilder.append("gear: ").append(gear).append("\n");
         stringBuilder.append("cruseControl: ").append(cruseControl).append("\n");
@@ -54,7 +50,6 @@ public class SimData {
         stringBuilder.append("timeSecond: ").append(timeSecond).append("\n");
         stringBuilder.append("roadCondition: ").append(roadCondition).append("\n");
         stringBuilder.append("roadType: ").append(roadType).append("\n");
-        stringBuilder.append("heartRate: ").append(heartRate).append("\n");
         return stringBuilder.toString();
     }
 
@@ -174,19 +169,7 @@ public class SimData {
 
     public int getRoadType() {return roadType;}
 
-    public int getHeartRate() {
-        return heartRate;
-    }
 
-    public void setHeartRate(int heartRate) {
-        this.heartRate = heartRate;
-    }
 
-    public int getTripID() {
-        return tripID;
-    }
 
-    public void setTripID(int tripID) {
-        this.tripID = tripID;
-    }
 }

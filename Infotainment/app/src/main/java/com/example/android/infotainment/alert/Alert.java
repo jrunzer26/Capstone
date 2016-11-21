@@ -7,4 +7,5 @@ package com.example.android.infotainment.alert;
 public interface Alert {
     void show();
     void hide();
+    String getMessage();
 }
