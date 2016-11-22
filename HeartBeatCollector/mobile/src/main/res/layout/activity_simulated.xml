@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
+
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="205dp"
+            android:id="@+id/seekBar_heartRate"
+            android:paddingEnd="60dip"
+            android:paddingStart="60dip" />
+
+        <TextView
+            android:text="70"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView_currentHeartRate"
+            android:layout_alignBaseline="@+id/textView3"
+            android:layout_alignBottom="@+id/textView3"
+            android:layout_centerHorizontal="true"
+            android:textSize="28sp" />
+
+        <TextView
+            android:text="Heart Rate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView"
+            android:layout_below="@+id/seekBar_heartRate"
+            android:layout_centerHorizontal="true" />
+
+        <TextView
+            android:text="40"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView2"
+            android:layout_marginStart="49dp"
+            android:layout_marginBottom="22dp"
+            android:textSize="28sp"
+            android:layout_alignBottom="@+id/seekBar_heartRate"
+            android:layout_alignParentStart="true" />
+
+        <TextView
+            android:text="170"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView3"
+            android:layout_marginEnd="56dp"
+            android:textSize="28sp"
+            android:layout_alignBaseline="@+id/textView2"
+            android:layout_alignBottom="@+id/textView2"
+            android:layout_alignParentEnd="true" />
+    </RelativeLayout>
+</LinearLayout>
