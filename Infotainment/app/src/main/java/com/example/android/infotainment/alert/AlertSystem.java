@@ -14,6 +14,8 @@ public class AlertSystem {
     public static final int ALERT_TYPE_WARNING = 1;
     public static final int ALERT_TYPE_FATAL = 2;
     private Alert currentAlert = null; //stores the current alert
+    private int extendedTime = 0;
+    private final int ALERT_TIME = 10000; // seconds
 
     // Default messages in strings
 
@@ -33,12 +35,23 @@ public class AlertSystem {
      * @param type the type of warning
      * @param message
      */
-    public void alert(Context context, int type, String message){
-        if (currentAlert != null) {
-            currentAlert.hide();
+    public void alert(final Context context, int type, String message){
+
+        if (currentAlert == null) {
+            currentAlert = new TopAlert(context, type, message);
+            currentAlert.show();
+            new Timer(currentAlert).start();
+        } else {
+            if (!currentAlert.getMessage().equals(message)) {
+                currentAlert.hide();
+                currentAlert = new TopAlert(context, type, message);
+                currentAlert.show();
+                new Timer(currentAlert).start();
+            } else {
+                System.out.println("extending time");
+                extendedTime = ALERT_TIME;
+            }
         }
-        currentAlert = new TopAlert(context, type, message);
-        currentAlert.show();
     }
 
     /**
@@ -51,4 +64,34 @@ public class AlertSystem {
     public void alert(Context context, int type, String message, int heartRate) {
         // TODO: 10/31/2016 alert system
     }
+
+    /**
+     * Makes the alerts dissapear after a set amount of time unless the alert is created again.
+     */
+    private class Timer extends Thread {
+        private Alert alert;
+        public Timer (Alert alert) {
+            this.alert = alert;
+        }
+        @Override
+        public void run() {
+            super.run();
+            extendedTime = ALERT_TIME;
+            System.out.println("starting timer: " + extendedTime);
+            while(extendedTime > 0) {
+                try {
+                    sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                extendedTime -= ALERT_TIME;
+                System.out.println("extended time: " + extendedTime);
+            }
+            if (currentAlert != null && currentAlert.equals(alert)) {
+                currentAlert.hide();
+                currentAlert = null;
+            }
+        }
+    }
 }
+
