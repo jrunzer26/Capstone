@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
+        Log.e("Stop", "In the stop funciton");
         super.onStop();
         myThreadConnectBTdevice.cancel();
     }
