@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     ThreadConnectBTdevice myThreadConnectBTdevice;
     BluetoothAdapter bluetoothAdapter;
     private Simulator sim;
+    Button connectButton;
 
 
     @Override
@@ -67,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         setup();
 
+
         sim = new Simulator(this, view, myThreadConnectBTdevice);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -78,6 +81,8 @@ public class MainActivity extends AppCompatActivity {
 
         getSupportActionBar().hide();
 
+        connectButton = (Button)findViewById(R.id.button_reConnect);
+
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -86,6 +91,11 @@ public class MainActivity extends AppCompatActivity {
         }, 0, 5000);
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        myThreadConnectBTdevice.cancel();
+    }
 
     public void setup() {
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();

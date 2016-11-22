@@ -62,14 +62,6 @@
             android:layout_weight="1"
             android:onClick="pause"/>
 
-        <Button
-            android:text="Send"
-            android:onClick="sendMessage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/sendMessage_button"
-            android:layout_weight="1" />
-
     </LinearLayout>
 
     <RelativeLayout android:id="@+id/relativeLayout_vehicleSimulatorDrive_accelerationBar"
@@ -201,5 +193,19 @@
                 android:layout_height="wrap_content"
                 android:text="@string/vehicleSimulatorDrive_changeRight"/>
         </LinearLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:text="Connect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="setup"
+            android:id="@+id/button_reConnect"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true" />
     </RelativeLayout>
 </LinearLayout>

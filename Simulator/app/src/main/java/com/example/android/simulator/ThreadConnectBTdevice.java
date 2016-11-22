@@ -3,6 +3,7 @@ package com.example.android.simulator;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
+import android.widget.Button;
 
 import java.util.UUID;
 
@@ -14,6 +15,7 @@ public class ThreadConnectBTdevice extends Thread {
     private BluetoothSocket bluetoothSocket =null;
     private final BluetoothDevice bluetoothDevice;
     public ConnectedThread connectedThread;
+    public Button reCon_Button;
 
     public ThreadConnectBTdevice(BluetoothDevice device, UUID myUUID){
         bluetoothDevice = device;
@@ -26,9 +28,7 @@ public class ThreadConnectBTdevice extends Thread {
     public void run() {
         try {
             bluetoothSocket.connect();
-            System.out.println("The bluetooth socket is: "+bluetoothSocket.toString());
             connectedThread = new ConnectedThread(bluetoothSocket);
-            System.out.println("The connected that is: "+ connectedThread.toString());
             connectedThread.start();
         } catch (Exception e) {
             Log.e("Error", "Could not connect to the server");
@@ -37,6 +37,9 @@ public class ThreadConnectBTdevice extends Thread {
 
     public void cancel() {
         try {
+            String temp = "close";
+            connectedThread.write(temp.getBytes());
+            connectedThread.cancel();
             bluetoothSocket.close();
         } catch (Exception e) { }
     }
