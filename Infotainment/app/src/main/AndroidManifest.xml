@@ -13,6 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".backend.ConnectingActivity">
+            <!-- For the real implementation -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -20,6 +21,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity"></activity>
+        <activity android:name=".mock.MockMainActivity"/>
+        <activity android:name=".mock.MockConnectingActivity">
+            <!-- Insert Intent Filter From Connecting activity here for simulation -->
+        </activity>
     </application>
 
 </manifest>
