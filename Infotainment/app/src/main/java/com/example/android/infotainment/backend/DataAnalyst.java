@@ -8,6 +8,7 @@ import com.example.android.infotainment.backend.models.SimData;
 import com.example.android.infotainment.backend.models.UserData;
 
 import java.util.LinkedList;
+import java.lang.Math;
 
 
 /**
@@ -19,6 +20,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private AlertSystem alertSystem;
     private UserDatabaseHelper userDatabaseHelper;
     private LinkedList<UserData> userDataLinkedList;
+    private int userAverage = 70;
+
 
     public DataAnalyst(Context applicationContext) {
         this.applicationContext = applicationContext;
@@ -46,10 +49,33 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 userDataLinkedList.remove(0);
                 SensorData sensorData = userData.getSensorData();
                 SimData simData = userData.getSimData();
-                if (simData.getSpeed() > 120) {
+                int deviation = determineHRDeviation(sensorData);
+                System.out.println(deviation);
+                if(deviation >= 20) { //HR Deviation values come from: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2653595/
+                    System.out.println("High deviation occurred");
+                } else if (deviation>=10 && deviation <20) {
+                    System.out.println("Moderate deviation occurred");
+                } else {
+                    System.out.println("No deviation occurred");
+                }
+                if (simData.getSpeed() > 120) { //TODO: Change this statement to work off of the results from determineHRDeviation
                     alertSystem.alert(applicationContext, AlertSystem.ALERT_TYPE_FATAL, "SLOW DOWN!");
                 }
             }
         }
+    }
+
+    /**
+     * Determines deviations in the driver's behaviours
+     * TODO: This function should use patterndata matching or alternative learning algorithms in the next semester
+     * @param sensorData: The sensor data
+     * @return Deviations in the heart rate
+     */
+    private int determineHRDeviation(SensorData sensorData) {
+        int stdDev = 0;
+        //Determine the estimated weighted average
+        userAverage = (int)Math.round((0.9*userAverage)+(0.1*sensorData.getHeartRate()));
+        stdDev = Math.abs(sensorData.getHeartRate() - userAverage);
+        return stdDev;
     }
 }
