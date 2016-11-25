@@ -47,6 +47,8 @@ public class MockCarBluetoothHandler {
         speed70.setPause(false);
         simDatas.add(speed70);
         simDatas.add(speed70);
-        simDatas.add(new SimData());
+        SimData speedOver = new SimData();
+        speedOver.setSpeed(150);
+        simDatas.add(speedOver);
     }
 }

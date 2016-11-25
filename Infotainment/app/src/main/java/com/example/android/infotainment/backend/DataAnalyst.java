@@ -25,7 +25,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
     public DataAnalyst(Context applicationContext) {
         this.applicationContext = applicationContext;
-        alertSystem = new AlertSystem();
+        alertSystem = new AlertSystem(applicationContext);
         userDatabaseHelper = new UserDatabaseHelper(applicationContext);
         userDataLinkedList = new LinkedList<>();
     }
