@@ -38,6 +38,8 @@ public class ConnectedThread extends Thread {
         while (true) {
             try {
                 bytes = mmInStream.read(buffer);
+                String readMessage = new String(buffer, 0, bytes);
+                System.out.println(readMessage);
             } catch (Exception e) {}
         }
     }

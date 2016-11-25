@@ -10,6 +10,8 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by 100522058 on 11/12/2016.
@@ -39,6 +41,16 @@ public class CarBluetoothHandler extends Thread {
     }
 
     public void run() {
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    String keepAlive = "~";
+                    mmOutStream.write(keepAlive.getBytes());
+                } catch (IOException e) {}
+            }
+        }, 0, 1000);
+
         byte[] buffer = new byte[1024];
         int bytes;
         while (true) {
@@ -67,6 +79,7 @@ public class CarBluetoothHandler extends Thread {
                     temp.setRoadCondition(dis.readInt());
                     temp.setRoadType(dis.readInt());
                     dataParser.sendSimData(temp);
+                    System.out.println(temp);
                 }
 
                // String mes = new String(buffer,0,7);
