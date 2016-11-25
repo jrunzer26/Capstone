@@ -11,6 +11,8 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by 100522058 on 11/12/2016.
@@ -40,6 +42,17 @@ public class WatchBluetoothHandler extends Thread {
     }
 
     public void run() {
+
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    String keepAlive = "~";
+                    mmOutStream.write(keepAlive.getBytes());
+                } catch (IOException e) {}
+            }
+        }, 0, 1000);
+
         byte[] buffer = new byte[1024];
         int bytes;
         while (true) {
