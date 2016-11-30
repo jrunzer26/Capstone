@@ -51,41 +51,39 @@ public class CarBluetoothHandler extends Thread {
             }
         }, 0, 1000);
 
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[2048];
         int bytes;
         while (true) {
             try {
+                System.out.println("<<<<<<<<<CAR>>>>>>>>>>>>>>>>");
                 bytes = mmInStream.read(buffer);
                 if(bytes> 0){
                     byte[] bfcopy = new byte[bytes];
-                    System.arraycopy(buffer, 0, bfcopy, 0, bytes);
-                    ByteArrayInputStream bais = new ByteArrayInputStream(bfcopy);
-                    DataInputStream dis = new DataInputStream(bais);
-                    SimData temp = new SimData();
-                    temp.setGear(dis.readUTF());
-                    temp.setCruseControl(dis.readBoolean());
-                    temp.setPause(dis.readBoolean());
-                    temp.setSpeed(dis.readDouble());
-                    temp.setAcceleration(dis.readDouble());
-                    temp.setSteering(dis.readDouble());
-                    temp.setSignal(dis.readInt());
-                    temp.setClimate(dis.readInt());
-                    temp.setClimateVisibility(dis.readInt());
-                    temp.setClimateDensity(dis.readInt());
-                    temp.setRoadSeverity(dis.readInt());
-                    temp.setTimeHour(dis.readInt());
-                    temp.setTimeMinute(dis.readInt());
-                    temp.setTimeSecond(dis.readInt());
-                    temp.setRoadCondition(dis.readInt());
-                    temp.setRoadType(dis.readInt());
-                    dataParser.sendSimData(temp);
-                    System.out.println(temp);
+                    for (int i = 0; i < 4; i++) { // problem with syncing threads
+                        System.out.println(bfcopy.length);
+                        System.arraycopy(buffer, 0, bfcopy, 0, bytes);
+                        ByteArrayInputStream bais = new ByteArrayInputStream(bfcopy);
+                        DataInputStream dis = new DataInputStream(bais);
+                        SimData temp = new SimData();
+                        temp.setGear(dis.readUTF());
+                        temp.setCruseControl(dis.readBoolean());
+                        temp.setPause(dis.readBoolean());
+                        temp.setSpeed(dis.readDouble());
+                        temp.setAcceleration(dis.readDouble());
+                        temp.setSteering(dis.readDouble());
+                        temp.setSignal(dis.readInt());
+                        temp.setClimate(dis.readInt());
+                        temp.setClimateVisibility(dis.readInt());
+                        temp.setClimateDensity(dis.readInt());
+                        temp.setRoadSeverity(dis.readInt());
+                        temp.setTimeHour(dis.readInt());
+                        temp.setTimeMinute(dis.readInt());
+                        temp.setTimeSecond(dis.readInt());
+                        temp.setRoadCondition(dis.readInt());
+                        temp.setRoadType(dis.readInt());
+                        dataParser.sendSimData(temp);
+                    }
                 }
-
-               // String mes = new String(buffer,0,7);
-                //System.out.println("The gear is: "+ mes);
-                //String mes2 = new String(buffer,7,bytes);
-                //System.out.println("The speed is: "+ mes2);
             } catch (IOException e) {
                 break;
             }

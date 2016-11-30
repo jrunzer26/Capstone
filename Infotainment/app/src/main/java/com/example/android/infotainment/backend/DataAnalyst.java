@@ -9,6 +9,9 @@ import com.example.android.infotainment.backend.models.UserData;
 
 import java.util.LinkedList;
 import java.lang.Math;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 /**
@@ -19,7 +22,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private Context applicationContext;
     private AlertSystem alertSystem;
     private UserDatabaseHelper userDatabaseHelper;
-    private LinkedList<UserData> userDataLinkedList;
+    private Queue<UserData> userDataLinkedList;
     private int userAverage = 70;
 
 
@@ -27,12 +30,11 @@ public class DataAnalyst extends Thread implements DataReceiver {
         this.applicationContext = applicationContext;
         alertSystem = new AlertSystem(applicationContext);
         userDatabaseHelper = new UserDatabaseHelper(applicationContext);
-        userDataLinkedList = new LinkedList<>();
+        userDataLinkedList = new ConcurrentLinkedQueue<>();
     }
 
     @Override
     public void onReceive(UserData userData) {
-        // TODO: 10/31/2016 implement processing of watch and car data
         userDataLinkedList.add(userData);
     }
 
@@ -44,23 +46,23 @@ public class DataAnalyst extends Thread implements DataReceiver {
         while (true) {
             // check to see if data is available
             if (userDataLinkedList.size() > 0) {
-                UserData userData = userDataLinkedList.get(0);
+                UserData userData = userDataLinkedList.remove();
                 System.out.println(userData.toString());
-                userDataLinkedList.remove(0);
                 SensorData sensorData = userData.getSensorData();
                 SimData simData = userData.getSimData();
                 int deviation = determineHRDeviation(sensorData);
                 System.out.println(deviation);
                 if(deviation >= 20) { //HR Deviation values come from: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2653595/
                     System.out.println("High deviation occurred");
+                    if (simData.getSpeed() > 120) { //TODO: Change this statement to work off of the results from determineHRDeviation
+                        alertSystem.alert(applicationContext, AlertSystem.ALERT_TYPE_FATAL, "SLOW DOWN!");
+                    }
                 } else if (deviation>=10 && deviation <20) {
                     System.out.println("Moderate deviation occurred");
                 } else {
                     System.out.println("No deviation occurred");
                 }
-                if (simData.getSpeed() > 120) { //TODO: Change this statement to work off of the results from determineHRDeviation
-                    alertSystem.alert(applicationContext, AlertSystem.ALERT_TYPE_FATAL, "SLOW DOWN!");
-                }
+
             }
         }
     }

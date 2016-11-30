@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         watchUUID = UUID.fromString("6804a970-a361-11e6-bdf4-0800200c9a66");
         carUUID = UUID.fromString("5fadfabe-166f-4607-a872-4a84c3546adb");
         watchName = watchUUID.toString();
-        watchName = carUUID.toString();
+        carName = carUUID.toString();
         // init threads and bluetooth connections
         threadSetup();
         bluetoothSetup();
@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void bluetoothSetup(){
         watchThread = new ThreadBeConnected(watchName, watchUUID, MainActivity.this, dataParser, false);
-        carThread = new ThreadBeConnected(watchName, carUUID, MainActivity.this, dataParser, true);
+        carThread = new ThreadBeConnected(carName, carUUID, MainActivity.this, dataParser, true);
         watchThread.start();
         carThread.start();
     }

@@ -11,6 +11,8 @@ import com.example.android.infotainment.backend.models.SimData;
 import com.example.android.infotainment.backend.models.UserData;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 
 /** Parses the data from the watch heart rate and the car data **/
 public class DataParser {
@@ -18,8 +20,8 @@ public class DataParser {
     private UserDatabaseHelper userDatabaseHelper;
     private int tripID;
     // buffers
-    private ArrayList<SimData> carData;
-    private ArrayList<SensorData> heartRateData;
+    private Queue<SimData> carData;
+    private Queue<SensorData> heartRateData;
 
     /**
      * Constructs the Parser
@@ -28,8 +30,8 @@ public class DataParser {
     public DataParser(DataReceiver dataReceiver, Context context, int tripID) {
         this.dataReceiver = dataReceiver;
         userDatabaseHelper = new UserDatabaseHelper(context);
-        carData = new ArrayList<>(10);
-        heartRateData = new ArrayList<>(10);
+        carData = new LinkedList<>();
+        heartRateData = new LinkedList<>();
         this.tripID = tripID;
     }
 
@@ -38,6 +40,10 @@ public class DataParser {
      * @param simData the sim data
      */
     public void sendSimData(SimData simData) {
+        if (carData.size() == 5) {
+            carData.remove();
+        }
+        System.out.println("car length: " + carData.size());
         carData.add(simData);
         trySend();
     }
@@ -59,6 +65,8 @@ public class DataParser {
      * @param sensorData the data
      */
     public void sendHRData(SensorData sensorData) {
+        if (heartRateData.size() == 5)
+            heartRateData.remove();
         heartRateData.add(sensorData);
         trySend();
     }
@@ -69,10 +77,8 @@ public class DataParser {
      */
     private UserData createUser() {
         UserData userData = new UserData();
-        userData.setSimData(carData.get(0));
-        userData.setSensorData(heartRateData.get(0));
-        carData.remove(0);
-        heartRateData.remove(0);
+        userData.setSimData(carData.remove());
+        userData.setSensorData(heartRateData.remove());
         return userData;
     }
 

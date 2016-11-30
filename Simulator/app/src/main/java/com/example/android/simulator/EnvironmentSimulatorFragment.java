@@ -25,7 +25,13 @@ import java.util.TimerTask;
 public class EnvironmentSimulatorFragment extends Fragment {
 
     private Simulator sim;
-    private int seconds;
+    public static int seconds;
+    public static int hour;
+    public static int minute;
+    public static int visibility;
+    public static int climateFeel;
+    public static int severity;
+
 
 
     @Override
@@ -39,6 +45,12 @@ public class EnvironmentSimulatorFragment extends Fragment {
 
         TabHost host = (TabHost) view.findViewById(R.id.tabhost_environmentsimulator_tabhost);
         host.setup();
+        seconds = 0;
+        hour = 0;
+        minute = 0;
+        visibility = 0;
+        climateFeel = 0;
+        severity = 0;
 
         sim = ((MainActivity)this.getActivity()).getSimulator();
 
@@ -59,7 +71,7 @@ public class EnvironmentSimulatorFragment extends Fragment {
         seekBarVisibility.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                sim.setVisibility(progress);
+                visibility = progress;
             }
 
             @Override
@@ -73,11 +85,13 @@ public class EnvironmentSimulatorFragment extends Fragment {
             }
         });
 
+
+
         SeekBar seekBarDensity = (SeekBar)view.findViewById(R.id.seekbar_environmentSimulatorClimate_density);
         seekBarDensity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                sim.setClimateFeel(progress);
+                climateFeel = progress;
             }
 
             @Override
@@ -95,7 +109,7 @@ public class EnvironmentSimulatorFragment extends Fragment {
         seekBarSeverity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                sim.setSeverity(progress);
+                severity = progress;
             }
 
             @Override
@@ -109,13 +123,15 @@ public class EnvironmentSimulatorFragment extends Fragment {
             }
         });
 
-        timerPicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
-            public void onTimeChanged(TimePicker view, int hourOfDay, int minute){
-                seconds = 0;
-                sim.setHour(hourOfDay);
-                sim.setMin(minute);
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                sim.setSeverity(severity);
+                sim.setClimateFeel(climateFeel);
+                sim.setVisibility(visibility);
             }
-        });
+        }, 0, 1000);
+
 
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -140,9 +156,8 @@ public class EnvironmentSimulatorFragment extends Fragment {
                                 timerPicker.setMinute(min+1);
                             }
                         }
-                        sim.setHour(timerPicker.getHour());
-                        sim.setMin(timerPicker.getMinute());
-                        sim.setSecond(seconds);
+                        hour = timerPicker.getHour();
+                        minute = timerPicker.getMinute();
                     }
                 });
 
