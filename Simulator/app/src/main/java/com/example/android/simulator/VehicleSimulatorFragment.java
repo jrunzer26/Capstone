@@ -60,8 +60,6 @@ public class VehicleSimulatorFragment extends Fragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 seekBarAccValue.setText(String.valueOf(ACC_MIN+(progress * STEP))+" km/h/s");
-                String temp = seekBarAccValue.getText().toString();
-                sim.setAcceleration(Double.parseDouble(temp.substring(0, temp.indexOf(' '))));
             }
 
             @Override
@@ -75,11 +73,17 @@ public class VehicleSimulatorFragment extends Fragment {
             }
         });
 
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                sim.setAcceleration(Double.parseDouble(seekBarAccValue.getText().toString().substring(0, seekBarAccValue.getText().toString().indexOf(' '))));
+            }
+        }, 0, 1000);
+
         seekBarDeg.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 seekBarDegValue.setText(String.valueOf(DEG_MIN+(progress * STEP))+" Deg");
-                sim.setSteering((DEG_MIN)+(progress*STEP));
             }
 
             @Override
@@ -93,6 +97,13 @@ public class VehicleSimulatorFragment extends Fragment {
                // sim.setSteering(degValue);
             }
         });
+
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                sim.setSteering(Double.parseDouble(seekBarDegValue.getText().toString().substring(0, seekBarDegValue.getText().toString().indexOf(' '))));
+            }
+        }, 0, 1000);
 
         TabHost host = (TabHost) view.findViewById(R.id.tabhost_vehiclesimulator_tabs);
         host.setup();

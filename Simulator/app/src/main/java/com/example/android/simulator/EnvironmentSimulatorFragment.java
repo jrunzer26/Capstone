@@ -26,6 +26,10 @@ public class EnvironmentSimulatorFragment extends Fragment {
 
     private Simulator sim;
     private int seconds;
+    private int visibility;
+    private int climateFeel;
+    private int severity;
+
 
 
     @Override
@@ -59,7 +63,7 @@ public class EnvironmentSimulatorFragment extends Fragment {
         seekBarVisibility.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                sim.setVisibility(progress);
+                visibility = progress;
             }
 
             @Override
@@ -73,11 +77,13 @@ public class EnvironmentSimulatorFragment extends Fragment {
             }
         });
 
+
+
         SeekBar seekBarDensity = (SeekBar)view.findViewById(R.id.seekbar_environmentSimulatorClimate_density);
         seekBarDensity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                sim.setClimateFeel(progress);
+                climateFeel = progress;
             }
 
             @Override
@@ -95,7 +101,7 @@ public class EnvironmentSimulatorFragment extends Fragment {
         seekBarSeverity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                sim.setSeverity(progress);
+                severity = progress;
             }
 
             @Override
@@ -108,6 +114,15 @@ public class EnvironmentSimulatorFragment extends Fragment {
                 // TODO Auto-generated method stub
             }
         });
+
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                sim.setSeverity(severity);
+                sim.setClimateFeel(climateFeel);
+                sim.setVisibility(visibility);
+            }
+        }, 0, 1000);
 
         timerPicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
             public void onTimeChanged(TimePicker view, int hourOfDay, int minute){

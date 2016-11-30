@@ -54,7 +54,6 @@ public class SimulatedActivity extends Activity{
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 seekBarHeartValue.setText(String.valueOf(HEART_MIN+(progress * STEP)));
-                sim.setHeartRate(Integer.parseInt(seekBarHeartValue.getText().toString()));
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -67,7 +66,12 @@ public class SimulatedActivity extends Activity{
             }
         });
 
-
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                sim.setHeartRate(Integer.parseInt(seekBarHeartValue.getText().toString()));
+            }
+        }, 0, 1000);
 
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override

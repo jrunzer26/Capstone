@@ -5,13 +5,14 @@ import com.example.janahan.heartbeatcollector.ThreadConnectBTdevice;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Created by 100522058 on 11/20/2016.
  */
 
 public class SensorData implements  Runnable{
-    private int heartRate = 70;
+    private ArrayList<Integer> heartRate = new ArrayList<>();
     private ThreadConnectBTdevice bluetooth;
 
     public SensorData(ThreadConnectBTdevice bluetooth) {
@@ -19,10 +20,10 @@ public class SensorData implements  Runnable{
     }
 
     public void setHeartRate(int heartRate) {
-        this.heartRate = heartRate;
+        this.heartRate.add(heartRate);
     }
     public int getHeartRate() {
-        return heartRate;
+        return heartRate.get(0);
     }
 
     @Override
@@ -34,17 +35,19 @@ public class SensorData implements  Runnable{
     public void run() {
         ByteArrayOutputStream boas = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(boas);
+        for(int i = 0; i < 5; i++) {
+            try {
+                dos.writeInt(heartRate.get(i));
 
-        try {
-            dos.writeInt(heartRate);
-
-            byte[] bytes = boas.toByteArray();
-            if(bluetooth.connectedThread != null){
-                System.out.print("The heart rate is: "+ heartRate);
-                bluetooth.connectedThread.write(bytes);
-            } else {
-                System.out.println("There is no connection avaible. Please try again later!");
-            }
-        } catch(IOException e) {e.printStackTrace();}
+                byte[] bytes = boas.toByteArray();
+                if(bluetooth.connectedThread != null){
+                    System.out.print("The heart rate is: "+ heartRate);
+                    bluetooth.connectedThread.write(bytes);
+                } else {
+                    System.out.println("There is no connection avaible. Please try again later!");
+                }
+            } catch(IOException e) {e.printStackTrace();}
+        }
+        heartRate.clear();
     }
 }

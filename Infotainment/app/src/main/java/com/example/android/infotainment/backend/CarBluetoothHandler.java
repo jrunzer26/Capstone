@@ -10,6 +10,8 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by 100522058 on 11/12/2016.
@@ -19,13 +21,12 @@ public class CarBluetoothHandler extends Thread {
     private final BluetoothSocket mmSocket;
     private final InputStream mmInStream;
     private final OutputStream mmOutStream;
+    private final DataInputStream mmDataIS;
     private final Context act;
     private DataParser dataParser;
-    private ThreadBeConnected holder;
 
-    public CarBluetoothHandler(BluetoothSocket socket, Context mainContext, DataParser dataParser, ThreadBeConnected temp){
+    public CarBluetoothHandler(BluetoothSocket socket, Context mainContext, DataParser dataParser){
         mmSocket = socket;
-        holder = temp;
         InputStream tmpIn = null;
         OutputStream tmpOut = null;
         act = mainContext;
@@ -36,51 +37,60 @@ public class CarBluetoothHandler extends Thread {
         } catch (IOException e) {}
         mmInStream = tmpIn;
         mmOutStream = tmpOut;
+        mmDataIS = new DataInputStream(mmInStream);
     }
 
     public void run() {
-        byte[] buffer = new byte[1024];
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    String keepAlive = "~";
+                    mmOutStream.write(keepAlive.getBytes());
+                } catch (IOException e) {}
+            }
+        }, 0, 1000);
+
+        byte[] buffer = new byte[2048];
         int bytes;
         while (true) {
             try {
+                System.out.println("HEY");
                 bytes = mmInStream.read(buffer);
+                System.out.println("SUH");
                 if(bytes> 0){
                     byte[] bfcopy = new byte[bytes];
+                    System.out.println(bfcopy.length);
                     System.arraycopy(buffer, 0, bfcopy, 0, bytes);
                     ByteArrayInputStream bais = new ByteArrayInputStream(bfcopy);
                     DataInputStream dis = new DataInputStream(bais);
                     SimData temp = new SimData();
-                    String branch = dis.readUTF();
-                    if(branch.equals("close")) {
-                        this.cancel();
-                        holder.cancel();
-                        ThreadBeConnected carThread = new ThreadBeConnected(holder.getMyName(), holder.getMyUUID(), holder.getContext(), holder.getDataParser(), holder.getCar());
-                        carThread.start();
-                        System.out.println("In the close branch");
-
-                    } else {
-                        temp.setGear(branch);
-                        temp.setCruseControl(dis.readBoolean());
-                        temp.setPause(dis.readBoolean());
-                        temp.setSpeed(dis.readDouble());
-                        temp.setAcceleration(dis.readDouble());
-                        temp.setSteering(dis.readDouble());
-                        temp.setSignal(dis.readInt());
-                        temp.setClimate(dis.readInt());
-                        temp.setClimateVisibility(dis.readInt());
-                        temp.setClimateDensity(dis.readInt());
-                        temp.setRoadSeverity(dis.readInt());
-                        temp.setTimeHour(dis.readInt());
-                        temp.setTimeMinute(dis.readInt());
-                        temp.setTimeSecond(dis.readInt());
-                        temp.setRoadCondition(dis.readInt());
-                        temp.setRoadType(dis.readInt());
-                        dataParser.sendSimData(temp);
-                        System.out.println("==============================");
-                        System.out.println(temp);
-                        System.out.println("==============================");
-                    }
+                    temp.setGear(dis.readUTF());
+                    temp.setCruseControl(dis.readBoolean());
+                    temp.setPause(dis.readBoolean());
+                    temp.setSpeed(dis.readDouble());
+                    temp.setAcceleration(dis.readDouble());
+                    temp.setSteering(dis.readDouble());
+                    temp.setSignal(dis.readInt());
+                    temp.setClimate(dis.readInt());
+                    temp.setClimateVisibility(dis.readInt());
+                    temp.setClimateDensity(dis.readInt());
+                    temp.setRoadSeverity(dis.readInt());
+                    temp.setTimeHour(dis.readInt());
+                    temp.setTimeMinute(dis.readInt());
+                    temp.setTimeSecond(dis.readInt());
+                    temp.setRoadCondition(dis.readInt());
+                    temp.setRoadType(dis.readInt());
+                    dataParser.sendSimData(temp);
+                    System.out.println("====================================");
+                    System.out.println(temp);
+                    System.out.println("====================================");
                 }
+
+                // String mes = new String(buffer,0,7);
+                //System.out.println("The gear is: "+ mes);
+                //String mes2 = new String(buffer,7,bytes);
+                //System.out.println("The speed is: "+ mes2);
             } catch (IOException e) {
                 break;
             }
@@ -95,8 +105,6 @@ public class CarBluetoothHandler extends Thread {
 
     public void cancel() {
         try {
-            mmInStream.close();
-            mmOutStream.close();
             mmSocket.close();
         } catch (IOException e) {}
     }
