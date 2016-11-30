@@ -39,14 +39,15 @@ public class SensorData implements  Runnable{
             try {
                 dos.writeInt(heartRate.get(i));
 
-                byte[] bytes = boas.toByteArray();
-                if(bluetooth.connectedThread != null){
-                    System.out.print("The heart rate is: "+ heartRate);
-                    bluetooth.connectedThread.write(bytes);
-                } else {
-                    System.out.println("There is no connection available. Please try again later!");
-                }
+
             } catch(IOException e) {e.printStackTrace();}
+        }
+        byte[] bytes = boas.toByteArray();
+        if(bluetooth.connectedThread != null){
+            System.out.print("The heart rate is: "+ heartRate);
+            bluetooth.connectedThread.write(bytes);
+        } else {
+            System.out.println("There is no connection available. Please try again later!");
         }
         heartRate.clear();
     }

@@ -27,7 +27,7 @@ public class SimulatedActivity extends Activity{
     final int STEP = 1;
     final int HEART_MAX = 170;
     final int HEART_MIN = 40;
-    privat int count = 0;
+    private int count = 0;
 
     private SensorData sim;
 
