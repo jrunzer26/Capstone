@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
                 new Runnable() {
                     @Override
                     public void run() {
+                        //use the two lines below this one for the data
                         Sensors s = rsm.testSensor(21);
                         String l = Float.toString(s.getValues()[0]);
                         Intent sendIntent = new Intent();

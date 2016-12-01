@@ -27,6 +27,7 @@ public class SimulatedActivity extends Activity{
     final int STEP = 1;
     final int HEART_MAX = 170;
     final int HEART_MIN = 40;
+    private int count = 0;
 
     private SensorData sim;
 
@@ -39,6 +40,7 @@ public class SimulatedActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simulated);
         View view = findViewById(android.R.id.content);
+        count = 0;
         myUUID = UUID.fromString("6804a970-a361-11e6-bdf4-0800200c9a66");
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -54,7 +56,6 @@ public class SimulatedActivity extends Activity{
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 seekBarHeartValue.setText(String.valueOf(HEART_MIN+(progress * STEP)));
-                sim.setHeartRate(Integer.parseInt(seekBarHeartValue.getText().toString()));
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -67,14 +68,18 @@ public class SimulatedActivity extends Activity{
             }
         });
 
-
-
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                sim.run();
+                sim.setHeartRate(Integer.parseInt(seekBarHeartValue.getText().toString()));
+                count++;
+                if (count == 5) {
+                    count = 0;
+                    sim.run();
+                }
+
             }
-        }, 0, 5000);
+        }, 0, 1000);
     }
 
     public void setup() {

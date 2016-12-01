@@ -1,6 +1,9 @@
 package com.example.android.infotainment.alert;
 
 import android.content.Context;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.SoundPool;
 
 import com.example.android.infotainment.R;
 
@@ -16,9 +19,17 @@ public class AlertSystem {
     private Alert currentAlert = null; //stores the current alert
     private int extendedTime = 0;
     private final int ALERT_TIME = 10000; // seconds
+    private SoundPool soundPool;
+    private int fatalSound;
 
     // Default messages in strings
 
+    public AlertSystem(Context context) {
+        AudioAttributes audioAttributes = new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build();
+
+        soundPool = new SoundPool.Builder().setAudioAttributes(audioAttributes).build();
+        fatalSound = soundPool.load(context, R.raw.alert, 1);
+    }
     /**
      * Alerts the driver.
      * @param context the current context
@@ -40,6 +51,7 @@ public class AlertSystem {
         if (currentAlert == null) {
             currentAlert = new TopAlert(context, type, message);
             currentAlert.show();
+            soundPool.play(fatalSound, 1.0f, 1.0f, 1, 0, 0);
             new Timer(currentAlert).start();
         } else {
             if (!currentAlert.getMessage().equals(message)) {

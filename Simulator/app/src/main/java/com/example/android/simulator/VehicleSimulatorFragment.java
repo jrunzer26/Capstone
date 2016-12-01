@@ -32,6 +32,7 @@ public class VehicleSimulatorFragment extends Fragment {
     final int ACC_MIN = -15;
     final int DEG_MAX = 30;
     final int DEG_MIN = -30;
+    final int REFRESH_RATE = 100;
     private Simulator sim;
 
     @Override
@@ -60,8 +61,6 @@ public class VehicleSimulatorFragment extends Fragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 seekBarAccValue.setText(String.valueOf(ACC_MIN+(progress * STEP))+" km/h/s");
-                String temp = seekBarAccValue.getText().toString();
-                sim.setAcceleration(Double.parseDouble(temp.substring(0, temp.indexOf(' '))));
             }
 
             @Override
@@ -75,11 +74,11 @@ public class VehicleSimulatorFragment extends Fragment {
             }
         });
 
+
         seekBarDeg.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 seekBarDegValue.setText(String.valueOf(DEG_MIN+(progress * STEP))+" Deg");
-                sim.setSteering((DEG_MIN)+(progress*STEP));
             }
 
             @Override
@@ -114,7 +113,7 @@ public class VehicleSimulatorFragment extends Fragment {
             public void run() {
                updateSpeed(view);
             }
-        }, 0, 1000);
+        }, 0, REFRESH_RATE);
 
         return view;
     }
@@ -125,12 +124,12 @@ public class VehicleSimulatorFragment extends Fragment {
         final TextView speedValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_speed);
         double accelerationValue = Double.parseDouble(seekBarAccValue.getText().toString().substring(0, seekBarAccValue.getText().toString().indexOf(' ')));
         double currentSpeed = Double.parseDouble(speedValue.getText().toString().substring(0, speedValue.getText().toString().indexOf(' ')));
-        final double speed = currentSpeed + (accelerationValue*0.5);
+        double time = REFRESH_RATE / 1000.0; // convert time passed to seconds
+        final double speed = currentSpeed + (accelerationValue * time);
         Activity temp = getActivity();
         temp.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                sim.setSpeed(speed);
                 speedValue.setText(String.valueOf(speed) + " Km/h");
             }
         });

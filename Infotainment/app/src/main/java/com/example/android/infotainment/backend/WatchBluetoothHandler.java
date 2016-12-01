@@ -57,16 +57,19 @@ public class WatchBluetoothHandler extends Thread {
         int bytes;
         while (true) {
             try {
+                System.out.println("<<<<<<<<<<<<<HR>>>>>>>>>>>>");
                 bytes = mmInStream.read(buffer);
-                if(bytes> 0){
-                    byte[] bfcopy = new byte[bytes];
-                    System.arraycopy(buffer, 0, bfcopy, 0, bytes);
-                    ByteArrayInputStream bais = new ByteArrayInputStream(bfcopy);
-                    DataInputStream dis = new DataInputStream(bais);
-                    SensorData sensorData = new SensorData();
-                    sensorData.setHeartRate(dis.readInt());
-                    System.out.println(sensorData.toString());
-                    dataParser.sendHRData(sensorData);
+                for (int i = 0; i < 5; i++) {
+                    if (bytes > 0) {
+                        byte[] bfcopy = new byte[bytes];
+                        System.arraycopy(buffer, 0, bfcopy, 0, bytes);
+                        ByteArrayInputStream bais = new ByteArrayInputStream(bfcopy);
+                        DataInputStream dis = new DataInputStream(bais);
+                        SensorData sensorData = new SensorData();
+                        sensorData.setHeartRate(dis.readInt());
+                        System.out.println(sensorData.toString());
+                        dataParser.sendHRData(sensorData);
+                    }
                 }
             } catch (IOException e) {
                 break;

@@ -88,11 +88,12 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 sim.run();
             }
-        }, 0, 5000);
+        }, 2000, 1000);
     }
 
     @Override
     protected void onStop() {
+        Log.e("Stop", "In the stop funciton");
         super.onStop();
         myThreadConnectBTdevice.cancel();
     }

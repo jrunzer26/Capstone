@@ -2,12 +2,19 @@ package com.example.android.simulator.backend;
 
 import android.content.Context;
 import android.view.View;
+import android.widget.Spinner;
+import android.widget.TextView;
 
+import com.example.android.simulator.EnvironmentSimulatorFragment;
+import com.example.android.simulator.R;
 import com.example.android.simulator.ThreadConnectBTdevice;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by 100520993 on 11/3/2016.
@@ -35,23 +42,47 @@ public class Simulator implements Runnable, Car {
     private final int ROAD_TYPE_DIRT = 52;
 
 
-    private double speed = 0;
-    private String gear = "Park";
+    private boolean gearPark = false;
+    private boolean gearReverse = false;
+    private boolean gearDrive = false;
+
+    private boolean climateSunny = false;
+    private boolean climateHail = false;
+    private boolean climateSnowy = false;
+    private boolean climateRain = false;
+
+    private boolean roadConIce = false;
+    private boolean roadConWarmIce = false;
+    private boolean roadConWet = false;
+
+    private boolean roadTypeGravel = false;
+    private boolean roadTypePaved = false;
+    private boolean roadTypeDirt = false;
+
+
+    private ArrayList<Double> speed = new ArrayList<>();
+    private ArrayList<String> gear = new ArrayList<>();
     private boolean crusieControl = false;
     private boolean pause = false;
     private int signal = 0;
-    private double steering = 0;
-    private double acceleration =0;
-    private int climate = 0;
-    private int climateVisibility = 0;
-    private int roadSeverity =0;
-    private int climateFeel = 0;
-    private int timeHour = 0;
-    private int timeMinute = 0;
-    private int timeSecond =0;
-    private int roadCondition =0;
-    private int roadType =0;
+    private ArrayList<Double> steering = new ArrayList<>();
+    private ArrayList<Double> acceleration =new ArrayList<>();
+    private ArrayList<Integer> climate = new ArrayList<>();
+    private ArrayList<Integer> climateVisibility = new ArrayList<>();
+    private ArrayList<Integer> roadSeverity = new ArrayList<>();
+    private ArrayList<Integer> climateFeel = new ArrayList<>();
+    private ArrayList<Integer> timeHour = new ArrayList<>();
+    private ArrayList<Integer> timeMinute = new ArrayList<>();
+    private ArrayList<Integer> timeSecond =new ArrayList<>();
+    private ArrayList<Integer> roadCondition = new ArrayList<>();
+    private ArrayList<Integer> roadType =new ArrayList<>();
     private ThreadConnectBTdevice blueTooth;
+
+    private int count;
+    private Context context;
+    private View view;
+
+
 
 
     /**
@@ -63,60 +94,162 @@ public class Simulator implements Runnable, Car {
 
     public Simulator(Context context, View view, ThreadConnectBTdevice device) {
         blueTooth = device;
+        this.context = context;
+        this.view = view;
+        count = 0;
+    }
+
+    @Override
+    public void run() {
+        final TextView seekBarAccValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_acceleration);
+        final TextView seekBarDegValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_steering);
+        System.out.println("In the run statement");
+        if(gearPark) {
+            gear.add("Park");
+        } else if(gearReverse) {
+            gear.add("Reverse");
+        } else if(gearDrive) {
+            gear.add("Drive");
+        } else {
+            gear.add("Park");
+        }
+
+        if(climateHail) {
+            climate.add(CLIMATE_HAIL);
+        } else if(climateSnowy) {
+            climate.add(CLIMATE_SNOWY);
+        } else if(climateSunny) {
+            climate.add(CLIMATE_SUNNY);
+        } else if(climateRain) {
+            climate.add(CLIMATE_RAIN);
+        } else {
+            climate.add(CLIMATE_SUNNY);
+        }
+
+        if(roadConWet) {
+            roadCondition.add(ROAD_CON_WET);
+        } else if(roadConWarmIce) {
+            roadCondition.add(ROAD_CON_WARM_ICE);
+        } else if(roadConIce) {
+            roadCondition.add(ROAD_CON_ICE);
+        } else {
+            roadCondition.add(0);
+        }
+
+        if(roadTypePaved) {
+            roadType.add(ROAD_TYPE_PAVED);
+        } else if(roadTypeGravel) {
+            roadType.add(ROAD_TYPE_GRAVEL);
+        } else if(roadTypeDirt) {
+            roadType.add(ROAD_TYPE_DIRT);
+        } else {
+            roadType.add(ROAD_TYPE_PAVED);
+        }
+
+
+        // set the speed of the vehicle
+        TextView speedValue = (TextView) view.findViewById(R.id.textView_vehicleSimulatorDrive_speed);
+        double currentSpeed = Double.parseDouble(speedValue.getText().toString()
+                .substring(0, speedValue.getText().toString().indexOf(' ')));
+        this.setSpeed(currentSpeed);
+
+        // set steering
+        this.setSteering(Double.parseDouble(seekBarDegValue.getText().toString()
+                .substring(0, seekBarDegValue.getText().toString().indexOf(' '))));
+
+        // set the acceleration
+        this.setAcceleration(Double.parseDouble(seekBarAccValue.getText().toString()
+                .substring(0, seekBarAccValue.getText().toString().indexOf(' '))));
+
+        // set the time
+        this.setHour(EnvironmentSimulatorFragment.hour);
+        this.setMin(EnvironmentSimulatorFragment.minute);
+        this.setSecond(EnvironmentSimulatorFragment.seconds);
+
+        this.setSeverity(EnvironmentSimulatorFragment.severity);
+        this.setClimateFeel(EnvironmentSimulatorFragment.climateFeel);
+        this.setVisibility(EnvironmentSimulatorFragment.visibility);
+
+        count++;
+        if (count == 5) {
+            count = 0;
+            sendData();
+        }
     }
     /**
      * Polls for data every 5 seconds.
      */
-    @Override
-    public void run() {
-        // TODO: 11/3/2016 Simulator - run
+    public void sendData() {
         ByteArrayOutputStream boas = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(boas);
+        for (int i = 0; i < 5; i++) {
+            try {
+                System.out.println(gear.get(i));
+                dos.writeUTF(gear.get(i));
+                dos.writeBoolean(crusieControl);
+                dos.writeBoolean(pause);
+                dos.writeDouble(speed.get(i));
+                dos.writeDouble(acceleration.get(i));
+                dos.writeDouble(steering.get(i));
+                dos.writeInt(signal);
+                dos.writeInt(climate.get(i));
+                dos.writeInt(climateVisibility.get(i));
+                dos.writeInt(climateFeel.get(i));
+                dos.writeInt(roadSeverity.get(i));
+                dos.writeInt(timeHour.get(i));
+                dos.writeInt(timeMinute.get(i));
+                dos.writeInt(timeSecond.get(i));
+                dos.writeInt(roadCondition.get(i));
+                dos.writeInt(roadType.get(i));
 
-        try {
-            dos.writeUTF(gear);
-            dos.writeBoolean(crusieControl);
-            dos.writeBoolean(pause);
-            dos.writeDouble(speed);
-            dos.writeDouble(acceleration);
-            dos.writeDouble(steering);
-            dos.writeInt(signal);
-            dos.writeInt(climate);
-            dos.writeInt(climateVisibility);
-            dos.writeInt(climateFeel);
-            dos.writeInt(roadSeverity);
-            dos.writeInt(timeHour);
-            dos.writeInt(timeMinute);
-            dos.writeInt(timeSecond);
-            dos.writeInt(roadCondition);
-            dos.writeInt(roadType);
-
-            byte[] bytes = boas.toByteArray();
-            if(blueTooth.connectedThread != null){
-                blueTooth.connectedThread.write(bytes);
-            } else {
-                System.out.println("There is no connection avaible. Please try again later!");
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+        if (blueTooth.connectedThread != null) {
+            byte[] bytes = boas.toByteArray();
+            blueTooth.connectedThread.write(bytes);
+        } else {
+            System.out.println("There is no connection avaible. Please try again later!");
+        }
+        gear.clear();
+        speed.clear();
+        acceleration.clear();
+        steering.clear();
+        climate.clear();
+        climateVisibility.clear();
+        climateFeel.clear();
+        roadSeverity.clear();
+        timeHour.clear();
+        timeMinute.clear();
+        timeSecond.clear();
+        roadCondition.clear();
+        roadType.clear();
     }
 
     @Override
     public void park() {
-        gear = "Park";
+        gearPark = true;
+        gearDrive = false;
+        gearReverse = false;
     }
 
     @Override
     public void reverse() {
-        gear = "Reverse";
+        gearReverse = true;
+        gearPark = false;
+        gearDrive = false;
     }
 
     @Override
     public void drive() {
-        gear = "Drive";
+        this.gearDrive = true;
+        this.gearPark = false;
+        this.gearReverse = false;
+        System.out.println("The vales in drive method: "+ gearDrive+ " "+ gearPark+ " "+gearReverse);
     }
+
+
 
     @Override
     public void cruise() {
@@ -129,16 +262,16 @@ public class Simulator implements Runnable, Car {
     }
 
     public void setSteering(double degree){
-        steering = degree;
+        steering.add(degree);
     }
 
     public void setAcceleration(double acceleration){
-        this.acceleration = acceleration;
+        this.acceleration.add(acceleration);
     }
 
     @Override
     public double getSteering() {
-        return steering;
+        return steering.get(0);
     }
 
     @Override
@@ -162,71 +295,96 @@ public class Simulator implements Runnable, Car {
     }
 
     public void climateSuuny() {
-        climate = CLIMATE_SUNNY;
+        climateSunny = true;
+        climateSnowy = false;
+        climateRain = false;
+        climateHail = false;
     }
 
     public void climateHail() {
-        climate = CLIMATE_HAIL;
+        climateSunny = false;
+        climateSnowy = false;
+        climateRain = false;
+        climateHail = true;
     }
 
     public void climateSnowy() {
-        climate = CLIMATE_SNOWY;
+        climateSunny = false;
+        climateSnowy = true;
+        climateRain = false;
+        climateHail = false;
     }
 
     public void climateRain() {
-        climate = CLIMATE_RAIN;
+        climateSunny = false;
+        climateSnowy = false;
+        climateRain = true;
+        climateHail = false;
     }
 
     public void setSpeed(double speed) {
-        this.speed =speed;
+        System.out.println("The speed is: "+ speed);
+        this.speed.add(speed);
     }
 
     public void roadConditionIce() {
-        roadCondition = ROAD_CON_ICE;
+        roadConIce = true;
+        roadConWarmIce = false;
+        roadConWet = false;
     }
 
     public void roadConditionWarmIce() {
-        roadCondition = ROAD_CON_WARM_ICE;
+        roadConIce = false;
+        roadConWarmIce = true;
+        roadConWet = false;
     }
 
     public void roadConditionWet() {
-        roadCondition = ROAD_CON_WET;
+        roadConIce = false;
+        roadConWarmIce = false;
+        roadConWet = true;
     }
 
     public void roadTypeDirt() {
-        roadType = ROAD_TYPE_DIRT;
+        roadTypeDirt = true;
+        roadTypeGravel = false;
+        roadTypePaved = false;
     }
 
     public void roadTypePaved() {
-        roadType = ROAD_TYPE_PAVED;
+        roadTypeDirt = false;
+        roadTypeGravel = false;
+        roadTypePaved = true;
     }
 
     public void roadTypeGravel() {
-        roadType = ROAD_TYPE_GRAVEL;
+        roadTypeDirt = false;
+        roadTypeGravel = true;
+        roadTypePaved = false;
     }
 
     public void setHour(int hour) {
-        timeHour = hour;
+        timeHour.add(hour);
     }
 
     public void setMin(int min) {
-        timeMinute = min;
+        timeMinute.add(min);
     }
 
     public void setSecond(int second) {
-        timeSecond = second;
+        timeSecond.add(second);
     }
 
     public void setVisibility(int visibility){
-        this.climateVisibility = visibility;
+        this.climateVisibility.add(visibility);
     }
 
     public void setClimateFeel(int feeling){
-        this.climateFeel = feeling;
+        this.climateFeel.add(feeling);
     }
 
     public void setSeverity(int severity) {
-        this.roadSeverity = severity;
+        this.roadSeverity.add(severity);
     }
 
 }

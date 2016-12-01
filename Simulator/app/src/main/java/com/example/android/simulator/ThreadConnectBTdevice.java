@@ -5,6 +5,8 @@ import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 import android.widget.Button;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.util.UUID;
 
 /**
@@ -37,8 +39,11 @@ public class ThreadConnectBTdevice extends Thread {
 
     public void cancel() {
         try {
-            String temp = "close";
-            connectedThread.write(temp.getBytes());
+            ByteArrayOutputStream boas = new ByteArrayOutputStream();
+            DataOutputStream dos = new DataOutputStream(boas);
+            dos.writeUTF("close");
+            byte[] bytes = boas.toByteArray();
+            connectedThread.write(bytes);
             connectedThread.cancel();
             bluetoothSocket.close();
         } catch (Exception e) { }
