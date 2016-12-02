@@ -24,6 +24,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private UserDatabaseHelper userDatabaseHelper;
     private Queue<UserData> userDataLinkedList;
     private int userAverage = 70;
+    private Double steering;
 
 
     public DataAnalyst(Context applicationContext) {
@@ -50,12 +51,21 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 System.out.println(userData.toString());
                 SensorData sensorData = userData.getSensorData();
                 SimData simData = userData.getSimData();
+                Double turn = null;
+                if (steering == null) {
+                    steering = simData.getSteering();
+                } else {
+                    turn = calculateTurn(simData.getSteering());
+                }
                 int deviation = determineHRDeviation(sensorData);
                 System.out.println(deviation);
-                if(deviation >= 20) { //HR Deviation values come from: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2653595/
+                if(deviation >= 20) {
+                    //HR Deviation values come from: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2653595/
                     System.out.println("High deviation occurred");
-                    if (simData.getSpeed() > 120) { //TODO: Change this statement to work off of the results from determineHRDeviation
-                        alertSystem.alert(applicationContext, AlertSystem.ALERT_TYPE_FATAL, "SLOW DOWN!");
+                    if (simData.getSpeed() > 120 && turn != null && turn.doubleValue() >= 15) {
+                        alertSystem.alert(applicationContext, AlertSystem.ALERT_TYPE_FATAL, "Aggressive Driving Detected");
+                    } else if (simData.getSpeed() > 120) { //TODO: Change this statement to work off of the results from determineHRDeviation
+                        alertSystem.alert(applicationContext, AlertSystem.ALERT_TYPE_WARNING, "Be careful!");
                     }
                 } else if (deviation>=10 && deviation <20) {
                     System.out.println("Moderate deviation occurred");
@@ -66,6 +76,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
             }
         }
     }
+
 
     /**
      * Determines deviations in the driver's behaviours
@@ -80,4 +91,11 @@ public class DataAnalyst extends Thread implements DataReceiver {
         stdDev = Math.abs(sensorData.getHeartRate() - userAverage);
         return stdDev;
     }
+
+
+    private double calculateTurn(double currentSteering) {
+        return Math.abs(steering.doubleValue() - currentSteering);
+    }
+
+
 }
