@@ -19,7 +19,6 @@ public class DataParser {
     private DataReceiver dataReceiver;
     private UserDatabaseHelper userDatabaseHelper;
     private int tripID;
-    // buffers
     private Queue<SimData> carData;
     private Queue<SensorData> heartRateData;
 
@@ -43,7 +42,6 @@ public class DataParser {
         if (carData.size() == 5) {
             carData.remove();
         }
-        System.out.println("car length: " + carData.size());
         carData.add(simData);
         trySend();
     }
