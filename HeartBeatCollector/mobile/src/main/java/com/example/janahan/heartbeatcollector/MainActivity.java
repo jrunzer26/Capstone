@@ -34,15 +34,15 @@ public class MainActivity extends AppCompatActivity {
     ThreadConnectBTdevice myThreadConnectBTdevice;
     BluetoothAdapter bluetoothAdapter;
 
-
+    /**
+     * Startup for the Wearable Sensor data
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("APPHB/100", "Start" );
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         rsm = RemoteSensorManager.getInstance(this);
-
         final TextView t1 = (TextView)findViewById(R.id.value);
         final TextView t2 = (TextView)findViewById(R.id.statusID);
         final Button button1 = (Button) findViewById(R.id.start);
@@ -62,33 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
         myUUID = UUID.fromString("6804a970-a361-11e6-bdf4-0800200c9a66");
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
-        //setup();
-
         sim = new SensorData(myThreadConnectBTdevice);
-
-
-      /*  new Timer().scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    Sensors s = rsm.testSensor(21);
-                    int heartRate = (int) Math.round(s.getValues()[0]);
-                    t1.setText(Integer.toString(heartRate));
-                    System.out.println(heartRate);
-                    sim.setHeartRate(heartRate);
-                    count++;
-                    if (count == 5) {
-                        count = 0;
-                        sim.run();
-                    }
-                } catch(Exception e) {
-                    System.out.println("The system is not receiving a heart rate from the watch");
-                }
-            }
-        }, 0, 1000);*/
-
-
         mScheduler = Executors.newScheduledThreadPool(1);
         mScheduler.scheduleAtFixedRate(
                 new Runnable() {
@@ -121,10 +95,12 @@ public class MainActivity extends AppCompatActivity {
                 }, 3, 2, TimeUnit.SECONDS);
     }
 
+    /**
+     * Initial set up for blue tooth
+     */
     public void setup() {
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
         BluetoothDevice device;
-        Log.i("Setup", "we in here");
         if(pairedDevices.size() > 0) {
             for (BluetoothDevice dev: pairedDevices) {
                 device = dev;
@@ -138,7 +114,4 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
-
-
 }
