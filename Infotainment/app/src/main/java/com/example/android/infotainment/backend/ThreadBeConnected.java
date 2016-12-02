@@ -25,11 +25,11 @@ public class ThreadBeConnected extends Thread{
 
     /**
      * A thread to connect a bluetooth device.
-     * @param myName the UUID String value
-     * @param myUUID the UUID of the device
-     * @param temp the current context
-     * @param dataParser the parser to receive the data
-     * @param car true if a car handler is created
+     * @param myName - the UUID String value
+     * @param myUUID - the UUID of the device
+     * @param temp - the current context
+     * @param dataParser - the parser to receive the data
+     * @param car - true if a car handler is created
      */
     public ThreadBeConnected(String myName, UUID myUUID, Context temp, DataParser dataParser, boolean car){
         this.dataParser = dataParser;

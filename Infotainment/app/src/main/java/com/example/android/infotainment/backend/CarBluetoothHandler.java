@@ -105,7 +105,7 @@ public class CarBluetoothHandler extends Thread {
 
     /**
      * Writes data to the stream.
-     * @param bytes
+     * @param bytes the bytes to write.
      */
     public void write(byte[] bytes) {
         try {

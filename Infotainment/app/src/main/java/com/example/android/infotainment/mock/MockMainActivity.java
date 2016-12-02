@@ -27,6 +27,10 @@ public class MockMainActivity extends AppCompatActivity {
     private MockCarBluetoothHandler mockCarBluetoothHandler;
     private MockWatchBluetoothHandler mockWatchBluetoothHandler;
 
+    /**
+     * Creates the Main activity with the infotainment main display.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

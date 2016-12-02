@@ -18,6 +18,10 @@ import com.example.android.infotainment.R;
  */
 public class ConnectingActivity extends Activity {
 
+    /**
+     * Creates the first activity with a single button to connect.
+     * @param savedInstanceState
+     */
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -32,5 +36,4 @@ public class ConnectingActivity extends Activity {
         Intent nextScreen = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(nextScreen);
     }
-
 }

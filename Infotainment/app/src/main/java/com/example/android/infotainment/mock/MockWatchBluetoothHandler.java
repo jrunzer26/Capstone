@@ -19,6 +19,12 @@ public class MockWatchBluetoothHandler {
     private ArrayList<SensorData> sensorDatas;
     private int index;
 
+    /**
+     * Creates a mock handler for the watch data.
+     * @param socket null
+     * @param mainContext null
+     * @param dataParser null
+     */
     public MockWatchBluetoothHandler(BluetoothSocket socket, Context mainContext, DataParser dataParser){
         this.dataParser = dataParser;
         sensorDatas = new ArrayList<>();

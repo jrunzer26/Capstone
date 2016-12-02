@@ -18,12 +18,20 @@ import com.example.android.infotainment.R;
  */
 public class MockConnectingActivity extends Activity {
 
+    /**
+     * Creates the mock connecting activity.
+     * @param savedInstanceState
+     */
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connecting);
     }
 
+    /**
+     * Called when the connect button is clicked to start the next activity.
+     * @param view
+     */
     public void connect(View view){
         Intent nextScreen = new Intent(getApplicationContext(), MockMainActivity.class);
         startActivity(nextScreen);
