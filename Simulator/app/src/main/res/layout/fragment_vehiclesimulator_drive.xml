@@ -20,38 +20,35 @@
             android:layout_marginStart="@dimen/margin_all_betweenButtons"
             android:layout_marginEnd="@dimen/margin_all_betweenButtons"
             android:layout_weight="1" >
-            <RadioButton
+            <RadioButton android:id="@+id/radioButton_vehicleDrive_park"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:layout_weight="1"
                 android:text="@string/vehicleSimulatorDrive_park"
-                android:onClick="park" />
-            <RadioButton
+                android:checked="true"/>
+            <RadioButton android:id="@+id/radioButton_vehicleDrive_reverse"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:layout_weight="1"
-                android:text="@string/vehicleSimulatorDrive_reverse"
-                android:onClick="reverse"/>
-            <RadioButton
+                android:text="@string/vehicleSimulatorDrive_reverse" />
+            <RadioButton android:id="@+id/radioButton_vehicleDrive_drive"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:layout_weight="1"
-                android:text="@string/vehicleSimulatorDrive_drive"
-                android:onClick="drive"/>
+                android:text="@string/vehicleSimulatorDrive_drive" />
         </RadioGroup>
 
 
-        <Button
+        <Button android:id="@+id/button_vehicleSimDrive_cruise"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/vehicleSimulatorDrive_cruise"
             android:layout_marginStart="@dimen/margin_all_betweenButtons"
             android:layout_marginEnd="@dimen/margin_all_betweenButtons"
-            android:layout_weight="1"
-            android:onClick="cruise"/>
+            android:layout_weight="1" />
 
         <Button
             android:layout_width="wrap_content"
