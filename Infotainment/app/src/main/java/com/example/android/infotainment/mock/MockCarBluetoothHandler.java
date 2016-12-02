@@ -17,7 +17,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * Created by 100522058 on 11/12/2016.
+ * Created by 100520993 on 11/12/2016.
  */
 
 public class MockCarBluetoothHandler {
@@ -29,7 +29,9 @@ public class MockCarBluetoothHandler {
         simDataCreator();
     }
 
-
+    /**
+     * Sends data to the data parser.
+     */
     public void run() {
         SimData simData = simDatas.get(index);
         dataParser.sendSimData(simData);
@@ -38,7 +40,9 @@ public class MockCarBluetoothHandler {
             index = 0;
     }
 
-
+    /**
+     * Creates data to simulate the car simulator if the programmer does not have all devices
+     */
     public void simDataCreator() {
         simDatas = new ArrayList<>();
         SimData speed70 = new SimData();

@@ -21,12 +21,14 @@ import static android.content.Context.LAYOUT_INFLATER_SERVICE;
  */
 
 public class TopAlert implements Alert {
+
     private WindowManager windowManager;
     private WindowManager.LayoutParams defaultParams;
     private View alertView;
     private LayoutInflater layoutInflater;
     private String message;
     private int type;
+
     /**
      * Creates an alert that is shown at the top of the device.
      * @param context the current context
@@ -98,6 +100,11 @@ public class TopAlert implements Alert {
         }
     }
 
+    /**
+     * Determines if the two objects are equal.
+     * @param object the second object.
+     * @return true if the same.
+     */
     @Override
     public boolean equals(Object object) {
         if (object == null)
@@ -116,10 +123,18 @@ public class TopAlert implements Alert {
     }
 
 
+    /**
+     * Gets the message of the top alert.
+     * @return the message string.
+     */
     public String getMessage() {
         return message;
     }
 
+    /**
+     * Gets the type of message.
+     * @return the type.
+     */
     public int getType() {
         return type;
     }

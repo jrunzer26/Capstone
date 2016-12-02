@@ -8,7 +8,6 @@ import com.example.android.infotainment.R;
 import com.example.android.infotainment.backend.DataAnalyst;
 import com.example.android.infotainment.backend.DataParser;
 import com.example.android.infotainment.backend.UserDatabaseHelper;
-import com.example.android.infotainment.backend.models.SimData;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -18,6 +17,9 @@ import java.util.TimerTask;
  * Created by 100520993 on 11/23/2016.
  */
 
+/**
+ * Mock Main Activity to be called when intent-filter is changed to simulate the external devices
+ */
 public class MockMainActivity extends AppCompatActivity {
 
     private DataParser dataParser;
@@ -25,6 +27,10 @@ public class MockMainActivity extends AppCompatActivity {
     private MockCarBluetoothHandler mockCarBluetoothHandler;
     private MockWatchBluetoothHandler mockWatchBluetoothHandler;
 
+    /**
+     * Creates the Main activity with the infotainment main display.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
