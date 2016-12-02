@@ -54,6 +54,12 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         );
     }
 
+    /**
+     * Upgrades the database.
+     * @param db
+     * @param oldVersion
+     * @param newVersion
+     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
 
@@ -135,7 +141,7 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Displays all data in the database.
-     * @param context the current context
+     * @param context - the current context
      */
     public void showData(Context context) {
         ArrayList<UserData> userDatas = new UserDatabaseHelper(context).getData();

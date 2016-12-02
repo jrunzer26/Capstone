@@ -2,11 +2,14 @@ package com.example.android.simulator;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -14,8 +17,10 @@ import android.widget.Toast;
 
 import com.example.android.simulator.backend.Simulator;
 
+import java.math.BigDecimal;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Handler;
 
 
 /**
@@ -38,6 +43,7 @@ public class VehicleSimulatorFragment extends Fragment {
     final int DEG_MIN = -30;
     final int REFRESH_RATE = 100;
     private Simulator sim;
+    private final int seekBarZeroProgress = 15;
 
     /**
      * Creates the savedInstanceState
@@ -72,6 +78,8 @@ public class VehicleSimulatorFragment extends Fragment {
 
         final TextView seekBarAccValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_acceleration);
         final TextView seekBarDegValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_steering);
+
+        buttonListenerInit(view);
 
         seekBarAcc.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
             /**
@@ -154,21 +162,61 @@ public class VehicleSimulatorFragment extends Fragment {
      * This method calculates the speed based off of the accleration and the current speed
      * @param view - is the view of this fragment
      */
+    private void buttonListenerInit(View view) {
+        ((Button) view.findViewById(R.id.button_vehicleSimDrive_cruise)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cruise();
+            }
+        });
+
+        //((RadioButton) view)
+    }
+
+    private void cruise() {
+        ((SeekBar) getView().findViewById(R.id.seekBar_vehicleSimulatorDrive_acceleration)).setProgress(seekBarZeroProgress);
+    }
+
+    private void updateGear(View view, double speed) {
+        final RadioButton park = ((RadioButton) view.findViewById(R.id.radioButton_vehicleDrive_park));
+        final RadioButton reverse = ((RadioButton) view.findViewById(R.id.radioButton_vehicleDrive_reverse));
+        final RadioButton drive = ((RadioButton) view.findViewById(R.id.radioButton_vehicleDrive_drive));
+
+        if (speed != 0 && park.isChecked()) {
+            android.os.Handler handler = new android.os.Handler(Looper.getMainLooper());
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    park.setChecked(false);
+                    drive.setChecked(true);
+                }
+            });
+
+        }
+    }
+
     public void updateSpeed(View view) {
         TextView seekBarAccValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_acceleration);
         final TextView speedValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_speed);
-        //Retreiving the current accleration
         double accelerationValue = Double.parseDouble(seekBarAccValue.getText().toString().substring(0, seekBarAccValue.getText().toString().indexOf(' ')));
-        //Retreiving the current Speed
         double currentSpeed = Double.parseDouble(speedValue.getText().toString().substring(0, speedValue.getText().toString().indexOf(' ')));
         double time = REFRESH_RATE / 1000.0; // convert time passed to seconds
-        //Calculates the speed of the car
-        final double speed = currentSpeed + (accelerationValue * time);
+        double speed = currentSpeed + (accelerationValue * time);
+        updateGear(view, speed);
+
+        if (speed > 200) {
+            speed = 200;
+        } else if (speed <  -15) {
+            speed = -15;
+        }
+        final Double speedDouble = new Double(speed);
         Activity temp = getActivity();
         temp.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                speedValue.setText(String.valueOf(speed) + " Km/h");
+
+                Double formatedSpeed = BigDecimal.valueOf(speedDouble).setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue();
+                speedValue.setText(String.valueOf(formatedSpeed) + " Km/h");
             }
         });
     }

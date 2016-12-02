@@ -25,6 +25,12 @@ public class CarBluetoothHandler extends Thread {
     private final Context act;
     private DataParser dataParser;
 
+    /**
+     * Reads incoming data from the car.
+     * @param socket the bluetooth socket.
+     * @param mainContext the current context.
+     * @param dataParser the data parser to send data to.
+     */
     public CarBluetoothHandler(BluetoothSocket socket, Context mainContext, DataParser dataParser){
         mmSocket = socket;
         InputStream tmpIn = null;
@@ -40,7 +46,11 @@ public class CarBluetoothHandler extends Thread {
         mmDataIS = new DataInputStream(mmInStream);
     }
 
+    /**
+     * Run in the background to collect data from the watch when it is available.
+     */
     public void run() {
+        // send a keep alive to the watch every second to ensure it does not quit
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -55,15 +65,17 @@ public class CarBluetoothHandler extends Thread {
         int bytes;
         while (true) {
             try {
-                System.out.println("<<<<<<<<<CAR>>>>>>>>>>>>>>>>");
                 bytes = mmInStream.read(buffer);
                 if(bytes> 0){
                     byte[] bfcopy = new byte[bytes];
-                    for (int i = 0; i < 4; i++) { // problem with syncing threads
+                    //  reads the packaged data from the car simulator
+                    // <<<<<<<<<<<<<<<<<<<<<change to 5 when testing>>>>>>>>>>>>>>>>>>>>>>>
+                    for (int i = 0; i < 4; i++) {
                         System.out.println(bfcopy.length);
                         System.arraycopy(buffer, 0, bfcopy, 0, bytes);
                         ByteArrayInputStream bais = new ByteArrayInputStream(bfcopy);
                         DataInputStream dis = new DataInputStream(bais);
+                        // package the data into an object
                         SimData temp = new SimData();
                         temp.setGear(dis.readUTF());
                         temp.setCruseControl(dis.readBoolean());
@@ -81,6 +93,7 @@ public class CarBluetoothHandler extends Thread {
                         temp.setTimeSecond(dis.readInt());
                         temp.setRoadCondition(dis.readInt());
                         temp.setRoadType(dis.readInt());
+                        // sends the data to the parser
                         dataParser.sendSimData(temp);
                     }
                 }
@@ -90,12 +103,19 @@ public class CarBluetoothHandler extends Thread {
         }
     }
 
+    /**
+     * Writes data to the stream.
+     * @param bytes the bytes to write.
+     */
     public void write(byte[] bytes) {
         try {
             mmOutStream.write(bytes);
         } catch (IOException e){}
     }
 
+    /**
+     * Closes the bluetooth connection.
+     */
     public void cancel() {
         try {
             mmSocket.close();

@@ -228,6 +228,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public void cruise(View view) {
         sim.cruise();
+
         Toast.makeText(this,"Cruise", Toast.LENGTH_SHORT).show();
     }
 
@@ -249,16 +250,7 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this,"drive", Toast.LENGTH_SHORT).show();
     }
 
-    public void sendMessage(View view) {
-        String message = "SUH DUDE what it do";
-        byte[] array = message.getBytes();
-        myThreadConnectBTdevice.connectedThread.write(array);
-    }
 
-    /**
-     * Calls simulator reverse function
-     * @param view
-     */
     public void reverse(View view) {
         sim.reverse();
         Toast.makeText(this,"Reverse", Toast.LENGTH_SHORT).show();

@@ -22,20 +22,22 @@ public class AlertSystem {
     private SoundPool soundPool;
     private int fatalSound;
 
-    // Default messages in strings
-
+    /**
+     * Creates an alert system to manage the alerts.
+     * @param context - the current context.
+     */
     public AlertSystem(Context context) {
         AudioAttributes audioAttributes = new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build();
 
         soundPool = new SoundPool.Builder().setAudioAttributes(audioAttributes).build();
         fatalSound = soundPool.load(context, R.raw.alert, 1);
     }
-    /**
-     * Alerts the driver.
-     * @param context the current context
-     * @param type the type of warning
-     */
 
+    /**
+     * Alerts the driver with a default message.
+     * @param context - the current context
+     * @param type - the type of warning
+     */
     public void alert(Context context, int type) {
         String message =  context.getResources().getString(R.string.alertSystem_default_warning);
         alert(context, type, message);
@@ -47,7 +49,6 @@ public class AlertSystem {
      * @param message
      */
     public void alert(final Context context, int type, String message){
-
         if (currentAlert == null) {
             currentAlert = new TopAlert(context, type, message);
             currentAlert.show();
@@ -85,6 +86,10 @@ public class AlertSystem {
         public Timer (Alert alert) {
             this.alert = alert;
         }
+
+        /**
+         * runs in the background and decrements the time of the alert.
+         */
         @Override
         public void run() {
             super.run();

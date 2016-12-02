@@ -23,6 +23,10 @@ public class MainActivity extends AppCompatActivity {
     private DataParser dataParser;
     private DataAnalyst dataAnalyst;
 
+    /**
+     * Main activity showing the main infotainment screen.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
