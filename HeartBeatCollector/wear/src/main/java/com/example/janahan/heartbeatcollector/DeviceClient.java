@@ -77,7 +77,6 @@ public class DeviceClient {
 
     private boolean validateConnection() {
         if (gaClient.isConnected()) {
-
             Log.v(TAG, "Connected");
             return true;
         }
