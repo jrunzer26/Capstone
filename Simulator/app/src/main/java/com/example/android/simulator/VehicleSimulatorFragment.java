@@ -27,6 +27,10 @@ import java.util.TimerTask;
  * Fragment for the vehicle simulation slider tab.
  */
 public class VehicleSimulatorFragment extends Fragment {
+
+    /**
+     * Declaring variables for the accleration and steering slider
+     */
     final int STEP = 1;
     final int ACC_MAX = 50;
     final int ACC_MIN = -15;
@@ -35,12 +39,22 @@ public class VehicleSimulatorFragment extends Fragment {
     final int REFRESH_RATE = 100;
     private Simulator sim;
 
+    /**
+     * Creates the savedInstanceState
+     * @param savedInstanceState
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
 
-
+    /**
+     * Creates the view of the fragment
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -49,17 +63,26 @@ public class VehicleSimulatorFragment extends Fragment {
         final SeekBar seekBarAcc = (SeekBar)view.findViewById(R.id.seekBar_vehicleSimulatorDrive_acceleration);
         SeekBar seekBarDeg = (SeekBar)view.findViewById(R.id.seekBar_vehicleSimulatorDrive_steering);
 
+        //Sets the maximum value for the Accleration and Degree slider
         seekBarAcc.setMax((ACC_MAX-ACC_MIN)/STEP);
         seekBarDeg.setMax((DEG_MAX-DEG_MIN)/STEP);
 
+        //Retreive the Simulator object that was created in the main and use it in this fragment
         sim = ((MainActivity)this.getActivity()).getSimulator();
 
         final TextView seekBarAccValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_acceleration);
         final TextView seekBarDegValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_steering);
 
         seekBarAcc.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            /**
+             * Runs when Accleration seekbar changes
+             * @param seekBar
+             * @param progress - The current value of the accleration slider
+             * @param fromUser
+             */
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                //Set the accleration test to what it is on the slider
                 seekBarAccValue.setText(String.valueOf(ACC_MIN+(progress * STEP))+" km/h/s");
             }
 
@@ -76,8 +99,15 @@ public class VehicleSimulatorFragment extends Fragment {
 
 
         seekBarDeg.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            /**
+             * Runs when Degree seekbar changes
+             * @param seekBar
+             * @param progress - The current value of the degree slider
+             * @param fromUser
+             */
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                //Set the degree test to what it is on the slider
                 seekBarDegValue.setText(String.valueOf(DEG_MIN+(progress * STEP))+" Deg");
             }
 
@@ -108,6 +138,7 @@ public class VehicleSimulatorFragment extends Fragment {
         roadConditionsTab.setIndicator(getString(R.string.vehicleSimulator_cars));
         host.addTab(roadConditionsTab);
 
+        //Update the current speed of the car based off of the accleration every 1ms
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -117,14 +148,21 @@ public class VehicleSimulatorFragment extends Fragment {
 
         return view;
     }
+    
 
-
+    /**
+     * This method calculates the speed based off of the accleration and the current speed
+     * @param view - is the view of this fragment
+     */
     public void updateSpeed(View view) {
         TextView seekBarAccValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_acceleration);
         final TextView speedValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_speed);
+        //Retreiving the current accleration
         double accelerationValue = Double.parseDouble(seekBarAccValue.getText().toString().substring(0, seekBarAccValue.getText().toString().indexOf(' ')));
+        //Retreiving the current Speed
         double currentSpeed = Double.parseDouble(speedValue.getText().toString().substring(0, speedValue.getText().toString().indexOf(' ')));
         double time = REFRESH_RATE / 1000.0; // convert time passed to seconds
+        //Calculates the speed of the car
         final double speed = currentSpeed + (accelerationValue * time);
         Activity temp = getActivity();
         temp.runOnUiThread(new Runnable() {
@@ -135,6 +173,9 @@ public class VehicleSimulatorFragment extends Fragment {
         });
     }
 
+    /**
+     * Pauses the fragment
+     */
     public void pause() {
         Toast.makeText(getContext(),"Pause", Toast.LENGTH_SHORT).show();
     }
