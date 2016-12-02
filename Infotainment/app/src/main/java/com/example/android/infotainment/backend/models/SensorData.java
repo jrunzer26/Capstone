@@ -13,6 +13,7 @@ public class SensorData {
     public void setHeartRate(int heartRate) {
         this.heartRate = heartRate;
     }
+
     public int getHeartRate() {
         return heartRate;
     }

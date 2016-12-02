@@ -23,6 +23,14 @@ public class ThreadBeConnected extends Thread{
     private DataParser dataParser;
     private boolean car;
 
+    /**
+     * A thread to connect a bluetooth device.
+     * @param myName the UUID String value
+     * @param myUUID the UUID of the device
+     * @param temp the current context
+     * @param dataParser the parser to receive the data
+     * @param car true if a car handler is created
+     */
     public ThreadBeConnected(String myName, UUID myUUID, Context temp, DataParser dataParser, boolean car){
         this.dataParser = dataParser;
         this.car = car;
@@ -36,6 +44,9 @@ public class ThreadBeConnected extends Thread{
         }
     }
 
+    /**
+     *  Opens and creates the bluetooth handler.
+     */
     @Override
     public void run() {
         BluetoothSocket bluetoothSocket = null;
@@ -44,6 +55,7 @@ public class ThreadBeConnected extends Thread{
                 bluetoothSocket = bluetoothServerSocket.accept();
                 BluetoothDevice remoteDevice = bluetoothSocket.getRemoteDevice();
                 Log.i("Connected", "Device name: "+ remoteDevice.getName());
+                // create either a car or watch bluetooth receiver object
                 if (car) {
                     new CarBluetoothHandler(bluetoothSocket, holder, dataParser).start();
                 } else {
@@ -55,6 +67,9 @@ public class ThreadBeConnected extends Thread{
         }
     }
 
+    /**
+     * Close the bluetooth connection.
+     */
     public void cancel() {
         try{
             bluetoothSocket.close();
