@@ -1,5 +1,7 @@
 package com.example.janahan.heartbeatcollector;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
@@ -10,8 +12,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.janahan.heartbeatcollector.SensorCnst.SensorData;
 import com.example.janahan.heartbeatcollector.SensorCnst.Sensors;
 
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -20,11 +27,19 @@ public class MainActivity extends AppCompatActivity {
     private RemoteSensorManager rsm;
     private ScheduledExecutorService mScheduler;
 
+    private SensorData sim;
+    private int count = 0;
 
+    private UUID myUUID;
+    ThreadConnectBTdevice myThreadConnectBTdevice;
+    BluetoothAdapter bluetoothAdapter;
+
+    /**
+     * Startup for the Wearable Sensor data
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("APPHB/100", "Start" );
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         rsm = RemoteSensorManager.getInstance(this);
@@ -44,25 +59,59 @@ public class MainActivity extends AppCompatActivity {
                 t2.setText("Stop");
             }
         });
+
+        myUUID = UUID.fromString("6804a970-a361-11e6-bdf4-0800200c9a66");
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        sim = new SensorData(myThreadConnectBTdevice);
         mScheduler = Executors.newScheduledThreadPool(1);
         mScheduler.scheduleAtFixedRate(
                 new Runnable() {
                     @Override
                     public void run() {
                         //use the two lines below this one for the data
+                       // System.out.println("Just before the sensor");
                         Sensors s = rsm.testSensor(21);
-                        String l = Float.toString(s.getValues()[0]);
-                        Intent sendIntent = new Intent();
-                        sendIntent.setAction(Intent.ACTION_SEND);
-                        sendIntent.putExtra(Intent.EXTRA_TEXT, "SRP " + Integer.toString(s.getSensorID()) + " " + Integer.toString(s.getAccuracy()) + " " + Long.toString(s.getTimeStamp()) + " " + l);
-                        sendIntent.setType("text/plain");
-                        startService(sendIntent);
-                        t1.setText(l);
+                       // System.out.println("The value of s is: "+ s);
+                        if(s == null) {
+                          //  System.out.println("In the null statement");
+                        } else {
+                            String l = Float.toString(s.getValues()[0]);
+                           // System.out.println("The value of l is: "+ l);
+                            Intent sendIntent = new Intent();
+                           // System.out.println("after the intent");
+                            sendIntent.setAction(Intent.ACTION_SEND);
+                           // System.out.println("send INTENT");
+                            sendIntent.putExtra(Intent.EXTRA_TEXT, "SRP " + Integer.toString(s.getSensorID()) + " " + Integer.toString(s.getAccuracy()) + " " + Long.toString(s.getTimeStamp()) + " " + l);
+                          //  System.out.println("After the put extra");
+                            sendIntent.setType("text/plain");
+                           // System.out.println("Set type");
+                            startService(sendIntent);
+                          //  System.out.println("Start Service");
+                            t1.setText(l);
+                           // System.out.println("Setting the text");
+                        }
 
                     }
                 }, 3, 2, TimeUnit.SECONDS);
     }
 
-
-
+    /**
+     * Initial set up for blue tooth
+     */
+    public void setup() {
+        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+        BluetoothDevice device;
+        if(pairedDevices.size() > 0) {
+            for (BluetoothDevice dev: pairedDevices) {
+                device = dev;
+                Log.e("Name", device.getName());
+                if(device.getName().equals("Jason R (Galaxy Tab4)")){
+                    Log.i("Device", "Got in here");
+                    myThreadConnectBTdevice = new ThreadConnectBTdevice(device, myUUID);
+                    myThreadConnectBTdevice.start();
+                    break;
+                }
+            }
+        }
+    }
 }

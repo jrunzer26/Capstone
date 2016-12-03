@@ -27,6 +27,11 @@ public class RemoteSensorManager {
     private Map<Integer,Sensors> sensorMap ;
     private GoogleApiClient googleApiClient;
 
+    /**
+     * Create new instance if none exists. Returns new instance if it exists
+     * @param context
+     * @return the instance of RemoteSensorManager running in the program
+     */
     public static synchronized RemoteSensorManager getInstance(Context context) {
         if (instance == null) {
             instance = new RemoteSensorManager(context.getApplicationContext());
@@ -34,13 +39,16 @@ public class RemoteSensorManager {
         return instance;
     }
 
+    /**
+     * Class for RemoteSensorManager
+     * @param context
+     */
     private RemoteSensorManager(Context context) {
         this.context = context;
         this.sensorMap = new HashMap<Integer,Sensors>();
         this.googleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(Wearable.API)
                 .build();
-
         this.executorService = Executors.newCachedThreadPool();
     }
 
@@ -51,6 +59,12 @@ public class RemoteSensorManager {
         }
         return sensor;
     }
+
+    /**
+     * Gets the sensor object or creates a new own
+     * @param id - the sensor id
+     * @return the sensor object the id is associated with
+     */
     private Sensors getSensor(int id) {
         Sensors sensor = sensorMap.get(id);
         if (sensor == null) {
@@ -60,29 +74,36 @@ public class RemoteSensorManager {
         return sensor;
     }
 
+    /**
+     * Updates the sensor object with new values
+     * @param sensorType - the sensor id
+     * @param accuracy - the accuracy of the sensor
+     * @param timestamp - the time the reading was taken
+     * @param values - an array of values from the android wear
+     */
     public synchronized void addSensorData(int sensorType, int accuracy, long timestamp, float[] values) {
         Sensors sensor = getSensor(sensorType);
-        if(values == null){
-            Log.d(TAG,"Value Empty");
-        }else{
-            Log.d(TAG, Integer.toString(sensorType));
+        if(values != null){
             sensor.updateSensor(accuracy,timestamp,values);
         }
-        Log.d(TAG, "update " );
-
-        //BusProvider.postOnMainThread(new SensorUpdatedEvent(sensor, dataPoint));
     }
 
+    /**
+     * Checks if there is a connection to the android wear.
+     * If not it tries to reconnect.
+     * @return Whether the connection is true
+     */
     private boolean validateConnection() {
         if (googleApiClient.isConnected()) {
-            Log.d(TAG, "validate" );
             return true;
         }
-
         ConnectionResult result = googleApiClient.blockingConnect(CLIENT_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS);
         return result.isSuccess();
     }
 
+    /**
+     * Generic call method to start getting measurements
+     */
     public void startMeasurement() {
         executorService.submit(new Runnable() {
             @Override
@@ -92,6 +113,9 @@ public class RemoteSensorManager {
         });
     }
 
+    /**
+     * Generic call method to stop getting measurements
+     */
     public void stopMeasurement() {
         executorService.submit(new Runnable() {
             @Override
@@ -101,12 +125,13 @@ public class RemoteSensorManager {
         });
     }
 
+    /**
+     * Broadcasts messages to android
+     * @param path - The type of command to broadcast to wearable nodes
+     */
     private void controlMeasurementInBackground(final String path) {
         if (validateConnection()) {
             List<Node> nodes = Wearable.NodeApi.getConnectedNodes(googleApiClient).await().getNodes();
-
-            Log.d(TAG, "update " );
-
             for (Node node : nodes) {
                 Log.i(TAG, "add node " + node.getDisplayName());
                 Wearable.MessageApi.sendMessage(

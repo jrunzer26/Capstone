@@ -24,10 +24,13 @@ public class SensorService extends Service implements SensorEventListener {
     private DeviceClient client;
     private ScheduledExecutorService mScheduler;
 
+    /**
+     * Standard onCreate
+     * Starts up schedulers for sensor
+     */
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.v(TAG, "Create Sensor");
         client = DeviceClient.getInstance(this);
         mSensorM = ((SensorManager) getSystemService(SENSOR_SERVICE));
         mHeartrateS = mSensorM.getDefaultSensor(SENS_HEARTRATE);
@@ -40,16 +43,12 @@ public class SensorService extends Service implements SensorEventListener {
                             new Runnable() {
                                 @Override
                                 public void run() {
-                                    Log.v(TAG, "Heartrate Sensor");
                                     mSensorM.registerListener(SensorService.this, mHeartrateS, SensorManager.SENSOR_DELAY_NORMAL);
                                     try {
                                         Thread.sleep(measurementDuration * 1000);
-                                        Log.v(TAG, "Heartrate Sensor2");
                                     } catch (InterruptedException e) {
                                         Log.e(TAG, "Interrupted while waitting to unregister Heartrate Sensor");
                                     }
-
-                                    Log.d(TAG, "unregister Heartrate Sensor");
                                     mSensorM.unregisterListener(SensorService.this, mHeartrateS);
                                 }
                             }, 3, measurementDuration + measurementBreak, TimeUnit.SECONDS);
@@ -61,21 +60,28 @@ public class SensorService extends Service implements SensorEventListener {
         }
     }
 
+    /**
+     * Standard onDestroy
+     */
     @Override
     public void onDestroy() {
         super.onDestroy();
         stopMeasurement();
     }
 
+    /**
+     * Standard onBind
+     * @param intent
+     * @return
+     */
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
 
-    protected void startMeasurement() {
-
-    }
-
+    /**
+     * Stop recording a sensors value
+     */
     private void stopMeasurement() {
         if (mSensorM != null) {
             mSensorM.unregisterListener(this);
@@ -85,12 +91,14 @@ public class SensorService extends Service implements SensorEventListener {
         }
     }
 
+    /**
+     * Checks if the sensor data changed
+     * @param event
+     */
     @Override
     public void onSensorChanged(SensorEvent event) {
-        Log.v(TAG, "Heartrate Sensor3");
         client.sendSensorData(event.sensor.getType(), event.accuracy, event.timestamp, event.values);
     }
-
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
