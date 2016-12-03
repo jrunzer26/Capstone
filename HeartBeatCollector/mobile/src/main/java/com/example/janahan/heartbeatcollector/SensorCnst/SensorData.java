@@ -26,11 +26,19 @@ public class SensorData implements  Runnable{
         return heartRate.get(0);
     }
 
+    /**
+     * Gets the heart rate of the slider
+     * @return the heart rate of the slider
+     */
     @Override
     public String toString() {
         return "Heart Rate: " + heartRate + "\n";
     }
 
+    /**
+     * Packages the array of heartRate into a byte array
+     * and sends it off to the server side if there is a connection
+     */
     @Override
     public void run() {
         ByteArrayOutputStream boas = new ByteArrayOutputStream();
