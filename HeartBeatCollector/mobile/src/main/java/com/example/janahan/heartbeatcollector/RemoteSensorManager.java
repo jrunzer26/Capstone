@@ -67,7 +67,7 @@ public class RemoteSensorManager {
      * @param id - the sensor id
      * @return the sensor object the id is associated with
      */
-    private Sensors getSensor(int id) {
+    public Sensors getSensor(int id) {
         Sensors sensor = sensorMap.get(id);
         if (sensor == null) {
             sensor = new Sensors(id);
