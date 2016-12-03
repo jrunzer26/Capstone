@@ -14,6 +14,10 @@ public class startUpActivity extends Activity {
     Button simulator;
     Button real;
 
+    /**
+     * The activity that allows you to wait until the server is setup
+     * @param savedInstanceState
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,6 +26,10 @@ public class startUpActivity extends Activity {
         real = (Button)findViewById(R.id.button_heartRateReal);
     }
 
+    /**
+     * Starts the main activity on button click
+     * @param view
+     */
     public void connect(View view) {
         Intent nextScreen = new Intent(getApplicationContext(), SimulatedActivity.class);
         startActivity(nextScreen);

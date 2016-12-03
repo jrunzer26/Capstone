@@ -24,6 +24,7 @@ import java.util.UUID;
 
 public class SimulatedActivity extends Activity{
 
+    //Setting up the variables for the slider
     final int STEP = 1;
     final int HEART_MAX = 170;
     final int HEART_MIN = 40;
@@ -31,21 +32,31 @@ public class SimulatedActivity extends Activity{
 
     private SensorData sim;
 
+    /**
+     * Declaring the bluetooth variables
+     */
     private UUID myUUID;
     ThreadConnectBTdevice myThreadConnectBTdevice;
     BluetoothAdapter bluetoothAdapter;
 
+    /**
+     * Initialize bluetooth variables and set up Slider
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simulated);
         View view = findViewById(android.R.id.content);
         count = 0;
+
+        //Assigning the UUID key
         myUUID = UUID.fromString("6804a970-a361-11e6-bdf4-0800200c9a66");
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         setup();
 
+        //Creating the simulator object
         sim = new SensorData(myThreadConnectBTdevice);
 
         final SeekBar seekBarHeartRate = (SeekBar)view.findViewById(R.id.seekBar_heartRate);
@@ -53,6 +64,12 @@ public class SimulatedActivity extends Activity{
 
         final TextView seekBarHeartValue = (TextView)view.findViewById(R.id.textView_currentHeartRate);
         seekBarHeartRate.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            /**
+             * Runs when heartRate seekbar changes
+             * @param seekBar
+             * @param progress - The current value of the heartRate slider
+             * @param fromUser
+             */
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 seekBarHeartValue.setText(String.valueOf(HEART_MIN+(progress * STEP)));
@@ -68,6 +85,7 @@ public class SimulatedActivity extends Activity{
             }
         });
 
+        //Sends the heart Rate data to the simulator object and at 5 seconds excute the run method in the sim object
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -82,16 +100,16 @@ public class SimulatedActivity extends Activity{
         }, 0, 1000);
     }
 
+    /**
+     * Looks for the server in a list of paired bluetooth on that device
+     */
     public void setup() {
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
         BluetoothDevice device;
-        Log.i("Setup", "we in here");
         if(pairedDevices.size() > 0) {
             for (BluetoothDevice dev: pairedDevices) {
                 device = dev;
-                Log.e("Name", device.getName());
                 if(device.getName().equals("Jason R (Galaxy Tab4)")){
-                    Log.i("Device", "Got in here");
                     myThreadConnectBTdevice = new ThreadConnectBTdevice(device, myUUID);
                     myThreadConnectBTdevice.start();
                     break;
