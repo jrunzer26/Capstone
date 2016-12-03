@@ -33,12 +33,22 @@ public class EnvironmentSimulatorFragment extends Fragment {
     public static int severity;
 
 
-
+    /**
+     * Creates view
+     * @param savedInstanceState
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
 
+    /**
+     * Loads the fragment
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return view
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_environmentsimulator, container, false);
@@ -52,6 +62,7 @@ public class EnvironmentSimulatorFragment extends Fragment {
         climateFeel = 0;
         severity = 0;
 
+        //Gets the object from the main activity and uses it here
         sim = ((MainActivity)this.getActivity()).getSimulator();
 
         final TimePicker timerPicker = (TimePicker) view.findViewById(R.id.timerPicker_environmentsimulator_timeOfDay);
@@ -69,6 +80,12 @@ public class EnvironmentSimulatorFragment extends Fragment {
 
         SeekBar seekBarVisibility = (SeekBar)view.findViewById(R.id.seekbar_environmentSimulatorClimate_visibility);
         seekBarVisibility.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            /**
+             * Runs when Visibilty seekbar changes
+             * @param seekBar
+             * @param progress - The current value of the visibility slider
+             * @param fromUser
+             */
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 visibility = progress;
@@ -89,6 +106,12 @@ public class EnvironmentSimulatorFragment extends Fragment {
 
         SeekBar seekBarDensity = (SeekBar)view.findViewById(R.id.seekbar_environmentSimulatorClimate_density);
         seekBarDensity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            /**
+             * Runs when Density seekbar changes
+             * @param seekBar
+             * @param progress - The current value of Density slider
+             * @param fromUser
+             */
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 climateFeel = progress;
@@ -107,6 +130,12 @@ public class EnvironmentSimulatorFragment extends Fragment {
 
         SeekBar seekBarSeverity = (SeekBar)view.findViewById(R.id.seekbar_environmentSimulatorRoadConditions_severity);
         seekBarSeverity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            /**
+             * Runs when Severity seekbar changes
+             * @param seekBar
+             * @param progress - The current value of Severity slider
+             * @param fromUser
+             */
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 severity = progress;
@@ -123,6 +152,7 @@ public class EnvironmentSimulatorFragment extends Fragment {
             }
         });
 
+        //Every one second it will send to the Simulator the values of the climate
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -132,7 +162,8 @@ public class EnvironmentSimulatorFragment extends Fragment {
             }
         }, 0, 1000);
 
-
+        //This is essentially a military clock, every second it will increment the clock and send the values
+        //Over to the simulator
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {

@@ -19,13 +19,18 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 
 public class DataAnalyst extends Thread implements DataReceiver {
+
     private Context applicationContext;
     private AlertSystem alertSystem;
     private UserDatabaseHelper userDatabaseHelper;
     private Queue<UserData> userDataLinkedList;
     private int userAverage = 70;
+    private Double steering;
 
-
+    /**
+     * Analyses data coming in from the data parser and alerts the user.
+     * @param applicationContext the current context
+     */
     public DataAnalyst(Context applicationContext) {
         this.applicationContext = applicationContext;
         alertSystem = new AlertSystem(applicationContext);
@@ -33,6 +38,10 @@ public class DataAnalyst extends Thread implements DataReceiver {
         userDataLinkedList = new ConcurrentLinkedQueue<>();
     }
 
+    /**
+     * Append the user data to the queue to be processed.
+     * @param userData
+     */
     @Override
     public void onReceive(UserData userData) {
         userDataLinkedList.add(userData);
@@ -50,26 +59,38 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 System.out.println(userData.toString());
                 SensorData sensorData = userData.getSensorData();
                 SimData simData = userData.getSimData();
+                Double turn = null;
+                if (steering == null) {
+                    steering = simData.getSteering();
+                } else {
+                    turn = calculateTurn(simData.getSteering());
+                }
                 int deviation = determineHRDeviation(sensorData);
                 System.out.println(deviation);
-                if(deviation >= 20) { //HR Deviation values come from: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2653595/
+                if(deviation >= 20) {
+                    //HR Deviation values come from: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2653595/
                     System.out.println("High deviation occurred");
-                    if (simData.getSpeed() > 120) { //TODO: Change this statement to work off of the results from determineHRDeviation
-                        alertSystem.alert(applicationContext, AlertSystem.ALERT_TYPE_FATAL, "SLOW DOWN!");
+                    // Create an alert if the user is driving aggressively.
+                    if (simData.getSpeed() > 120 && turn != null && turn.doubleValue() >= 15) {
+                        alertSystem.alert(applicationContext, AlertSystem.ALERT_TYPE_FATAL,
+                                "Aggressive Driving Detected");
+                    } else if (simData.getSpeed() > 120) {
+                        alertSystem.alert(applicationContext, AlertSystem.ALERT_TYPE_WARNING,
+                                "Be careful!");
                     }
                 } else if (deviation>=10 && deviation <20) {
                     System.out.println("Moderate deviation occurred");
                 } else {
                     System.out.println("No deviation occurred");
                 }
-
             }
         }
     }
 
+
     /**
      * Determines deviations in the driver's behaviours
-     * TODO: This function should use patterndata matching or alternative learning algorithms in the next semester
+     * TODO: This function should use pattern data matching or alternative learning algorithms in the next semester
      * @param sensorData: The sensor data
      * @return Deviations in the heart rate
      */
@@ -80,4 +101,16 @@ public class DataAnalyst extends Thread implements DataReceiver {
         stdDev = Math.abs(sensorData.getHeartRate() - userAverage);
         return stdDev;
     }
+
+
+    /**
+     * Returns the absolute difference of the steering wheel degree.
+     * @param currentSteering
+     * @return
+     */
+    private double calculateTurn(double currentSteering) {
+        return Math.abs(steering.doubleValue() - currentSteering);
+    }
+
+
 }

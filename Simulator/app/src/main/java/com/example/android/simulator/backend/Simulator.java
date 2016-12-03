@@ -22,6 +22,9 @@ import java.util.TimerTask;
 
 public class Simulator implements Runnable, Car {
 
+    /**
+     * Initializes all the variables needed for the Simulator class
+     */
     private final int CLIMATE_SUNNY = 10;
     private final int CLIMATE_HAIL = 11;
     private final int CLIMATE_SNOWY = 12;
@@ -92,18 +95,31 @@ public class Simulator implements Runnable, Car {
         // TODO: 11/3/2016 Simulator - storeData
     }
 
+    /**
+     * Stores all the variables for later use
+     * @param context - Current context of the system
+     * @param view - Current view of the application
+     * @param device - the device you are connected to
+     */
     public Simulator(Context context, View view, ThreadConnectBTdevice device) {
+        //Stores the device you are connected to
         blueTooth = device;
         this.context = context;
         this.view = view;
         count = 0;
     }
 
+    /**
+     * Store the car simulator values into their respected array
+     */
     @Override
     public void run() {
+        //Gets the value text box that corrolates to the Accleration and Degree slider
         final TextView seekBarAccValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_acceleration);
         final TextView seekBarDegValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_steering);
         System.out.println("In the run statement");
+
+        //Checks what gear the user is in and adds it to the gear array
         if(gearPark) {
             gear.add("Park");
         } else if(gearReverse) {
@@ -114,6 +130,7 @@ public class Simulator implements Runnable, Car {
             gear.add("Park");
         }
 
+        //Checks what the climate currently is and adds that value to the climate array
         if(climateHail) {
             climate.add(CLIMATE_HAIL);
         } else if(climateSnowy) {
@@ -126,6 +143,7 @@ public class Simulator implements Runnable, Car {
             climate.add(CLIMATE_SUNNY);
         }
 
+        //Checks the condition of the road and sets that to the roadCondition array
         if(roadConWet) {
             roadCondition.add(ROAD_CON_WET);
         } else if(roadConWarmIce) {
@@ -136,6 +154,7 @@ public class Simulator implements Runnable, Car {
             roadCondition.add(0);
         }
 
+        //Checks the type of the road is and adds it to the roadType array
         if(roadTypePaved) {
             roadType.add(ROAD_TYPE_PAVED);
         } else if(roadTypeGravel) {
@@ -166,11 +185,13 @@ public class Simulator implements Runnable, Car {
         this.setMin(EnvironmentSimulatorFragment.minute);
         this.setSecond(EnvironmentSimulatorFragment.seconds);
 
+        // set the climate Severity, Visibility, and Feel
         this.setSeverity(EnvironmentSimulatorFragment.severity);
         this.setClimateFeel(EnvironmentSimulatorFragment.climateFeel);
         this.setVisibility(EnvironmentSimulatorFragment.visibility);
 
         count++;
+        //When the count is 5 finally send all the data that has been stored in the array
         if (count == 5) {
             count = 0;
             sendData();
@@ -178,10 +199,13 @@ public class Simulator implements Runnable, Car {
     }
     /**
      * Polls for data every 5 seconds.
+     * Then sends the data to the server
      */
     public void sendData() {
+        //Sets up the variables that will allow you to convert the data into bytes
         ByteArrayOutputStream boas = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(boas);
+        //Run 5 times each time grabbing that element in the array's and turning them into bytes
         for (int i = 0; i < 5; i++) {
             try {
                 System.out.println(gear.get(i));
@@ -206,12 +230,16 @@ public class Simulator implements Runnable, Car {
                 e.printStackTrace();
             }
         }
+        //If you are connected to the bluetooth server send the message
         if (blueTooth.connectedThread != null) {
+            //Store all the values that have been turned into bytes into the bytes array
             byte[] bytes = boas.toByteArray();
+            //Send the message off to the bluetooth server
             blueTooth.connectedThread.write(bytes);
         } else {
             System.out.println("There is no connection avaible. Please try again later!");
         }
+        //Clears all the arrays of their previous values - has they have been sent to the server already
         gear.clear();
         speed.clear();
         acceleration.clear();
@@ -227,6 +255,9 @@ public class Simulator implements Runnable, Car {
         roadType.clear();
     }
 
+    /**
+     * Sets the gear variable to park
+     */
     @Override
     public void park() {
         gearPark = true;
@@ -234,6 +265,9 @@ public class Simulator implements Runnable, Car {
         gearReverse = false;
     }
 
+    /**
+     * Sets the gear variable to reverse
+     */
     @Override
     public void reverse() {
         gearReverse = true;
@@ -241,6 +275,9 @@ public class Simulator implements Runnable, Car {
         gearDrive = false;
     }
 
+    /**
+     * Sets the gear variable to drive
+     */
     @Override
     public void drive() {
         this.gearDrive = true;
@@ -250,35 +287,58 @@ public class Simulator implements Runnable, Car {
     }
 
 
-
+    /**
+     * Sets cruiseControl to true
+     */
     @Override
     public void cruise() {
         crusieControl = true;
     }
 
+    /**
+     * Sets pause variable to true
+     */
     @Override
     public void pause() {
         pause = true;
     }
 
+    /**
+     * Adds degree into steering array
+     * @param degree - current value of the degree slider
+     */
     public void setSteering(double degree){
         steering.add(degree);
     }
 
+    /**
+     * Adds accleration into accleration array
+     * @param acceleration - current value of the accleration slider
+     */
     public void setAcceleration(double acceleration){
         this.acceleration.add(acceleration);
     }
 
+    /**
+     * Returns the first index in the steering array
+     * @return steering array value
+     */
     @Override
     public double getSteering() {
         return steering.get(0);
     }
 
+    /**
+     * Sets the signal variable to the value of SIGNAL_LEFT
+     */
     @Override
     public void signalLeft() {
         signal = SIGNAL_LEFT;
     }
 
+    /**
+     * Sets the signal variable to the value of SIGNAL_RIGHT
+     */
     @Override
     public void signalRight() {
         signal = SIGNAL_RIGHT;
@@ -294,6 +354,9 @@ public class Simulator implements Runnable, Car {
 
     }
 
+    /**
+     * Sets the climateSunny variable to true and the rest to false
+     */
     public void climateSuuny() {
         climateSunny = true;
         climateSnowy = false;
@@ -301,6 +364,9 @@ public class Simulator implements Runnable, Car {
         climateHail = false;
     }
 
+    /**
+     * Sets the correct climateHail variable to true and the rest to false
+     */
     public void climateHail() {
         climateSunny = false;
         climateSnowy = false;
@@ -308,6 +374,9 @@ public class Simulator implements Runnable, Car {
         climateHail = true;
     }
 
+    /**
+     * Sets the climateSnowy variable to true and the rest to false
+     */
     public void climateSnowy() {
         climateSunny = false;
         climateSnowy = true;
@@ -315,6 +384,9 @@ public class Simulator implements Runnable, Car {
         climateHail = false;
     }
 
+    /**
+     * Sets the climateRain variable to true and the rest to false
+     */
     public void climateRain() {
         climateSunny = false;
         climateSnowy = false;
@@ -322,67 +394,112 @@ public class Simulator implements Runnable, Car {
         climateHail = false;
     }
 
+    /**
+     * Adds the current speed to the speed array
+     * @param speed - current speed of the system
+     */
     public void setSpeed(double speed) {
-        System.out.println("The speed is: "+ speed);
         this.speed.add(speed);
     }
 
+    /**
+     * Sets the roadConIce variable to true and the rest to false
+     */
     public void roadConditionIce() {
         roadConIce = true;
         roadConWarmIce = false;
         roadConWet = false;
     }
 
+    /**
+     * Sets the roadConWarmIce variable to true and the rest to false
+     */
     public void roadConditionWarmIce() {
         roadConIce = false;
         roadConWarmIce = true;
         roadConWet = false;
     }
 
+    /**
+     * Sets the roadConWet variable to true and the rest to false
+     */
     public void roadConditionWet() {
         roadConIce = false;
         roadConWarmIce = false;
         roadConWet = true;
     }
 
+    /**
+     * Sets the roadTypeDirt variable to true and the rest to false
+     */
     public void roadTypeDirt() {
         roadTypeDirt = true;
         roadTypeGravel = false;
         roadTypePaved = false;
     }
 
+    /**
+     * Sets the roadTypePaved variable to true and the rest to false
+     */
     public void roadTypePaved() {
         roadTypeDirt = false;
         roadTypeGravel = false;
         roadTypePaved = true;
     }
 
+    /**
+     * Sets the roadTypeGravel variable to true and the rest to false
+     */
     public void roadTypeGravel() {
         roadTypeDirt = false;
         roadTypeGravel = true;
         roadTypePaved = false;
     }
 
+    /**
+     * Adds the hour to the timeHour array
+     * @param hour - the current hour in the system(military time)
+     */
     public void setHour(int hour) {
         timeHour.add(hour);
     }
 
+    /**
+     * Adds the minute to the timeMinute array
+     * @param min - the current minute in the system
+     */
     public void setMin(int min) {
         timeMinute.add(min);
     }
 
+    /**
+     * Adds the second to the timeSecond array
+     * @param second - the current second in the system
+     */
     public void setSecond(int second) {
         timeSecond.add(second);
     }
 
+    /**
+     * Adds the visibility to the climateVisibility array
+     * @param visibility - current visibility of the system
+     */
     public void setVisibility(int visibility){
         this.climateVisibility.add(visibility);
     }
 
+    /**
+     * Adds the feeling to the climateFeel array
+     * @param feeling - current feel of the  system
+     */
     public void setClimateFeel(int feeling){
         this.climateFeel.add(feeling);
     }
 
+    /**
+     * Adds the severity to the roadSeverity array
+     * @param severity - current severity of the system
+     */
     public void setSeverity(int severity) {
         this.roadSeverity.add(severity);
     }
