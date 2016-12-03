@@ -20,28 +20,35 @@ public class MessageReceiverService extends WearableListenerService {
     private static final String TAG = "APPWB/MRS";
     private DeviceClient deviceClient;
 
+    /**
+     * Standard on create method
+     */
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.v(TAG, "Create Client");
         deviceClient = DeviceClient.getInstance(this);
     }
 
+    /**
+     * Standard onDataChange
+     * @param dataEvents
+     */
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
         super.onDataChanged(dataEvents);
-        Log.v(TAG, "Data Change");
     }
 
 
+    /**
+     * Waits for start or stop from the client
+     * @param messageEvent
+     */
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
         Log.v(TAG, messageEvent.getPath());
         if (messageEvent.getPath().equals("/start")) {
-            Log.v(TAG, "Recieved");
             startService(new Intent(this, SensorService.class));
         }
-
         if (messageEvent.getPath().equals("/stop")) {
             stopService(new Intent(this, SensorService.class));
         }

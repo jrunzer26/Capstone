@@ -20,31 +20,42 @@ public class SensorRecieverService extends WearableListenerService{
     private static final String TAG = "APPHB/SRS";
     private RemoteSensorManager sensorManager;
 
+    /**
+     * Checks if a android wear device disconnects
+     * @param peer
+     */
     @Override
     public void onPeerDisconnected(Node peer) {
         super.onPeerDisconnected(peer);
-
         Log.i(TAG, "Disconnected: " + peer.getDisplayName() + " (" + peer.getId() + ")");
     }
 
+    /**
+     * Standard onCreate method
+     */
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.i(TAG, "Created SRS");
         sensorManager = RemoteSensorManager.getInstance(this);
     }
 
+    /**
+     * Checks if a android wear device connects
+     * @param peer
+     */
     @Override
     public void onPeerConnected(Node peer) {
         super.onPeerConnected(peer);
-        int something= 10;
-        Log.i(TAG,""+something);
+        sensorManager = RemoteSensorManager.getInstance(this);
         Log.i(TAG, "Connected: " + peer.getDisplayName() + " (" + peer.getId() + ")");
     }
 
+    /**
+     * Checks if android wear send changed data
+     * @param dataEvents
+     */
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
-        Log.d(TAG, "onDataChanged()");
         int sensor, accuracy;
         long timestamp;
         float [] values;
@@ -57,13 +68,12 @@ public class SensorRecieverService extends WearableListenerService{
                 if (path.startsWith("/sensors/")) {
                     sensor = Integer.parseInt(uri.getLastPathSegment());
                     mapData = DataMapItem.fromDataItem(dataItem).getDataMap();
-                    if(mapData == null){
-                        Log.i(TAG,"Empty Map Data");
+                    if(mapData != null){
+                        accuracy = mapData.getInt("accuracy");
+                        timestamp = mapData.getLong("time");
+                        values = mapData.getFloatArray("value");
+                        sensorManager.addSensorData(sensor, accuracy, timestamp, values);
                     }
-                    accuracy = mapData.getInt("accuracy");
-                    timestamp = mapData.getLong("time");
-                    values = mapData.getFloatArray("value");
-                    sensorManager.addSensorData(sensor, accuracy, timestamp, values);
                 }
             }
         }
