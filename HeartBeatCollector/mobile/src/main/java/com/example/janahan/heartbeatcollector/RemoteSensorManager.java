@@ -55,8 +55,10 @@ public class RemoteSensorManager {
     public Sensors testSensor(int id) {
         Sensors sensor = sensorMap.get(id);
         if (sensor == null) {
+            Log.i(TAG,"Created");
             return null;
         }
+
         return sensor;
     }
 
@@ -69,7 +71,10 @@ public class RemoteSensorManager {
         Sensors sensor = sensorMap.get(id);
         if (sensor == null) {
             sensor = new Sensors(id);
+            Log.i(TAG,"Created");
             sensorMap.put(id,sensor);
+        }else{
+            Log.i(TAG,"Not Null");
         }
         return sensor;
     }
