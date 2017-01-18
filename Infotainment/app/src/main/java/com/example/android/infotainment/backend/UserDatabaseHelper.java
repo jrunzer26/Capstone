@@ -16,6 +16,7 @@ import java.util.ArrayList;
  * Created by 100520993 on 11/15/2016.
  */
 
+// TODO: Modify entire object to fit project constraints. 
 public class UserDatabaseHelper extends SQLiteOpenHelper {
     private static final String NAME = "USER_DATABASE";
     private static final int DATABASE_VERSION = 1;

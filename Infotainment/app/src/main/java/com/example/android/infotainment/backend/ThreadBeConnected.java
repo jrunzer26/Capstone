@@ -31,6 +31,7 @@ public class ThreadBeConnected extends Thread{
      * @param dataParser - the parser to receive the data
      * @param car - true if a car handler is created
      */
+     // TODO: remove myName parameter, use myUUID 
     public ThreadBeConnected(String myName, UUID myUUID, Context temp, DataParser dataParser, boolean car){
         this.dataParser = dataParser;
         this.car = car;
@@ -47,6 +48,7 @@ public class ThreadBeConnected extends Thread{
     /**
      *  Opens and creates the bluetooth handler.
      */
+     // TODO: Fix the run() method
     @Override
     public void run() {
         BluetoothSocket bluetoothSocket = null;

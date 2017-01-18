@@ -52,6 +52,7 @@ public class RemoteSensorManager {
         this.executorService = Executors.newCachedThreadPool();
     }
 
+    // TODO: Check if removable
     public Sensors testSensor(int id) {
         Sensors sensor = sensorMap.get(id);
         if (sensor == null) {

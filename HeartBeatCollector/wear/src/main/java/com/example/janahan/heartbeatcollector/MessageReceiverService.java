@@ -1,7 +1,7 @@
 package com.example.janahan.heartbeatcollector;
 
 /**
- * Created by janahan on 07/11/16.
+ * Created by Janahan on 07/11/16.
  */
 import android.content.Intent;
 import android.hardware.Sensor;
