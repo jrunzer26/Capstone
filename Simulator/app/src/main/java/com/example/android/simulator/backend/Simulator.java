@@ -20,6 +20,9 @@ import java.util.TimerTask;
  * Created by 100520993 on 11/3/2016.
  */
 
+
+// TODO: Clean this class (non priority)
+
 public class Simulator implements Runnable, Car {
 
     /**
@@ -62,7 +65,9 @@ public class Simulator implements Runnable, Car {
     private boolean roadTypePaved = false;
     private boolean roadTypeDirt = false;
 
-
+    // TODO: Create an object for holding these values. 
+    // Use a single array list of this new object
+    //private ArrayList<simInstanceObject> sio = new ArrayList<>();
     private ArrayList<Double> speed = new ArrayList<>();
     private ArrayList<String> gear = new ArrayList<>();
     private boolean crusieControl = false;
@@ -120,9 +125,10 @@ public class Simulator implements Runnable, Car {
         System.out.println("In the run statement");
 
         //Checks what gear the user is in and adds it to the gear array
-        if(gearPark) {
-            gear.add("Park");
-        } else if(gearReverse) {
+
+        // TODO: For the following if trees, reduce these to a single statement through use of an object
+        // EX. gear.add(gear.value);
+        if(gearReverse) {
             gear.add("Reverse");
         } else if(gearDrive) {
             gear.add("Drive");
@@ -208,6 +214,7 @@ public class Simulator implements Runnable, Car {
         //Run 5 times each time grabbing that element in the array's and turning them into bytes
         for (int i = 0; i < 5; i++) {
             try {
+                // TODO: Move to method
                 System.out.println(gear.get(i));
                 dos.writeUTF(gear.get(i));
                 dos.writeBoolean(crusieControl);

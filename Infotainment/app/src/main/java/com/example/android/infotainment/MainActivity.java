@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         threadSetup();
         bluetoothSetup();
         // setup the UI
+        // TODO: Refactor the following code into a single method
         TabHost host = (TabHost) findViewById(R.id.tabhost_mainactivity_tabs);
         host.setup();
         // gps tab

@@ -50,6 +50,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     /**
      * Analyze the heart rate and car data.
      */
+    // TODO: Move from rule-based to pattern matching
     @Override
     public void run() {
         while (true) {
@@ -59,6 +60,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 System.out.println(userData.toString());
                 SensorData sensorData = userData.getSensorData();
                 SimData simData = userData.getSimData();
+                // TODO: Remove these variables, use the simData object
                 Double turn = null;
                 if (steering == null) {
                     steering = simData.getSteering();
@@ -83,6 +85,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 } else {
                     System.out.println("No deviation occurred");
                 }
+                // TODO: Change to binary conditioning (each bit represents a condition)
             }
         }
     }
