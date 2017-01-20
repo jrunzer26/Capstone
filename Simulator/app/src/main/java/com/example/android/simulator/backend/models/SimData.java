@@ -1,4 +1,4 @@
-package com.example.android.infotainment.backend.models;
+package com.example.android.simulator.backend.models;
 
 /**
  * Created by 100520993 on 11/15/2016.
@@ -32,7 +32,7 @@ public class SimData {
     public static final int ROAD_TYPE_DIRT = 52;
 
     private double speed = 0;
-    private String gear = null;
+    private String gear = PARK;
     private boolean cruseControl = false;
     private boolean pause = false;
     private int signal = 0;

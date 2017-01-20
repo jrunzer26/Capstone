@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         rsm = RemoteSensorManager.getInstance(this);
-        final TextView t1 = (TextView)findViewById(R.id.textView_sensorValue);
+        //final TextView t1 = (TextView)findViewById(R.id.textView_sensorValue);
         final Button button1 = (Button) findViewById(R.id.start);
         final Button button2 = (Button) findViewById(R.id.stop);
         button1.setOnClickListener(new View.OnClickListener() {
