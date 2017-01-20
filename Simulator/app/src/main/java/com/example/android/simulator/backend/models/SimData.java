@@ -1,4 +1,4 @@
-package com.example.android.infotainment.backend.models;
+package com.example.android.simulator.backend.models;
 
 /**
  * Created by 100520993 on 11/15/2016.

@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.android.infotainment.backend.models.SensorData;
 import com.example.android.infotainment.backend.models.SimData;
+import com.example.android.infotainment.backend.models.Time;
 import com.example.android.infotainment.backend.models.UserData;
 
 import java.util.ArrayList;
@@ -85,9 +86,10 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         values.put("climateVisibility", simData.getClimateVisibility());
         values.put("climateDensity", simData.getClimateDensity());
         values.put("roadSeverity", simData.getRoadSeverity());
-        values.put("timeHour", simData.getTimeHour());
-        values.put("timeMinute", simData.getTimeMinute());
-        values.put("timeSecond", simData.getTimeSecond());
+        Time time = simData.getTime();
+        values.put("timeHour", time.getHour());
+        values.put("timeMinute", time.getMinute());
+        values.put("timeSecond", time.getSecond());
         values.put("roadCondition", simData.getRoadCondition());
         values.put("roadType", simData.getRoadType());
         // sensor data
@@ -122,9 +124,12 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
             simData.setAcceleration(cursor.getDouble(cursor.getColumnIndex("acceleration")));
             simData.setClimate(cursor.getInt(cursor.getColumnIndex("climate")));
             simData.setClimateVisibility(cursor.getInt(cursor.getColumnIndex("climateVisibility")));
-            simData.setTimeHour(cursor.getInt(cursor.getColumnIndex("timeHour")));
-            simData.setTimeMinute(cursor.getInt(cursor.getColumnIndex("timeMinute")));
-            simData.setTimeSecond(cursor.getInt(cursor.getColumnIndex("timeSecond")));
+            // set the time
+            int hour = cursor.getInt(cursor.getColumnIndex("timeHour"));
+            int minute = cursor.getInt(cursor.getColumnIndex("timeMinute"));
+            int second = cursor.getInt(cursor.getColumnIndex("timeSecond"));
+            Time time = new Time(hour, minute, second);
+            simData.setTime(time);
             simData.setRoadCondition(cursor.getInt(cursor.getColumnIndex("roadCondition")));
             // sensor data
             sensorData.setHeartRate(cursor.getInt(cursor.getColumnIndex("heartRate")));
