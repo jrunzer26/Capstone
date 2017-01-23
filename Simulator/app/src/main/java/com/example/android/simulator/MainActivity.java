@@ -52,11 +52,10 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Declaring the bluetooth variables
      */
-    private UUID myUUID;
+    UUID myUUID;
     ThreadConnectBTdevice myThreadConnectBTdevice;
     BluetoothAdapter bluetoothAdapter;
     private Simulator sim;
-    Button connectButton;
 
     /**
      * Initialize bluetooth variables and set up Toolbar
@@ -78,7 +77,10 @@ public class MainActivity extends AppCompatActivity {
 
 
         //Creating the simulator object
+        System.out.println("The value of mtThread shit is: "+ myThreadConnectBTdevice.connectedThread);
         sim = new Simulator(this, view, myThreadConnectBTdevice);
+        System.out.println("The value of mtThread shit is: "+ myThreadConnectBTdevice.connectedThread);
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -89,14 +91,13 @@ public class MainActivity extends AppCompatActivity {
 
         getSupportActionBar().hide();
 
-        connectButton = (Button)findViewById(R.id.button_reConnect);
-
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 sim.run();
             }
         }, 2000, 1000);
+
     }
 
     /**

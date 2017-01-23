@@ -19,7 +19,7 @@ public class ThreadConnectBTdevice extends Thread {
     private BluetoothSocket bluetoothSocket =null;
     private final BluetoothDevice bluetoothDevice;
     public ConnectedThread connectedThread;
-    public Button reCon_Button;
+    public boolean isConnected;
 
     /**
      * Sets up the socket that it will try to connect to
@@ -28,6 +28,7 @@ public class ThreadConnectBTdevice extends Thread {
      */
     public ThreadConnectBTdevice(BluetoothDevice device, UUID myUUID){
         //Sets the bluetooth device you are trying to connect to
+        isConnected = false;
         bluetoothDevice = device;
         try {
             //Trys to create a socket based off of the UUID and device object you passed in
@@ -46,10 +47,16 @@ public class ThreadConnectBTdevice extends Thread {
             //Creates a connectedThread object that passes in the bluetoothSocket
             connectedThread = new ConnectedThread(bluetoothSocket);
             //Starts the thread in the connectedThread object
+            isConnected = true;
             connectedThread.start();
         } catch (Exception e) {
             Log.e("Error", "Could not connect to the server");
+            isConnected = false;
         }
+    }
+
+    public boolean getIsConnected() {
+        return isConnected;
     }
 
     /**
@@ -66,6 +73,7 @@ public class ThreadConnectBTdevice extends Thread {
             connectedThread.write(bytes);
             connectedThread.cancel();
             bluetoothSocket.close();
+            isConnected = false;
         } catch (Exception e) { }
     }
 }

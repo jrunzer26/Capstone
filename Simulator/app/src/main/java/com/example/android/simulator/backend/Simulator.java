@@ -231,7 +231,7 @@ public class Simulator implements Runnable, Car {
             }
         }
         //If you are connected to the bluetooth server send the message
-        if (blueTooth.connectedThread != null) {
+        if (blueTooth.getIsConnected()) {
             //Store all the values that have been turned into bytes into the bytes array
             byte[] bytes = boas.toByteArray();
             //Send the message off to the bluetooth server
