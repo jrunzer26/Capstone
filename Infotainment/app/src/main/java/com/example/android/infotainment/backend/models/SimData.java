@@ -42,7 +42,7 @@ public class SimData {
     private int climateVisibility = 0;
     private int climateDensity = 0;
     private int roadSeverity = 0;
-    private Time time;
+    private Time time = new Time(12, 00, 00);
     private int roadCondition = 0;
     private int roadType =0;
 
