@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.android.infotainment.backend.models.SensorData;
@@ -12,6 +13,7 @@ import com.example.android.infotainment.backend.models.Time;
 import com.example.android.infotainment.backend.models.UserData;
 
 import java.util.ArrayList;
+import java.util.jar.Pack200;
 
 /**
  * Created by 100520993 on 11/15/2016.
@@ -54,6 +56,7 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
                 "heartRate int " +
                 ")"
         );
+        System.out.println("Create user db");
     }
 
     /**
@@ -164,7 +167,14 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         String[] where = new String[0];
         SQLiteDatabase db = getReadableDatabase();
         int id = 0;
-        Cursor cursor = db.rawQuery("SELECT tripID from Data", where);
+        Cursor cursor;
+        try {
+            cursor = db.rawQuery("SELECT tripID from Data", where);
+        } catch (SQLiteException e) {
+            onCreate(getWritableDatabase());
+            cursor = db.rawQuery("SELECT tripID from Data", where);
+        }
+
         if (cursor.getCount() > 0) {
             cursor.moveToLast();
             id = cursor.getInt(0) + 1;
