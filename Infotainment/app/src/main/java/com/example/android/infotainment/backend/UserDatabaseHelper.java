@@ -173,4 +173,32 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         return id;
     }
+
+    /**
+     * Prints out the data captured in a table format to copy and paste into excel
+     */
+    public void printRelevantDataSet() {
+        String[] where = new String[0];
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT tripID, speed, steering, acceleration, " +
+                "timeHour, timeMinute, timeSecond, heartRate from Data", where);
+        cursor.moveToFirst();
+        System.out.printf("\t%6s\t%-6s\t%8s\t%12s\t%2s\t%4s\t%6s\t%6s\n", "TripID", "Speed", "Steering",
+                "Acceleration", "HR", "Hour", "Minute", "Second");
+        while(!cursor.isAfterLast()) {
+            int tripID = cursor.getInt(cursor.getColumnIndex("tripID"));
+            double speed = cursor.getDouble(cursor.getColumnIndex("speed"));
+            double steering = cursor.getDouble(cursor.getColumnIndex("steering"));
+            double acceleration = cursor.getDouble(cursor.getColumnIndex("tripID"));
+            int hr = cursor.getInt(cursor.getColumnIndex("heartRate"));
+            int timeHour = cursor.getInt(cursor.getColumnIndex("timeHour"));
+            int timeMinute = cursor.getInt(cursor.getColumnIndex("timeMinute"));
+            int timeSecond = cursor.getInt(cursor.getColumnIndex("timeSecond"));
+            System.out.printf("\t%6d\t%6.2f\t%8.2f\t%12.2f\t%2d\t%4d\t%6d\t%6d\n", tripID, speed, steering,
+                    acceleration, hr, timeHour, timeMinute, timeSecond);
+            cursor.moveToNext();
+        }
+        db.close();
+        cursor.close();
+    }
 }
