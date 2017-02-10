@@ -9,6 +9,7 @@ import com.example.android.infotainment.backend.models.SimData;
 import com.example.android.infotainment.backend.models.Turn;
 import com.example.android.infotainment.backend.models.TurnDataPoint;
 import com.example.android.infotainment.backend.models.UserData;
+import com.example.android.infotainment.backend.models.SlidingWindow;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -31,6 +32,12 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private int userAverage = 70;
     private Double steering;
     private BaselineDatabaseHelper baselineDatabaseHelper;
+    //VARIABLES AND STRUCTURES REQUIRED FOR THE ALGORITHM;
+    private final int WINDOW = 5; //Size of the sliding window
+    private final int THRESHOLD = 0; //Difference between window and overall needed to trigger DTW
+    private SlidingWindow sw = new SlidingWindow(WINDOW);
+    private ArrayList<Double> mean = new ArrayList<Double>();
+    private ArrayList<Double> stdDev = new ArrayList<Double>();
 
     /**
      * Analyses data coming in from the data parser and alerts the user.
@@ -85,13 +92,27 @@ public class DataAnalyst extends Thread implements DataReceiver {
     // TODO: Move from rule-based to pattern matching
     @Override
     public void run() {
+        int counter = 0;
+        //dataCounter maintains being 1 higher than the index of both the mean and stdDev arrayLists.
         while (true) {
             // check to see if data is available
             if (userDataLinkedList.size() > 0) {
+                counter++;
                 UserData userData = userDataLinkedList.remove();
                 System.out.println(userData.toString());
                 SensorData sensorData = userData.getSensorData();
                 SimData simData = userData.getSimData();
+
+
+                //ALGORITHM STARTS HERE
+                step1_HeartRateDeviations(sensorData, counter);
+                if(step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() -1))) {
+                    //RUN FOLLOWING STEPS
+                }
+
+
+
+
                 // TODO: Remove these variables, use the simData object
                 Double turn = null;
                 if (steering == null) {
@@ -123,7 +144,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     }
 
 
-    /**
+    /** DEPRECIATED
      * Determines deviations in the driver's behaviours
      * TODO: This function should use pattern data matching or alternative learning algorithms in the next semester
      * @param sensorData: The sensor data
@@ -137,6 +158,39 @@ public class DataAnalyst extends Thread implements DataReceiver {
         return stdDev;
     }
 
+    /**
+     * Determines the Mean given a new entry to the data stream
+     * @param value: the new value
+     * @return the mean
+     */
+    private double findMean(int value){
+        if (mean.size() == 0){
+            return value;
+        }
+        return ((mean.get(mean.size()-1)*mean.size()) + value)/(mean.size()+1);
+    }
+
+    private void step1_HeartRateDeviations(SensorData sensorData, int dataCounter){
+        System.out.println("Step1");
+        double rollingStdDev = 0;
+        sw.add(sensorData.getHeartRate());
+        mean.add(findMean(sensorData.getHeartRate()));
+        if(dataCounter == 1){
+            stdDev.add(0.0);
+        }else {
+            double step1 = (dataCounter-2) *(stdDev.get(dataCounter-2)) * (stdDev.get(dataCounter-2));
+            double step2 = (dataCounter-1)*((mean.get(dataCounter-2) - mean.get(dataCounter-1)) * (mean.get(dataCounter-2) - mean.get(dataCounter-1)));
+            double step3 = (sensorData.getHeartRate() - mean.get(dataCounter-1)) * (sensorData.getHeartRate() - mean.get(dataCounter-1));
+            rollingStdDev = Math.sqrt((step1 + step2 + step3) / (dataCounter-1));
+            stdDev.add(rollingStdDev);
+            System.out.println(rollingStdDev);
+        }
+
+    }
+
+    private boolean step2_HRComparison(double window, double threshold){
+        return ((window - threshold) > THRESHOLD);
+    }
 
     /**
      * Returns the absolute difference of the steering wheel degree.
