@@ -45,7 +45,7 @@ public class ThreadConnectBTdevice extends Thread {
             //Attempts to connect to the device server socket
             bluetoothSocket.connect();
             //Creates a connectedThread object that passes in the bluetoothSocket
-            connectedThread = new ConnectedThread(bluetoothSocket);
+            connectedThread = new ConnectedThread(bluetoothSocket, this);
             //Starts the thread in the connectedThread object
             isConnected = true;
             connectedThread.start();

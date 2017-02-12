@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -29,7 +30,7 @@ public class SimulatedActivity extends Activity{
     final int HEART_MAX = 170;
     final int HEART_MIN = 40;
     private int count = 0;
-
+    Button connectButton;
     private SensorData sim;
 
     /**
@@ -49,6 +50,8 @@ public class SimulatedActivity extends Activity{
         setContentView(R.layout.activity_simulated);
         View view = findViewById(android.R.id.content);
         count = 0;
+
+        connectButton = (Button)findViewById(R.id.button_connect);
 
         //Assigning the UUID key
         myUUID = UUID.fromString("6804a970-a361-11e6-bdf4-0800200c9a66");
@@ -98,6 +101,45 @@ public class SimulatedActivity extends Activity{
 
             }
         }, 0, 1000);
+
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                updateConnection();
+            }
+        }, 2000, 1000);
+
+        connectButton.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+                BluetoothDevice device;
+                if(pairedDevices.size() > 0) {
+                    for (BluetoothDevice dev: pairedDevices) {
+                        device = dev;
+                        if(device.getName().equals("Jason R (Galaxy Tab4)")){
+                            myThreadConnectBTdevice.run();
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+
+    private void updateConnection() {
+        Activity temp = this;
+        temp.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(myThreadConnectBTdevice.getIsConnected()) {
+                    connectButton.setText("Connected");
+                } else {
+                    connectButton.setText("Connect");
+                }
+            }
+        });
     }
 
     /**
