@@ -41,7 +41,8 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
                 "turnID int,                           " +
                 "speed single,                         " +
                 "timeTaken int,                        " +
-                "HR int                                " +
+                "HR int,                               " +
+                "steering single                       " +
                 ")                                     ";
         db.execSQL("CREATE TABLE " + RIGHT_TURN + turnSQLAttributes);
         db.execSQL("CREATE TABLE " + LEFT_TURN + turnSQLAttributes);
@@ -110,6 +111,7 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
             values.put("speed", point.getSpeed());
             values.put("timeTaken", point.getTimeTaken());
             values.put("HR", point.getHeartRate());
+            values.put("steering", point.getSteering());
             db.insert(tableName, null, values);
         }
         db.close();
@@ -143,8 +145,9 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
             double speed = cursor.getDouble(cursor.getColumnIndex("speed"));
             int timeTaken = cursor.getInt(cursor.getColumnIndex("timeTaken"));
             int heartRate = cursor.getInt(cursor.getColumnIndex("HR"));
+            double steering = cursor.getDouble(cursor.getColumnIndex("steering"));
             // add the point to the turn
-            TurnDataPoint dataPoint = new TurnDataPoint(speed, timeTaken, heartRate);
+            TurnDataPoint dataPoint = new TurnDataPoint(speed, timeTaken, heartRate, steering);
             turn.addTurnPoint(dataPoint);
             // add then turn to the array list if it was less
             if (turnID > previousTurnID) {

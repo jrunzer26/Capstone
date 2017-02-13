@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.example.android.infotainment.backend.models.SensorData;
 import com.example.android.infotainment.backend.models.SimData;
@@ -21,6 +22,7 @@ import java.util.jar.Pack200;
 
 // TODO: Modify entire object to fit project constraints. 
 public class UserDatabaseHelper extends SQLiteOpenHelper {
+    private final String TAG = "UserDataHelper";
     private static final String NAME = "USER_DATABASE";
     private static final int DATABASE_VERSION = 1;
 
@@ -53,7 +55,8 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
                 "timeAM int, " +
                 "roadCondition int, " +
                 "roadType int, " +
-                "heartRate int " +
+                "heartRate int, " +
+                "flag int " +
                 ")"
         );
         System.out.println("Create user db");
@@ -78,6 +81,7 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         SensorData sensorData = userData.getSensorData();
         // user specific data
         values.put("tripID", userData.getTripID());
+        values.put("flag", userData.getFlag());
         // sim data
         values.put("speed", simData.getSpeed());
         values.put("gear", simData.getGear());
@@ -107,43 +111,10 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
      * @return the sim data.
      */
     public ArrayList<UserData> getData() {
-        ArrayList<UserData> userDatas = new ArrayList<>();
         String[] where = new String[0];
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * from Data", where);
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            UserData userData = new UserData();
-            SensorData sensorData = new SensorData();
-            SimData simData = new SimData();
-            // add the data to the object
-            // user data
-            userData.setTripID(cursor.getInt(cursor.getColumnIndex("tripID")));
-            // sim data
-            simData.setSpeed(cursor.getInt(cursor.getColumnIndex("speed")));
-            simData.setGear(cursor.getString(cursor.getColumnIndex("gear")));
-            simData.setSignal(cursor.getInt(cursor.getColumnIndex("signal")));
-            simData.setSteering(cursor.getDouble(cursor.getColumnIndex("steering")));
-            simData.setAcceleration(cursor.getDouble(cursor.getColumnIndex("acceleration")));
-            simData.setClimate(cursor.getInt(cursor.getColumnIndex("climate")));
-            simData.setClimateVisibility(cursor.getInt(cursor.getColumnIndex("climateVisibility")));
-            // set the time
-            int hour = cursor.getInt(cursor.getColumnIndex("timeHour"));
-            int minute = cursor.getInt(cursor.getColumnIndex("timeMinute"));
-            int second = cursor.getInt(cursor.getColumnIndex("timeSecond"));
-            Time time = new Time(hour, minute, second);
-            simData.setTime(time);
-            simData.setRoadCondition(cursor.getInt(cursor.getColumnIndex("roadCondition")));
-            // sensor data
-            sensorData.setHeartRate(cursor.getInt(cursor.getColumnIndex("heartRate")));
-            // add data to user
-            userData.setSimData(simData);
-            userData.setSensorData(sensorData);
-            userDatas.add(userData);
-            // next line in database
-            cursor.moveToNext();
-        }
-        cursor.close();
+        ArrayList<UserData> userDatas = getAllDataFromCursor(cursor);
         db.close();
         return userDatas;
     }
@@ -174,13 +145,19 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
             onCreate(getWritableDatabase());
             cursor = db.rawQuery("SELECT tripID from Data", where);
         }
-
+        System.out.println("cursor count: " + cursor.getCount());
         if (cursor.getCount() > 0) {
             cursor.moveToLast();
             id = cursor.getInt(0) + 1;
+            System.out.println("id: "  + id);
         }
         db.close();
         cursor.close();
+        return id;
+    }
+
+    public int getCurrentTripID() {
+        int id = getNextTripID() - 1;
         return id;
     }
 
@@ -191,10 +168,10 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         String[] where = new String[0];
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT tripID, speed, steering, acceleration, " +
-                "timeHour, timeMinute, timeSecond, heartRate from Data", where);
+                "timeHour, timeMinute, timeSecond, heartRate, flag from Data", where);
         cursor.moveToFirst();
-        System.out.printf("\t%6s\t%-6s\t%8s\t%12s\t%2s\t%4s\t%6s\t%6s\n", "TripID", "Speed", "Steering",
-                "Acceleration", "HR", "Hour", "Minute", "Second");
+        System.out.printf("\t%6s\t%-6s\t%8s\t%12s\t%2s\t%4s\t%6s\t%6s\t%6s\n", "TripID", "Speed", "Steering",
+                "Acceleration", "HR", "Hour", "Minute", "Second", "Flag");
         while(!cursor.isAfterLast()) {
             int tripID = cursor.getInt(cursor.getColumnIndex("tripID"));
             double speed = cursor.getDouble(cursor.getColumnIndex("speed"));
@@ -204,11 +181,63 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
             int timeHour = cursor.getInt(cursor.getColumnIndex("timeHour"));
             int timeMinute = cursor.getInt(cursor.getColumnIndex("timeMinute"));
             int timeSecond = cursor.getInt(cursor.getColumnIndex("timeSecond"));
-            System.out.printf("\t%6d\t%6.2f\t%8.2f\t%12.2f\t%2d\t%4d\t%6d\t%6d\n", tripID, speed, steering,
-                    acceleration, hr, timeHour, timeMinute, timeSecond);
+            int flag = cursor.getInt(cursor.getColumnIndex("flag"));
+            System.out.printf("\t%6d\t%6.2f\t%8.2f\t%12.2f\t%2d\t%4d\t%6d\t%6d\t%6d\n", tripID, speed, steering,
+                    acceleration, hr, timeHour, timeMinute, timeSecond, flag);
             cursor.moveToNext();
         }
         db.close();
         cursor.close();
+    }
+
+    public ArrayList<UserData> getLastTripData() {
+        String[] where = new String[1];
+        where[0] = getCurrentTripID() +"";
+        Log.i(TAG, "trip id: " + where[0]);
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT *                  " +
+                                    "from Data WHERE tripID = ?", where);
+        Log.i(TAG, "cursor size: " + cursor.getCount());
+        return getAllDataFromCursor(cursor);
+    }
+
+
+    private ArrayList<UserData> getAllDataFromCursor(Cursor cursor) {
+        cursor.moveToFirst();
+        ArrayList<UserData> userDatas = new ArrayList<>();
+        while(!cursor.isAfterLast()) {
+            UserData userData = new UserData();
+            SensorData sensorData = new SensorData();
+            SimData simData = new SimData();
+            // add the data to the object
+            // user data
+            userData.setTripID(cursor.getInt(cursor.getColumnIndex("tripID")));
+            userData.setFlag(cursor.getInt(cursor.getColumnIndex("flag")));
+            // sim data
+            simData.setSpeed(cursor.getInt(cursor.getColumnIndex("speed")));
+            simData.setGear(cursor.getString(cursor.getColumnIndex("gear")));
+            simData.setSignal(cursor.getInt(cursor.getColumnIndex("signal")));
+            simData.setSteering(cursor.getDouble(cursor.getColumnIndex("steering")));
+            simData.setAcceleration(cursor.getDouble(cursor.getColumnIndex("acceleration")));
+            simData.setClimate(cursor.getInt(cursor.getColumnIndex("climate")));
+            simData.setClimateVisibility(cursor.getInt(cursor.getColumnIndex("climateVisibility")));
+            // set the time
+            int hour = cursor.getInt(cursor.getColumnIndex("timeHour"));
+            int minute = cursor.getInt(cursor.getColumnIndex("timeMinute"));
+            int second = cursor.getInt(cursor.getColumnIndex("timeSecond"));
+            Time time = new Time(hour, minute, second);
+            simData.setTime(time);
+            simData.setRoadCondition(cursor.getInt(cursor.getColumnIndex("roadCondition")));
+            // sensor data
+            sensorData.setHeartRate(cursor.getInt(cursor.getColumnIndex("heartRate")));
+            // add data to user
+            userData.setSimData(simData);
+            userData.setSensorData(sensorData);
+            userDatas.add(userData);
+            // next line in database
+            cursor.moveToNext();
+        }
+        cursor.close();
+        return userDatas;
     }
 }

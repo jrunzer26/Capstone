@@ -23,6 +23,7 @@ public class DataParser {
     private int tripID;
     private Queue<SimData> carData;
     private Queue<SensorData> heartRateData;
+    private boolean currentlyInTurn;
 
     /**
      * Constructs the Parser
@@ -82,6 +83,7 @@ public class DataParser {
         UserData userData = new UserData();
         userData.setSimData(carData.remove());
         userData.setSensorData(heartRateData.remove());
+        userData.setTripID(tripID);
         return userData;
     }
 
@@ -99,4 +101,5 @@ public class DataParser {
     public void close() {
         userDatabaseHelper.close();
     }
+
 }

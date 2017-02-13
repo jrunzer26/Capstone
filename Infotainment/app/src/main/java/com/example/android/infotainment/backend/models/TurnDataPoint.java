@@ -8,11 +8,21 @@ public class TurnDataPoint {
     private double speed;
     private int timeTaken;
     private int heartRate;
+    private double steering;
 
-    public TurnDataPoint(double speed, int timeTaken, int heartRate) {
+    public TurnDataPoint(double speed, int timeTaken, int heartRate, double steering) {
         this.speed = speed;
         this.timeTaken = timeTaken;
         this.heartRate = heartRate;
+        this.steering = steering;
+    }
+
+    public double getSteering() {
+        return steering;
+    }
+
+    public void setSteering(double steering) {
+        this.steering = steering;
     }
 
     /**
@@ -72,7 +82,8 @@ public class TurnDataPoint {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Speed: ").append(speed).append("\n")
                 .append("Time Taken: ").append(timeTaken).append("\n")
-                .append("Heart Rate: ").append(heartRate).append("\n");
+                .append("Heart Rate: ").append(heartRate).append("\n")
+                .append("Steering: ").append(steering).append("\n");
         return stringBuilder.toString();
     }
 }
