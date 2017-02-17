@@ -14,17 +14,17 @@
         android:theme="@style/AppTheme">
         <activity android:name=".backend.ConnectingActivity">
             <!-- For the real implementation -->
-
-        </activity>
-        <activity android:name=".MainActivity"></activity>
-        <activity android:name=".mock.MockMainActivity"/>
-        <activity android:name=".mock.MockConnectingActivity">
-            <!-- Insert Intent Filter From Connecting activity here for simulation -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".mock.MockMainActivity"/>
+        <activity android:name=".mock.MockConnectingActivity">
+            <!-- Insert Intent Filter From Connecting activity here for simulation -->
+
         </activity>
     </application>
 
