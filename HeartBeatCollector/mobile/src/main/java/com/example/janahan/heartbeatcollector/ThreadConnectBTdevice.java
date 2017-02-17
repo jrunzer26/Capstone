@@ -6,6 +6,7 @@ import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.UUID;
 
 /**
@@ -42,17 +43,34 @@ public class ThreadConnectBTdevice extends Thread {
     public void run() {
         try {
             //Attempts to connect to the device server socket
+            System.out.println(bluetoothSocket);
             bluetoothSocket.connect();
             //Creates a connectedThread object that passes in the bluetoothSocket
+            System.out.println("Passed first line");
             connectedThread = new ConnectedThread(bluetoothSocket, this);
             //Starts the thread in the connectedThread object
+            System.out.println("Passed second");
             isConnected = true;
-
+            System.out.println("The thing is connected and the value of isConnected is: "+ isConnected);
             connectedThread.start();
         } catch (Exception e) {
             Log.e("Error", "Could not connect to the server");
             isConnected = false;
 
+        }
+    }
+
+    public void reconnect(BluetoothDevice device, UUID myUUID) {
+        try {
+            bluetoothSocket = device.createRfcommSocketToServiceRecord(myUUID);
+            bluetoothSocket.connect();
+            //Creates a connectedThread object that passes in the bluetoothSocket
+            connectedThread = new ConnectedThread(bluetoothSocket, this);
+            //Starts the thread in the connectedThread object
+            isConnected = true;
+            connectedThread.start();
+        } catch (IOException e) {
+            Log.e("Error", "Could not reconnect to the server");
         }
     }
 
@@ -67,13 +85,7 @@ public class ThreadConnectBTdevice extends Thread {
     public void cancel() {
         try {
             //Closes connection between the client and server, by sending a close message to the server
-            ByteArrayOutputStream boas = new ByteArrayOutputStream();
-            DataOutputStream dos = new DataOutputStream(boas);
-            dos.writeUTF("close");
-            byte[] bytes = boas.toByteArray();
-            connectedThread.write(bytes);
             connectedThread.cancel();
-            bluetoothSocket.close();
             isConnected = false;
         } catch (Exception e) { }
     }

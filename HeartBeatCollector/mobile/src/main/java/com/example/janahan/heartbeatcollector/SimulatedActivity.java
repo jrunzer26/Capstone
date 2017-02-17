@@ -100,14 +100,14 @@ public class SimulatedActivity extends Activity{
                 }
 
             }
-        }, 0, 1000);
+        }, 1000, 1000);
 
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 updateConnection();
             }
-        }, 2000, 1000);
+        }, 1000, 1000);
 
         connectButton.setOnClickListener( new View.OnClickListener() {
             @Override
@@ -118,7 +118,7 @@ public class SimulatedActivity extends Activity{
                     for (BluetoothDevice dev: pairedDevices) {
                         device = dev;
                         if(device.getName().equals("Jason R (Galaxy Tab4)")){
-                            myThreadConnectBTdevice.run();
+                            myThreadConnectBTdevice.reconnect(device, myUUID);
                             break;
                         }
                     }

@@ -46,9 +46,9 @@ public class ConnectedThread extends Thread {
     public void run() {
         byte[] buffer = new byte[1024];
         int bytes;
-
+        boolean isConnected = true;
         //Always running
-        while (true) {
+        while (isConnected) {
             try {
                 //Holds up here until there is something to read
                     bytes = mmInStream.read(buffer);
@@ -56,7 +56,8 @@ public class ConnectedThread extends Thread {
                 String readMessage = new String(buffer, 0, bytes);
                 System.out.println(readMessage);
             } catch (Exception e) {
-                cancel();
+                isConnected = false;
+                values.cancel();
             }
         }
     }

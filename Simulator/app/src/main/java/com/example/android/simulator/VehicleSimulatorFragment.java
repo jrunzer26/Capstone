@@ -189,7 +189,7 @@ public class VehicleSimulatorFragment extends Fragment {
                         if(device.getName().equals("Jason R (Galaxy Tab4)")){
                             //Creates an object and passes in the server's tablet name and it's UUID
                             //Starts the thread in the ThreadConnectBTdevice object
-                            BTdevice.run();
+                            BTdevice.reconnect(device, myUUID);
                             break;
                         }
                     }

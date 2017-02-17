@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                     for (BluetoothDevice dev: pairedDevices) {
                         device = dev;
                         if(device.getName().equals("Jason R (Galaxy Tab4)")){
-                            myThreadConnectBTdevice.run();
+                            myThreadConnectBTdevice.reconnect(device, myUUID);
                             break;
                         }
                     }

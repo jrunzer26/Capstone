@@ -52,9 +52,9 @@ public class ConnectedThread extends Thread {
     public void run() {
         byte[] buffer = new byte[1024];
         int bytes;
-
+        boolean connected = true;
         //Always running
-        while (true) {
+        while (connected) {
             try {
                 //Holds up here until there is something to read
                 bytes = mmInStream.read(buffer);
@@ -62,7 +62,16 @@ public class ConnectedThread extends Thread {
                 String readMessage = new String(buffer, 0, bytes);
                 System.out.println(readMessage);
             } catch (Exception e) {
-                cancel();
+                try {
+                    mmInStream.close();
+                    mmOutStream.close();
+                    mmSocket.close();
+                    values.isConnected = false;
+                    connected = false;
+                    values.cancel();
+                } catch (IOException w) {
+
+                }
             }
         }
     }
@@ -87,7 +96,8 @@ public class ConnectedThread extends Thread {
             mmInStream.close();
             mmOutStream.close();
             mmSocket.close();
-            values.isConnected = false;
-        } catch (IOException e) {}
+        } catch (IOException e) {
+
+        }
     }
 }

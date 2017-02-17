@@ -46,12 +46,10 @@ public class SensorData implements  Runnable{
         for(int i = 0; i < 5; i++) {
             try {
                 dos.writeInt(heartRate.get(i));
-
-
             } catch(IOException e) {e.printStackTrace();}
         }
         byte[] bytes = boas.toByteArray();
-        if(bluetooth.connectedThread != null){
+        if(bluetooth.isConnected){
             System.out.print("The heart rate is: "+ heartRate);
             bluetooth.connectedThread.write(bytes);
         } else {
