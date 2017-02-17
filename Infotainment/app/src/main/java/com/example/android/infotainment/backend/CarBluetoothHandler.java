@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 
 import com.example.android.infotainment.backend.models.SimData;
+import com.example.android.infotainment.backend.models.Time;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -89,9 +90,8 @@ public class CarBluetoothHandler extends Thread {
                         temp.setClimateVisibility(dis.readInt());
                         temp.setClimateDensity(dis.readInt());
                         temp.setRoadSeverity(dis.readInt());
-                        temp.setTimeHour(dis.readInt());
-                        temp.setTimeMinute(dis.readInt());
-                        temp.setTimeSecond(dis.readInt());
+                        Time time = new Time(dis.readInt(), dis.readInt(), dis.readInt());
+                        temp.setTime(time);
                         temp.setRoadCondition(dis.readInt());
                         temp.setRoadType(dis.readInt());
                         // sends the data to the parser

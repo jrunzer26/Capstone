@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         rsm = RemoteSensorManager.getInstance(this);
+
         final Button button1 = (Button) findViewById(R.id.start);
         final Button button2 = (Button) findViewById(R.id.stop);
         connectButton = (Button) findViewById(R.id.button_connection);

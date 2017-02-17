@@ -153,14 +153,16 @@ public class EnvironmentSimulatorFragment extends Fragment {
         });
 
         //Every one second it will send to the Simulator the values of the climate
+        /* DELETE since it might be out of sync with the data collecting operations
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 sim.setSeverity(severity);
-                sim.setClimateFeel(climateFeel);
+                sim.setVisibility(climateFeel);
                 sim.setVisibility(visibility);
             }
         }, 0, 1000);
+        */
 
         //This is essentially a military clock, every second it will increment the clock and send the values
         //Over to the simulator

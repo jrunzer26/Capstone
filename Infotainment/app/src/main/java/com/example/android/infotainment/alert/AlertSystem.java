@@ -76,6 +76,7 @@ public class AlertSystem {
      */
     public void alert(Context context, int type, String message, int heartRate) {
         // TODO: 10/31/2016 alert system
+         //TODO: ???????
     }
 
     /**
@@ -90,6 +91,8 @@ public class AlertSystem {
         /**
          * runs in the background and decrements the time of the alert.
          */
+
+         // TODO: Change sleep to a constant, update the values to match more frequent polling
         @Override
         public void run() {
             super.run();

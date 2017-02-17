@@ -8,6 +8,7 @@ import com.example.android.infotainment.R;
 import com.example.android.infotainment.backend.DataAnalyst;
 import com.example.android.infotainment.backend.DataParser;
 import com.example.android.infotainment.backend.UserDatabaseHelper;
+import com.example.android.infotainment.backend.models.UserData;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -74,7 +75,8 @@ public class MockMainActivity extends AppCompatActivity {
     private void threadSetup() {
         // create the DataParser and Analyst
         dataAnalyst = new DataAnalyst(this);
-        dataParser = new DataParser(dataAnalyst, this, new UserDatabaseHelper(this).getNextTripID());
+        UserDatabaseHelper userDatabaseHelper = new UserDatabaseHelper(this);
+        dataParser = new DataParser(dataAnalyst, this, userDatabaseHelper.getNextTripID());
         ArrayList<Thread> threads = new ArrayList<>(2);
         threads.add(new Thread(dataAnalyst));
         for (Thread thread : threads) {

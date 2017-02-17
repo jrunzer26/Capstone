@@ -4,6 +4,8 @@ package com.example.android.infotainment.backend;
  * Created by 100520993 on 10/31/2016.
  */
 
+ // TODO: Ensuring times are synced to data. 
+
 import android.content.Context;
 
 import com.example.android.infotainment.backend.models.SensorData;
@@ -32,6 +34,7 @@ public class DataParser {
         carData = new LinkedList<>();
         heartRateData = new LinkedList<>();
         this.tripID = tripID;
+        userDatabaseHelper.printRelevantDataSet();
     }
 
     /**
@@ -45,11 +48,13 @@ public class DataParser {
         carData.add(simData);
         trySend();
     }
+    
 
     /**
      * Tries to send data to the analyst based on if data is available
      * from both the car and the wearable.
      */
+     // TODO: Fail case for when data fails to send when it should fail
     private void trySend() {
         if (carData.size() > 0  && heartRateData.size() > 0) {
             UserData userData = createUser();

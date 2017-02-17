@@ -245,6 +245,7 @@ public class VehicleSimulatorFragment extends Fragment {
                 @Override
                 public void run() {
                     park.setChecked(false);
+                    drive.callOnClick();
                     drive.setChecked(true);
                 }
             });

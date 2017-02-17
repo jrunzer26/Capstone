@@ -24,6 +24,7 @@
         <activity android:name=".mock.MockMainActivity"/>
         <activity android:name=".mock.MockConnectingActivity">
             <!-- Insert Intent Filter From Connecting activity here for simulation -->
+
         </activity>
     </application>
 

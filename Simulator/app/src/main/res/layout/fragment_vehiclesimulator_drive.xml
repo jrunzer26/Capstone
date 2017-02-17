@@ -22,6 +22,7 @@
             android:layout_weight="1" >
             <RadioButton android:id="@+id/radioButton_vehicleDrive_park"
                 android:layout_width="wrap_content"
+                android:onClick="park"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:layout_weight="1"
@@ -32,12 +33,14 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:layout_weight="1"
+                android:onClick="reverse"
                 android:text="@string/vehicleSimulatorDrive_reverse" />
             <RadioButton android:id="@+id/radioButton_vehicleDrive_drive"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:layout_weight="1"
+                android:onClick="drive"
                 android:text="@string/vehicleSimulatorDrive_drive" />
         </RadioGroup>
 

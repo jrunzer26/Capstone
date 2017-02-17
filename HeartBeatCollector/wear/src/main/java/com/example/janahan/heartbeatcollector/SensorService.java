@@ -1,7 +1,7 @@
 package com.example.janahan.heartbeatcollector;
 
 /**
- * Created by janahan on 07/11/16.
+ * Created by Janahan on 07/11/16.
  */
 import android.app.Service;
 import android.content.Intent;
@@ -28,6 +28,7 @@ public class SensorService extends Service implements SensorEventListener {
      * Standard onCreate
      * Starts up schedulers for sensor
      */
+     // TODO: Shorten
     @Override
     public void onCreate() {
         super.onCreate();
@@ -102,6 +103,6 @@ public class SensorService extends Service implements SensorEventListener {
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
+        
     }
 }
