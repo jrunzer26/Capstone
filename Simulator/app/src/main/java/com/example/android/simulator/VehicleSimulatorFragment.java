@@ -1,6 +1,8 @@
 package com.example.android.simulator;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
@@ -18,8 +20,10 @@ import android.widget.Toast;
 import com.example.android.simulator.backend.Simulator;
 
 import java.math.BigDecimal;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 import java.util.logging.Handler;
 
 
@@ -43,7 +47,11 @@ public class VehicleSimulatorFragment extends Fragment {
     final int DEG_MIN = -30;
     final int REFRESH_RATE = 100;
     private Simulator sim;
+    private ThreadConnectBTdevice BTdevice;
+    private UUID myUUID;
+    private BluetoothAdapter bluetoothAdapter;
     private final int seekBarZeroProgress = 15;
+    Button connectButton;
 
     /**
      * Creates the savedInstanceState
@@ -68,13 +76,17 @@ public class VehicleSimulatorFragment extends Fragment {
 
         final SeekBar seekBarAcc = (SeekBar)view.findViewById(R.id.seekBar_vehicleSimulatorDrive_acceleration);
         SeekBar seekBarDeg = (SeekBar)view.findViewById(R.id.seekBar_vehicleSimulatorDrive_steering);
-
         //Sets the maximum value for the Accleration and Degree slider
         seekBarAcc.setMax((ACC_MAX-ACC_MIN)/STEP);
         seekBarDeg.setMax((DEG_MAX-DEG_MIN)/STEP);
 
+        connectButton = (Button)view.findViewById(R.id.button_reConnect);
+
         //Retreive the Simulator object that was created in the main and use it in this fragment
         sim = ((MainActivity)this.getActivity()).getSimulator();
+        BTdevice = ((MainActivity)this.getActivity()).myThreadConnectBTdevice;
+        myUUID = ((MainActivity)this.getActivity()).myUUID;
+        bluetoothAdapter = ((MainActivity)this.getActivity()).bluetoothAdapter;
 
         final TextView seekBarAccValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_acceleration);
         final TextView seekBarDegValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_steering);
@@ -105,6 +117,13 @@ public class VehicleSimulatorFragment extends Fragment {
             }
         });
 
+
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                updateConnection(view);
+            }
+        }, 2000, 1000);
 
         seekBarDeg.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
             /**
@@ -154,9 +173,33 @@ public class VehicleSimulatorFragment extends Fragment {
             }
         }, 0, REFRESH_RATE);
 
+
+
+        connectButton.setOnClickListener( new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+                BluetoothDevice device;
+                if(pairedDevices.size() > 0) {
+                    //Goes though all the bluetooth devices that are paired on the device being used
+                    for (BluetoothDevice dev: pairedDevices) {
+                        device = dev;
+                        //Checks if one of the devices is "Jason R (Galaxy Tab4) -> this is the server tablet
+                        if(device.getName().equals("Jason R (Galaxy Tab4)")){
+                            //Creates an object and passes in the server's tablet name and it's UUID
+                            //Starts the thread in the ThreadConnectBTdevice object
+                            BTdevice.reconnect(device, myUUID);
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+
         return view;
     }
-    
+
 
     /**
      * This method calculates the speed based off of the accleration and the current speed
@@ -171,6 +214,20 @@ public class VehicleSimulatorFragment extends Fragment {
         });
 
         //((RadioButton) view)
+    }
+
+    private void updateConnection(View view) {
+        Activity temp = getActivity();
+        temp.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(BTdevice.getIsConnected()) {
+                    connectButton.setText("Connected");
+                } else {
+                    connectButton.setText("Connect");
+                }
+            }
+        });
     }
 
     private void cruise() {

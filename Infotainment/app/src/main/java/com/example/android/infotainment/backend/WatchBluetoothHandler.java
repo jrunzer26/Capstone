@@ -1,5 +1,6 @@
 package com.example.android.infotainment.backend;
 
+import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 
@@ -19,10 +20,12 @@ import java.util.TimerTask;
  */
 
 public class WatchBluetoothHandler extends Thread {
-    private final BluetoothSocket mmSocket;
-    private final InputStream mmInStream;
-    private final OutputStream mmOutStream;
+    private BluetoothSocket mmSocket;
+    private InputStream mmInStream;
+    private OutputStream mmOutStream;
     private final DataInputStream mmDataIS;
+    private final BluetoothServerSocket bluetoothServerSocket;
+
     private final Context act;
     private DataParser dataParser;
 
@@ -32,10 +35,11 @@ public class WatchBluetoothHandler extends Thread {
      * @param mainContext the current context
      * @param dataParser the parser to send data to
      */
-    public WatchBluetoothHandler(BluetoothSocket socket, Context mainContext, DataParser dataParser){
+    public WatchBluetoothHandler(BluetoothSocket socket, Context mainContext, DataParser dataParser, BluetoothServerSocket bluetoothServerSocket){
         mmSocket = socket;
         InputStream tmpIn = null;
         OutputStream tmpOut = null;
+        this.bluetoothServerSocket = bluetoothServerSocket;
         act = mainContext;
         this.dataParser = dataParser;
         try {
@@ -78,11 +82,22 @@ public class WatchBluetoothHandler extends Thread {
                         SensorData sensorData = new SensorData();
                         sensorData.setHeartRate(dis.readInt());
                         // send the data each time to the analyst
+                        System.out.println(sensorData);
                         dataParser.sendHRData(sensorData);
+                    } else {
+                        System.out.println("Not receiving any Data");
                     }
                 }
             } catch (IOException e) {
-                break;
+                try {
+                    System.out.println("Waiting for a connection");
+                    mmSocket = bluetoothServerSocket.accept();
+                    mmInStream = mmSocket.getInputStream();
+                    mmOutStream = mmSocket.getOutputStream();
+
+                } catch(IOException s) {
+                    System.out.println("Hopefully not in here");
+                }
             }
         }
     }

@@ -59,9 +59,9 @@ public class ThreadBeConnected extends Thread{
                 Log.i("Connected", "Device name: "+ remoteDevice.getName());
                 // create either a car or watch bluetooth receiver object
                 if (car) {
-                    new CarBluetoothHandler(bluetoothSocket, holder, dataParser).start();
+                    new CarBluetoothHandler(bluetoothSocket, holder, dataParser, bluetoothServerSocket).start();
                 } else {
-                    new WatchBluetoothHandler(bluetoothSocket, holder, dataParser).start();
+                    new WatchBluetoothHandler(bluetoothSocket, holder, dataParser, bluetoothServerSocket).start();
                 }
             } catch (Exception e){
                 Log.e("Error", "Not Correct, in the run of ThreadConnect class, please give up");

@@ -21,12 +21,15 @@ public class ConnectedThread extends Thread {
     private final BluetoothSocket mmSocket;
     private final InputStream mmInStream;
     private final OutputStream mmOutStream;
+    private final ThreadConnectBTdevice values;
+
 
     /**
      * Initializes the input and output stream
      * @param socket - The socket the client is sending and receiving on
      */
-    public ConnectedThread(BluetoothSocket socket){
+    public ConnectedThread(BluetoothSocket socket, ThreadConnectBTdevice temp){
+        values = temp;
         mmSocket = socket;
         InputStream tmpIn = null;
         OutputStream tmpOut = null;
@@ -49,16 +52,27 @@ public class ConnectedThread extends Thread {
     public void run() {
         byte[] buffer = new byte[1024];
         int bytes;
-
+        boolean connected = true;
         //Always running
-        while (true) {
+        while (connected) {
             try {
                 //Holds up here until there is something to read
                 bytes = mmInStream.read(buffer);
                 //Converts the message from bytes into a string
                 String readMessage = new String(buffer, 0, bytes);
                 System.out.println(readMessage);
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                try {
+                    mmInStream.close();
+                    mmOutStream.close();
+                    mmSocket.close();
+                    values.isConnected = false;
+                    connected = false;
+                    values.cancel();
+                } catch (IOException w) {
+
+                }
+            }
         }
     }
 
@@ -79,7 +93,11 @@ public class ConnectedThread extends Thread {
      */
     public void cancel() {
         try {
+            mmInStream.close();
+            mmOutStream.close();
             mmSocket.close();
-        } catch (IOException e) {}
+        } catch (IOException e) {
+
+        }
     }
 }

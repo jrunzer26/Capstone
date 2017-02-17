@@ -1,5 +1,6 @@
 package com.example.janahan.heartbeatcollector;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
@@ -29,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private String TAG = "APPHB/MA";
     private SensorData sim;
     private int count = 0;
-
+    Button connectButton;
     private UUID myUUID;
     ThreadConnectBTdevice myThreadConnectBTdevice;
     BluetoothAdapter bluetoothAdapter;
@@ -43,9 +44,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         rsm = RemoteSensorManager.getInstance(this);
-        //final TextView t1 = (TextView)findViewById(R.id.textView_sensorValue);
+
         final Button button1 = (Button) findViewById(R.id.start);
         final Button button2 = (Button) findViewById(R.id.stop);
+        connectButton = (Button) findViewById(R.id.button_connection);
         button1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 rsm.startMeasurement();
@@ -85,9 +87,46 @@ public class MainActivity extends AppCompatActivity {
             }
         }, 0, 1000);
 
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                updateConnection();
+            }
+        }, 2000, 1000);
+
+        connectButton.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+                BluetoothDevice device;
+                if(pairedDevices.size() > 0) {
+                    for (BluetoothDevice dev: pairedDevices) {
+                        device = dev;
+                        if(device.getName().equals("Jason R (Galaxy Tab4)")){
+                            myThreadConnectBTdevice.reconnect(device, myUUID);
+                            break;
+                        }
+                    }
+                }
+            }
+        });
 
     }
 
+
+    private void updateConnection() {
+        Activity temp = this;
+        temp.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(myThreadConnectBTdevice.getIsConnected()) {
+                    connectButton.setText("Connected");
+                } else {
+                    connectButton.setText("Connect");
+                }
+            }
+        });
+    }
     /**
      * Initial set up for blue tooth
      */
