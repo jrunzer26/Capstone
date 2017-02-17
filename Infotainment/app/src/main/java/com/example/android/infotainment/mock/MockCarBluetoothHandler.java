@@ -54,14 +54,25 @@ public class MockCarBluetoothHandler {
         SimData speedOver = new SimData();
         speedOver.setSpeed(150);
         simDatas.add(speedOver);
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 15; i++) {
             SimData simData = new SimData();
-            simData.setSteering(i + 10);
+            simData.setSteering(i + 25);
             simDatas.add(simData);
         }
-        for (int i = 30; i > 0; i--) {
+        for (int i = 15; i > 0; i--) {
             SimData simData = new SimData();
-            simData.setSteering(i + 10);
+            simData.setSteering(i + 25);
+            simDatas.add(simData);
+        }
+
+        for (int i = 0; i < 15; i++) {
+            SimData simData = new SimData();
+            simData.setSteering(i + 40);
+            simDatas.add(simData);
+        }
+        for (int i = 15; i > 0; i--) {
+            SimData simData = new SimData();
+            simData.setSteering(i + 40);
             simDatas.add(simData);
         }
     }

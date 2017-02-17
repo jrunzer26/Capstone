@@ -13,6 +13,7 @@ public class Turn {
     private int turnType;
     private ArrayList<TurnDataPoint> data;
     private int id;
+    private int flag;
 
     /**
      * Creates a new turn.
@@ -23,6 +24,21 @@ public class Turn {
         this.turnType = turnType;
         data = new ArrayList<>();
         this.id = id;
+        flag = UserData.FLAG_NONE;
+    }
+
+    public Turn(int id, int turnType, int flag) {
+        this.id = id;
+        this.turnType = turnType;
+        this.flag = flag;
+    }
+
+    public int getFlag() {
+        return flag;
+    }
+
+    public void setFlag(int flag) {
+        this.flag = flag;
     }
 
     /**
@@ -71,6 +87,10 @@ public class Turn {
         }
         stringBuilder.append("===============================\n");
         return stringBuilder.toString();
+    }
+
+    public int size() {
+        return data.size();
     }
 }
 

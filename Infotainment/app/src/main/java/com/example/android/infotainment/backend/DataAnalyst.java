@@ -9,6 +9,7 @@ import com.example.android.infotainment.backend.models.SimData;
 import com.example.android.infotainment.backend.models.Turn;
 import com.example.android.infotainment.backend.models.TurnDataPoint;
 import com.example.android.infotainment.backend.models.UserData;
+import com.example.android.infotainment.backend.models.SlidingWindow;
 
 import java.util.ArrayList;
 import java.lang.Math;
@@ -29,8 +30,18 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private int userAverage = 70;
     private Double steering;
     private int TURN_WINDOW_SIZE = 19;
+
+    private double[][] rightTurnBasline;
+    private double[][] leftTurnBaseline;
+
     private BaselineDatabaseHelper baselineDatabaseHelper;
-    private double[] averageRightTurnSequence;
+
+    //VARIABLES AND STRUCTURES REQUIRED FOR THE ALGORITHM;
+    private final int WINDOW = 5; //Size of the sliding window
+    private final int THRESHOLD = 0; //Difference between window and overall needed to trigger DTW
+    private SlidingWindow sw = new SlidingWindow(WINDOW);
+    private ArrayList<Double> mean = new ArrayList<Double>();
+    private ArrayList<Double> stdDev = new ArrayList<Double>();
 
     /**
      * Analyses data coming in from the data parser and alerts the user.
@@ -42,132 +53,124 @@ public class DataAnalyst extends Thread implements DataReceiver {
         userDatabaseHelper = new UserDatabaseHelper(applicationContext);
         userDataLinkedList = new ConcurrentLinkedQueue<>();
         baselineDatabaseHelper = new BaselineDatabaseHelper(applicationContext);
-        // for sample usage of the base line, uncomment the line below
-        //baseLineTest();
-        //DBATest();
-        dbaInitPreviousSavedTrip();
+        if (userDatabaseHelper.getNextTripID() == 3) {
+            dbaFirstTimeInit();
+        } else {
+            dbaInitPreviousSavedTrip();
+        }
     }
 
-    private void DBATest() {
-        double [][]sequences = new double[2][3];
-
-        double [] averageSequence = new double[3];
-        for (int i = 0; i < averageSequence.length; i++) {
-            sequences[0][i] = i + 3;
-            sequences[1][i] = i *4;
+    private void dbaFirstTimeInit() {
+        ArrayList<UserData> allData = userDatabaseHelper.getData();
+        ArrayList<Turn> turns = getTurnData(allData);
+        baselineLeftAndRightTurns(turns);
+        ArrayList<Turn> rightTurnResults = baselineDatabaseHelper.getRightTurnData();
+        ArrayList<Turn> leftTurnResults = baselineDatabaseHelper.getLeftTurnData();
+        Log.i(TAG, "right turn results");
+        for(Turn t : rightTurnResults) {
+            Log.i(TAG, t.toString());
         }
-
-        for(int j=0;j<averageSequence.length;j++){
-            averageSequence[j] = j * 2;
-        }
-
-        System.out.print("[");
-        for(int j=0;j<averageSequence.length;j++){
-            System.out.print(averageSequence[j]+" ");
-        }
-        System.out.println("]");
-
-        System.out.println("after DBA");
-        DBA.DBA(averageSequence, sequences);
-
-        System.out.print("[");
-        for(int j=0;j<averageSequence.length;j++){
-            System.out.print(averageSequence[j]+" ");
-        }
-        System.out.println("]");
-
-        DBA.DBA(averageSequence, sequences);
-
-        System.out.print("[");
-        for(int j=0;j<averageSequence.length;j++){
-            System.out.print(averageSequence[j]+" ");
-        }
-        System.out.println("]");
-    }
-
-    /**
-     * Sample usage of the base line data.
-     */
-    private void baseLineTest() {
-        int turnID = baselineDatabaseHelper.getNextTurnId(Turn.TURN_LEFT);
-        Turn turn = new Turn(Turn.TURN_LEFT, turnID);
-        turn.addTurnPoint(new TurnDataPoint(100, 2, 55, 30));
-        turn.addTurnPoint(new TurnDataPoint(99, 5, 60, 30));
-        baselineDatabaseHelper.saveTurn(turn);
-        turnID = baselineDatabaseHelper.getNextTurnId(Turn.TURN_LEFT);
-        turn = new Turn(Turn.TURN_LEFT, turnID);
-        turn.addTurnPoint(new TurnDataPoint(300, 6, 55, 30));
-        baselineDatabaseHelper.saveTurn(turn);
-        turnID = baselineDatabaseHelper.getNextTurnId(Turn.TURN_LEFT);
-        turn = new Turn(Turn.TURN_LEFT, turnID);
-        turn.addTurnPoint(new TurnDataPoint(3560, 6, 55, 30));
-        turn.addTurnPoint(new TurnDataPoint(3560, 6, 2838, 30));
-        baselineDatabaseHelper.saveTurn(turn);
-        ArrayList<Turn> turnData = baselineDatabaseHelper.getLeftTurnData();
-        for(Turn t : turnData) {
+        Log.i(TAG, "left turn results");
+        for(Turn t : leftTurnResults) {
             Log.i(TAG, t.toString());
         }
     }
 
+    private void baselineLeftAndRightTurns(ArrayList<Turn> turns) {
+        ArrayList<Turn> leftTurns = new ArrayList<>();
+        ArrayList<Turn> rightTurns = new ArrayList<>();
+        sortTurnData(turns, leftTurns, rightTurns);
+        baselineTurns(Turn.TURN_LEFT, leftTurns);
+        baselineTurns(Turn.TURN_RIGHT, rightTurns);
+    }
+
+    /** Baseline specific turn events **/
+    private void baselineTurns(int turnType, ArrayList<Turn> turns) {
+        // find the max length of the sequences
+        int max = -1;
+        int totalTurns = turns.size();
+        for(int i = 0; i < totalTurns; i++) {
+            int size = turns.get(i).size();
+            if (max < size) {
+                max = size;
+            }
+        }
+        if (max != -1) {
+            double[][] steeringSequence = new double[totalTurns][TURN_WINDOW_SIZE];
+            double[][] speedSequence = new double[totalTurns][TURN_WINDOW_SIZE];
+            double[] averageSteeringSequence;
+            double[] averageSpeedSequence;
+            int flag = turns.get(0).getFlag();
+            if (flag == UserData.FLAG_LEFT_TURN ) {
+                averageSteeringSequence = leftTurnBaseline[0];
+                averageSpeedSequence = leftTurnBaseline[1];
+            }
+            else {
+                averageSteeringSequence = rightTurnBasline[0];
+                averageSpeedSequence = rightTurnBasline[1];
+            }
+
+            for (int i = 0; i < turns.size(); i++) {
+                Turn turn = turns.get(i);
+                int turnSize = turn.size();
+                for (int j = 0; j < steeringSequence[0].length; j++) {
+                    ArrayList<TurnDataPoint> turnPoints = turn.getTurnDataPoints();
+                    if (turnSize > j) {
+                        TurnDataPoint turnDataPoint= turnPoints.get(j);
+                        steeringSequence[i][j] = turnDataPoint.getSteering();
+                        speedSequence[i][j] = turnDataPoint.getSpeed();
+                    } else {
+                        steeringSequence[i][j] = 0; // for now, shouldn't happen in general
+                        speedSequence[i][j] = 0;
+                    }
+                }
+            }
+            // dba a few times for the average
+            DBA.DBA(averageSteeringSequence, steeringSequence);
+            DBA.DBA(averageSteeringSequence, steeringSequence);
+            DBA.DBA(averageSpeedSequence, speedSequence);
+            DBA.DBA(averageSpeedSequence, speedSequence);
+
+            overwriteBaseline(averageSteeringSequence, turnType);
+            // take baseline here
+
+        }
+    }
+
+    // for now we are just going to not add hr data, otherwise take the hr data in parallel
+    private void overwriteTurnBaseline(double[] averageSteeringSequence, double[] averageSpeedSequence, int turnType) {
+        Turn turn = new Turn(turnType, 0);
+        for (int i = 0; i < averageSpeedSequence.length; i++) {
+            turn.addTurnPoint(new TurnDataPoint(averageSpeedSequence[i], averageSteeringSequence[i]));
+        }
+        baselineDatabaseHelper.clear(turnType);
+        baselineDatabaseHelper.saveTurn(turn);
+    }
+
+
+    private void sortTurnData(ArrayList<Turn> turns, ArrayList<Turn> leftTurns, ArrayList<Turn> rightTurns) {
+        for (Turn t : turns) {
+            if (t.getTurnType() == Turn.TURN_LEFT) {
+                leftTurns.add(t);
+            } else if (t.getTurnType() == Turn.TURN_RIGHT) {
+                rightTurns.add(t);
+            }
+        }
+    }
 
     private void dbaInitPreviousSavedTrip() {
         ArrayList<UserData> lastTripData = userDatabaseHelper.getLastTripData();
-        /**
-        Log.i(TAG, "DBA previous");
-        for (UserData data : lastTripData) {
-            Log.i(TAG, data.toString());
-        }
-         */
         ArrayList<Turn> turns = getTurnData(lastTripData);
-        Log.i(TAG, "Extracted Turn data");
-        int size = TURN_WINDOW_SIZE;
-        double steeringPoints[][] = new double[turns.size()][size];
-        for (int i = 0; i < turns.size(); i++) {
-            Log.i(TAG, turns.get(i).toString());
-            Turn turn = turns.get(i);
-            System.out.println("hello");
-            ArrayList<TurnDataPoint> dataPoints = turn.getTurnDataPoints();
-            for (int j = 0; j < size; j++) {
-                if (j < dataPoints.size())
-                    steeringPoints[i][j] = dataPoints.get(j).getSteering();
-                else
-                    steeringPoints[i][j] = 0;
-
-            }
+        baselineLeftAndRightTurns(turns);
+        ArrayList<Turn> rightTurnResults = baselineDatabaseHelper.getRightTurnData();
+        ArrayList<Turn> leftTurnResults = baselineDatabaseHelper.getLeftTurnData();
+        Log.i(TAG, "right turn results");
+        for(Turn t : rightTurnResults) {
+            Log.i(TAG, t.toString());
         }
-        for (int i = 0; i < steeringPoints.length; i++) {
-            Log.i(TAG, "Turn Series: ");
-            for(int j = 0; j < steeringPoints[0].length; j++) {
-                Log.i(TAG, steeringPoints[i][j]+"");
-            }
-        }
-        if (averageRightTurnSequence == null) {
-            averageRightTurnSequence = new double[TURN_WINDOW_SIZE];
-            // TODO: 2/12/2017 init the average sequences from DB
-            for (int i = 0; i < averageRightTurnSequence.length; i++) {
-                if (i < steeringPoints.length)
-                    averageRightTurnSequence[i] = steeringPoints[0][i];
-                else
-                    averageRightTurnSequence[i] = 0;
-            }
-        }
-
-        if (steeringPoints.length > 0) {
-            System.out.print("[");
-            for (int j = 0; j < averageRightTurnSequence.length; j++) {
-                System.out.print(averageRightTurnSequence[j] + " ");
-            }
-            System.out.println("]");
-
-            System.out.println("after DBA");
-
-            DBA.DBA(averageRightTurnSequence, steeringPoints);
-
-            System.out.print("[");
-            for (int j = 0; j < averageRightTurnSequence.length; j++) {
-                System.out.print(averageRightTurnSequence[j] + " ");
-            }
-            System.out.println("]");
+        Log.i(TAG, "left turn results");
+        for(Turn t : leftTurnResults) {
+            Log.i(TAG, t.toString());
         }
     }
 
@@ -177,7 +180,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         for (int i = 0; i < userDatas.size(); i++) {
             UserData userData = userDatas.get(i);
             SimData simData = userData.getSimData();
-            SensorData sensorData = userData.getSensorData();
+
             if (userData.getFlag() != UserData.FLAG_NONE) {
                 int turnType;
                 if (userData.getFlag() == UserData.FLAG_LEFT_TURN || userData.getFlag() == UserData.FLAG_LEFT_TURN_SPEEDING) {
@@ -189,10 +192,10 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 }
                 if (turnType != -1) {
                     if (currentTurn == null) {
-                        currentTurn = new Turn(turnType, 0);
+                        currentTurn = new Turn(turnType, 0, userData.getFlag());
                     }
-                    currentTurn.addTurnPoint(new TurnDataPoint(simData.getSpeed(), simData.getTime().getSecond(),
-                            sensorData.getHeartRate(), simData.getSteering()));
+                    currentTurn.addTurnPoint(new TurnDataPoint(simData.getSpeed(),
+                            simData.getSteering()));
                 }
 
             } else if (currentTurn != null) {
@@ -204,10 +207,6 @@ public class DataAnalyst extends Thread implements DataReceiver {
         if (currentTurn != null)
             turns.add(currentTurn);
         return turns;
-    }
-
-    private int[] getTurnDataWindow() {
-        return new int [2];
     }
 
     /**
@@ -225,13 +224,27 @@ public class DataAnalyst extends Thread implements DataReceiver {
     // TODO: Move from rule-based to pattern matching
     @Override
     public void run() {
+        int counter = 0;
+        //dataCounter maintains being 1 higher than the index of both the mean and stdDev arrayLists.
         while (true) {
             // check to see if data is available
             if (userDataLinkedList.size() > 0) {
+                counter++;
                 UserData userData = userDataLinkedList.remove();
                 System.out.println(userData.toString());
                 SensorData sensorData = userData.getSensorData();
                 SimData simData = userData.getSimData();
+
+
+                //ALGORITHM STARTS HERE
+                step1_HeartRateDeviations(sensorData, counter);
+                if(step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() -1))) {
+                    //RUN FOLLOWING STEPS
+                }
+
+
+
+
                 // TODO: Remove these variables, use the simData object
                 Double turn = null;
                 if (steering == null) {
@@ -263,7 +276,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     }
 
 
-    /**
+    /** DEPRECIATED
      * Determines deviations in the driver's behaviours
      * TODO: This function should use pattern data matching or alternative learning algorithms in the next semester
      * @param sensorData: The sensor data
@@ -277,6 +290,39 @@ public class DataAnalyst extends Thread implements DataReceiver {
         return stdDev;
     }
 
+    /**
+     * Determines the Mean given a new entry to the data stream
+     * @param value: the new value
+     * @return the mean
+     */
+    private double findMean(int value){
+        if (mean.size() == 0){
+            return value;
+        }
+        return ((mean.get(mean.size()-1)*mean.size()) + value)/(mean.size()+1);
+    }
+
+    private void step1_HeartRateDeviations(SensorData sensorData, int dataCounter){
+        System.out.println("Step1");
+        double rollingStdDev = 0;
+        sw.add(sensorData.getHeartRate());
+        mean.add(findMean(sensorData.getHeartRate()));
+        if(dataCounter == 1){
+            stdDev.add(0.0);
+        }else {
+            double step1 = (dataCounter-2) *(stdDev.get(dataCounter-2)) * (stdDev.get(dataCounter-2));
+            double step2 = (dataCounter-1)*((mean.get(dataCounter-2) - mean.get(dataCounter-1)) * (mean.get(dataCounter-2) - mean.get(dataCounter-1)));
+            double step3 = (sensorData.getHeartRate() - mean.get(dataCounter-1)) * (sensorData.getHeartRate() - mean.get(dataCounter-1));
+            rollingStdDev = Math.sqrt((step1 + step2 + step3) / (dataCounter-1));
+            stdDev.add(rollingStdDev);
+            System.out.println(rollingStdDev);
+        }
+
+    }
+
+    private boolean step2_HRComparison(double window, double threshold){
+        return ((window - threshold) > THRESHOLD);
+    }
 
     /**
      * Returns the absolute difference of the steering wheel degree.
@@ -286,6 +332,4 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private double calculateTurn(double currentSteering) {
         return Math.abs(steering.doubleValue() - currentSteering);
     }
-
-
 }

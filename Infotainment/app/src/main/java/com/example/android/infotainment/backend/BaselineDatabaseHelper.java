@@ -40,13 +40,12 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
                 "id integer PRIMARY KEY AUTOINCREMENT, " +
                 "turnID int,                           " +
                 "speed single,                         " +
-                "timeTaken int,                        " +
-                "HR int,                               " +
                 "steering single                       " +
                 ")                                     ";
         db.execSQL("CREATE TABLE " + RIGHT_TURN + turnSQLAttributes);
         db.execSQL("CREATE TABLE " + LEFT_TURN + turnSQLAttributes);
     }
+
 
     /**
      * Upgrades the db.
@@ -109,8 +108,6 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
             values = new ContentValues();
             values.put("turnID", turn.getId());
             values.put("speed", point.getSpeed());
-            values.put("timeTaken", point.getTimeTaken());
-            values.put("HR", point.getHeartRate());
             values.put("steering", point.getSteering());
             db.insert(tableName, null, values);
         }
@@ -143,11 +140,9 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
                 turn = new Turn(turnType, turnID);
             }
             double speed = cursor.getDouble(cursor.getColumnIndex("speed"));
-            int timeTaken = cursor.getInt(cursor.getColumnIndex("timeTaken"));
-            int heartRate = cursor.getInt(cursor.getColumnIndex("HR"));
             double steering = cursor.getDouble(cursor.getColumnIndex("steering"));
             // add the point to the turn
-            TurnDataPoint dataPoint = new TurnDataPoint(speed, timeTaken, heartRate, steering);
+            TurnDataPoint dataPoint = new TurnDataPoint(speed, steering);
             turn.addTurnPoint(dataPoint);
             // add then turn to the array list if it was less
             if (turnID > previousTurnID) {
@@ -175,5 +170,15 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         else
             table = RIGHT_TURN;
         return table;
+    }
+
+    public void clear(int turnType) {
+        String tableName = getTurnTableName(turnType);
+        getWritableDatabase().execSQL("delete from "+ tableName);
+    }
+
+    // TODO: 2/17/2017 return 2d array of the baseline data
+    public void getBaselineArray() {
+
     }
 }

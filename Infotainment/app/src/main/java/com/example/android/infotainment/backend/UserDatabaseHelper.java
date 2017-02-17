@@ -113,7 +113,13 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
     public ArrayList<UserData> getData() {
         String[] where = new String[0];
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * from Data", where);
+        Cursor cursor;
+        try {
+            cursor = db.rawQuery("SELECT * from Data", where);
+        } catch (SQLiteException e) {
+            onCreate(getWritableDatabase());
+            cursor = db.rawQuery("SELECT * from Data", where);
+        }
         ArrayList<UserData> userDatas = getAllDataFromCursor(cursor);
         db.close();
         return userDatas;
