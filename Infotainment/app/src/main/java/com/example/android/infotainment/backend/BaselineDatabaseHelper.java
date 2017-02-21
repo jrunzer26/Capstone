@@ -4,8 +4,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.example.android.infotainment.backend.models.SensorData;
 import com.example.android.infotainment.backend.models.SimData;
@@ -40,7 +42,8 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
                 "id integer PRIMARY KEY AUTOINCREMENT, " +
                 "turnID int,                           " +
                 "speed single,                         " +
-                "steering single                       " +
+                "steering single,                      " +
+                "flag int                              " +
                 ")                                     ";
         db.execSQL("CREATE TABLE " + RIGHT_TURN + turnSQLAttributes);
         db.execSQL("CREATE TABLE " + LEFT_TURN + turnSQLAttributes);
@@ -59,59 +62,28 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Gets all the right turn baseline data turns.
-     * @return an array list of the RIGHT turns saved in storage.
-     */
-    public ArrayList<Turn> getRightTurnData() {
-        return getTurnData(Turn.TURN_RIGHT);
-    }
-
-    /**
-     * Gets all the left turn baseline data turns.
-     * @return an array list of the LEFT turns saved in storage.
-     */
-    public ArrayList<Turn> getLeftTurnData() {
-        return getTurnData(Turn.TURN_LEFT);
-    }
-
-    /**
-     * Gets the next available turn id in the database.
-     * @param turnType the type of turn: Turn.LEFT, Turn.RIGHT
-     * @return
-     */
-    public int getNextTurnId(int turnType) {
-        String[] where = new String[0];
-        SQLiteDatabase db = getReadableDatabase();
-        int id = 0;
-        String tableName = getTurnTableName(turnType);
-        Cursor cursor = db.rawQuery("SELECT turnID from " + tableName , where);
-        if (cursor.getCount() > 0) {
-            cursor.moveToLast();
-            // get the last index, and increase it by 1
-            id = cursor.getInt(0) + 1;
-        }
-        db.close();
-        cursor.close();
-        return id;
-    }
-
-    /**
      * Saves a turn in the database.
      * @param turn the turn to save in the databse.
      */
     public void saveTurn(Turn turn) {
+        //Log.i("before save", "saveTurn: " + turn.getFlag());
+        //printTable(turn.getTurnType());
+        //Log.i("baselineDB", "saveTurn size: " + turn.size() + "table name: " + getTurnTableName(turn.getTurnType()));
         ContentValues values;
         // user specific data
         SQLiteDatabase db = getWritableDatabase();
+
         String tableName = getTurnTableName(turn.getTurnType());
         for(TurnDataPoint point : turn.getTurnDataPoints()) {
             values = new ContentValues();
+            values.put("flag", turn.getFlag());
             values.put("turnID", turn.getId());
             values.put("speed", point.getSpeed());
             values.put("steering", point.getSteering());
             db.insert(tableName, null, values);
         }
         db.close();
+        //printTable(turn.getTurnType());
     }
 
     /**
@@ -119,42 +91,54 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
      * @param turnType Turn.LEFT or Turn.Right
      * @return the turns associated with that turn type
      */
-    private ArrayList<Turn> getTurnData(int turnType) {
-        System.out.println("Get turn data");
+    public Turn getTurnData(int turnType, int flag) {
         String[] where = new String[0];
         SQLiteDatabase db = this.getReadableDatabase();
         String table;
         table = getTurnTableName(turnType);
         // select all the turns
-        Cursor cursor = db.rawQuery("SELECT * from " + table, where);
+        Cursor cursor;
+        String[] columns = {"flag", "speed", "steering"};
+        String selection = "flag = ?";
+        //printTable(turnType);
+        try {
+            cursor = db.rawQuery("SELECT * from " + table /*+ " where flag LIKE ?"*/, where);
+            //cursor = db.query(table, columns, selection, where, null, null, null);
+        } catch (SQLiteException e) {
+            onCreate(getWritableDatabase());
+            cursor = db.rawQuery("SELECT * from " + table + " where flag = ?", where);
+        }
+
         cursor.moveToFirst();
         Turn turn;
         int previousTurnID = -1;
-        ArrayList<Turn> turns = new ArrayList<>();
-        turn = new Turn(turnType, previousTurnID);
+        turn = new Turn(turnType, previousTurnID, flag);
+        System.out.println("Get turn data, size: " + cursor.getCount());
         while (!cursor.isAfterLast()) {
             // add the data to the object
             int turnID = cursor.getInt(cursor.getColumnIndex("turnID"));
-            // create a new turn if the previous turn id is less  than the current data
-            if (turnID > previousTurnID) {
-                turn = new Turn(turnType, turnID);
-            }
+            int queryFlag = cursor.getInt(cursor.getColumnIndex("flag"));
             double speed = cursor.getDouble(cursor.getColumnIndex("speed"));
             double steering = cursor.getDouble(cursor.getColumnIndex("steering"));
             // add the point to the turn
             TurnDataPoint dataPoint = new TurnDataPoint(speed, steering);
             turn.addTurnPoint(dataPoint);
-            // add then turn to the array list if it was less
-            if (turnID > previousTurnID) {
-                previousTurnID = turnID;
-                turns.add(turn);
-            }
             // next line in database
             cursor.moveToNext();
         }
         cursor.close();
-        db.close();
-        return turns;
+        return turn;
+    }
+
+    public void clearTurn(int turnType, int flag) {
+        String tableName = getTurnTableName(turnType);
+        String [] where = {flag + ""};
+        try {
+            getWritableDatabase().execSQL("delete from " + tableName + " where flag = ?", where);
+        } catch (SQLiteException e) {
+            onCreate(getWritableDatabase());
+            getWritableDatabase().execSQL("delete from " + tableName + " where flag = ?", where);
+        }
     }
 
     /**
@@ -172,13 +156,32 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         return table;
     }
 
-    public void clear(int turnType) {
-        String tableName = getTurnTableName(turnType);
-        getWritableDatabase().execSQL("delete from "+ tableName);
-    }
-
-    // TODO: 2/17/2017 return 2d array of the baseline data
-    public void getBaselineArray() {
-
+    public void printTable(int turnType) {
+        String table = getTurnTableName(turnType);
+        String[] where = new String[0];
+        SQLiteDatabase db = this.getReadableDatabase();
+        table = getTurnTableName(turnType);
+        // select all the turns
+        Cursor cursor;
+        try {
+            cursor = db.rawQuery("SELECT * from " + table, where);
+        } catch (SQLiteException e) {
+            onCreate(getWritableDatabase());
+            cursor = db.rawQuery("SELECT * from " + table, where);
+        }
+        //Log.i("cursor", "print table length: " + cursor.getCount());
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            // add the data to the object
+            int turnID = cursor.getInt(cursor.getColumnIndex("turnID"));
+            int queryFlag = cursor.getInt(cursor.getColumnIndex("flag"));
+            double speed = cursor.getDouble(cursor.getColumnIndex("speed"));
+            double steering = cursor.getDouble(cursor.getColumnIndex("steering"));
+            // add the point to the turn
+            //Log.i("print", "turnid: " + turnID + " flag: " + queryFlag + " speed: " + speed + " steering: " + steering);
+            // next line in database
+            cursor.moveToNext();
+        }
+        cursor.close();
     }
 }

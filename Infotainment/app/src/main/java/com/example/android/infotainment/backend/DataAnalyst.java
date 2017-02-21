@@ -4,12 +4,14 @@ import android.content.Context;
 import android.util.Log;
 
 import com.example.android.infotainment.alert.AlertSystem;
+import com.example.android.infotainment.backend.models.Baselines;
 import com.example.android.infotainment.backend.models.SensorData;
 import com.example.android.infotainment.backend.models.SimData;
 import com.example.android.infotainment.backend.models.Turn;
 import com.example.android.infotainment.backend.models.TurnDataPoint;
 import com.example.android.infotainment.backend.models.UserData;
 import com.example.android.infotainment.backend.models.SlidingWindow;
+import com.example.android.infotainment.utils.Util;
 
 import java.util.ArrayList;
 import java.lang.Math;
@@ -25,16 +27,9 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private String TAG = "Analyst";
     private Context applicationContext;
     private AlertSystem alertSystem;
-    private UserDatabaseHelper userDatabaseHelper;
     private Queue<UserData> userDataLinkedList;
     private int userAverage = 70;
     private Double steering;
-    private int TURN_WINDOW_SIZE = 19;
-
-    private double[][] rightTurnBasline;
-    private double[][] leftTurnBaseline;
-
-    private BaselineDatabaseHelper baselineDatabaseHelper;
 
     //VARIABLES AND STRUCTURES REQUIRED FOR THE ALGORITHM;
     private final int WINDOW = 5; //Size of the sliding window
@@ -42,6 +37,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private SlidingWindow sw = new SlidingWindow(WINDOW);
     private ArrayList<Double> mean = new ArrayList<Double>();
     private ArrayList<Double> stdDev = new ArrayList<Double>();
+    private Baselines baselines;
 
     /**
      * Analyses data coming in from the data parser and alerts the user.
@@ -50,163 +46,9 @@ public class DataAnalyst extends Thread implements DataReceiver {
     public DataAnalyst(Context applicationContext) {
         this.applicationContext = applicationContext;
         alertSystem = new AlertSystem(applicationContext);
-        userDatabaseHelper = new UserDatabaseHelper(applicationContext);
         userDataLinkedList = new ConcurrentLinkedQueue<>();
-        baselineDatabaseHelper = new BaselineDatabaseHelper(applicationContext);
-        if (userDatabaseHelper.getNextTripID() == 3) {
-            dbaFirstTimeInit();
-        } else {
-            dbaInitPreviousSavedTrip();
-        }
-    }
-
-    private void dbaFirstTimeInit() {
-        ArrayList<UserData> allData = userDatabaseHelper.getData();
-        ArrayList<Turn> turns = getTurnData(allData);
-        baselineLeftAndRightTurns(turns);
-        ArrayList<Turn> rightTurnResults = baselineDatabaseHelper.getRightTurnData();
-        ArrayList<Turn> leftTurnResults = baselineDatabaseHelper.getLeftTurnData();
-        Log.i(TAG, "right turn results");
-        for(Turn t : rightTurnResults) {
-            Log.i(TAG, t.toString());
-        }
-        Log.i(TAG, "left turn results");
-        for(Turn t : leftTurnResults) {
-            Log.i(TAG, t.toString());
-        }
-    }
-
-    private void baselineLeftAndRightTurns(ArrayList<Turn> turns) {
-        ArrayList<Turn> leftTurns = new ArrayList<>();
-        ArrayList<Turn> rightTurns = new ArrayList<>();
-        sortTurnData(turns, leftTurns, rightTurns);
-        baselineTurns(Turn.TURN_LEFT, leftTurns);
-        baselineTurns(Turn.TURN_RIGHT, rightTurns);
-    }
-
-    /** Baseline specific turn events **/
-    private void baselineTurns(int turnType, ArrayList<Turn> turns) {
-        // find the max length of the sequences
-        int max = -1;
-        int totalTurns = turns.size();
-        for(int i = 0; i < totalTurns; i++) {
-            int size = turns.get(i).size();
-            if (max < size) {
-                max = size;
-            }
-        }
-        if (max != -1) {
-            double[][] steeringSequence = new double[totalTurns][TURN_WINDOW_SIZE];
-            double[][] speedSequence = new double[totalTurns][TURN_WINDOW_SIZE];
-            double[] averageSteeringSequence;
-            double[] averageSpeedSequence;
-            int flag = turns.get(0).getFlag();
-            if (flag == UserData.FLAG_LEFT_TURN ) {
-                averageSteeringSequence = leftTurnBaseline[0];
-                averageSpeedSequence = leftTurnBaseline[1];
-            }
-            else {
-                averageSteeringSequence = rightTurnBasline[0];
-                averageSpeedSequence = rightTurnBasline[1];
-            }
-
-            for (int i = 0; i < turns.size(); i++) {
-                Turn turn = turns.get(i);
-                int turnSize = turn.size();
-                for (int j = 0; j < steeringSequence[0].length; j++) {
-                    ArrayList<TurnDataPoint> turnPoints = turn.getTurnDataPoints();
-                    if (turnSize > j) {
-                        TurnDataPoint turnDataPoint= turnPoints.get(j);
-                        steeringSequence[i][j] = turnDataPoint.getSteering();
-                        speedSequence[i][j] = turnDataPoint.getSpeed();
-                    } else {
-                        steeringSequence[i][j] = 0; // for now, shouldn't happen in general
-                        speedSequence[i][j] = 0;
-                    }
-                }
-            }
-            // dba a few times for the average
-            DBA.DBA(averageSteeringSequence, steeringSequence);
-            DBA.DBA(averageSteeringSequence, steeringSequence);
-            DBA.DBA(averageSpeedSequence, speedSequence);
-            DBA.DBA(averageSpeedSequence, speedSequence);
-
-            overwriteBaseline(averageSteeringSequence, turnType);
-            // take baseline here
-
-        }
-    }
-
-    // for now we are just going to not add hr data, otherwise take the hr data in parallel
-    private void overwriteTurnBaseline(double[] averageSteeringSequence, double[] averageSpeedSequence, int turnType) {
-        Turn turn = new Turn(turnType, 0);
-        for (int i = 0; i < averageSpeedSequence.length; i++) {
-            turn.addTurnPoint(new TurnDataPoint(averageSpeedSequence[i], averageSteeringSequence[i]));
-        }
-        baselineDatabaseHelper.clear(turnType);
-        baselineDatabaseHelper.saveTurn(turn);
-    }
-
-
-    private void sortTurnData(ArrayList<Turn> turns, ArrayList<Turn> leftTurns, ArrayList<Turn> rightTurns) {
-        for (Turn t : turns) {
-            if (t.getTurnType() == Turn.TURN_LEFT) {
-                leftTurns.add(t);
-            } else if (t.getTurnType() == Turn.TURN_RIGHT) {
-                rightTurns.add(t);
-            }
-        }
-    }
-
-    private void dbaInitPreviousSavedTrip() {
-        ArrayList<UserData> lastTripData = userDatabaseHelper.getLastTripData();
-        ArrayList<Turn> turns = getTurnData(lastTripData);
-        baselineLeftAndRightTurns(turns);
-        ArrayList<Turn> rightTurnResults = baselineDatabaseHelper.getRightTurnData();
-        ArrayList<Turn> leftTurnResults = baselineDatabaseHelper.getLeftTurnData();
-        Log.i(TAG, "right turn results");
-        for(Turn t : rightTurnResults) {
-            Log.i(TAG, t.toString());
-        }
-        Log.i(TAG, "left turn results");
-        for(Turn t : leftTurnResults) {
-            Log.i(TAG, t.toString());
-        }
-    }
-
-    private ArrayList<Turn> getTurnData(ArrayList<UserData> userDatas) {
-        ArrayList<Turn> turns = new ArrayList<>();
-        Turn currentTurn = null;
-        for (int i = 0; i < userDatas.size(); i++) {
-            UserData userData = userDatas.get(i);
-            SimData simData = userData.getSimData();
-
-            if (userData.getFlag() != UserData.FLAG_NONE) {
-                int turnType;
-                if (userData.getFlag() == UserData.FLAG_LEFT_TURN || userData.getFlag() == UserData.FLAG_LEFT_TURN_SPEEDING) {
-                    turnType = Turn.TURN_LEFT;
-                } else if(userData.getFlag() == UserData.FLAG_RIGHT_TURN || userData.getFlag() == UserData.FLAG_RIGHT_TURN_SPEEDING) {
-                    turnType = Turn.TURN_RIGHT;
-                } else {
-                    turnType = -1;
-                }
-                if (turnType != -1) {
-                    if (currentTurn == null) {
-                        currentTurn = new Turn(turnType, 0, userData.getFlag());
-                    }
-                    currentTurn.addTurnPoint(new TurnDataPoint(simData.getSpeed(),
-                            simData.getSteering()));
-                }
-
-            } else if (currentTurn != null) {
-                turns.add(currentTurn);
-                currentTurn = null;
-            }
-        }
-        // add the turn if even if the turn is not finished
-        if (currentTurn != null)
-            turns.add(currentTurn);
-        return turns;
+        baselines = new Baselines(applicationContext);
+        //Util.print2dArray(baselines.getRight(), TAG);
     }
 
     /**

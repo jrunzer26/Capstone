@@ -30,6 +30,7 @@ public class Turn {
     public Turn(int id, int turnType, int flag) {
         this.id = id;
         this.turnType = turnType;
+        data = new ArrayList<>();
         this.flag = flag;
     }
 
