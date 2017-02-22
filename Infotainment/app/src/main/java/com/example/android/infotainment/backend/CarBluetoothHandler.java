@@ -1,5 +1,6 @@
 package com.example.android.infotainment.backend;
 
+import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 
@@ -19,12 +20,13 @@ import java.util.TimerTask;
  */
 
 public class CarBluetoothHandler extends Thread {
-    private final BluetoothSocket mmSocket;
-    private final InputStream mmInStream;
-    private final OutputStream mmOutStream;
+    private BluetoothSocket mmSocket;
+    private InputStream mmInStream;
+    private OutputStream mmOutStream;
     private final DataInputStream mmDataIS;
     private final Context act;
     private DataParser dataParser;
+    private final BluetoothServerSocket bluetoothServerSocket;
 
     /**
      * Reads incoming data from the car.
@@ -32,10 +34,11 @@ public class CarBluetoothHandler extends Thread {
      * @param mainContext the current context.
      * @param dataParser the data parser to send data to.
      */
-    public CarBluetoothHandler(BluetoothSocket socket, Context mainContext, DataParser dataParser){
+    public CarBluetoothHandler(BluetoothSocket socket, Context mainContext, DataParser dataParser, BluetoothServerSocket bluetoothServerSocket){
         mmSocket = socket;
         InputStream tmpIn = null;
         OutputStream tmpOut = null;
+        this.bluetoothServerSocket = bluetoothServerSocket;
         act = mainContext;
         this.dataParser = dataParser;
         try {
@@ -96,7 +99,15 @@ public class CarBluetoothHandler extends Thread {
                     }
                 }
             } catch (IOException e) {
-                break;
+                try {
+                    System.out.println("Waiting for a connection");
+                    mmSocket = bluetoothServerSocket.accept();
+                    mmInStream = mmSocket.getInputStream();
+                    mmOutStream = mmSocket.getOutputStream();
+
+                } catch(IOException s) {
+                    System.out.println("Hopefully not in here");
+                }
             }
         }
     }

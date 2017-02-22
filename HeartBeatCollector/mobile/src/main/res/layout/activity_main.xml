@@ -51,4 +51,13 @@
         android:layout_below="@+id/sensor"
         android:layout_alignStart="@+id/sensor"
         android:layout_marginTop="17dp" />
+
+    <Button
+        android:text="Connect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="54dp"
+        android:id="@+id/button_connection" />
 </RelativeLayout>
