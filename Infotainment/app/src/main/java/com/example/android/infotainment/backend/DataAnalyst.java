@@ -4,18 +4,18 @@ import android.content.Context;
 import android.util.Log;
 
 import com.example.android.infotainment.alert.AlertSystem;
+import com.example.android.infotainment.backend.models.Baselines;
 import com.example.android.infotainment.backend.models.SensorData;
 import com.example.android.infotainment.backend.models.SimData;
 import com.example.android.infotainment.backend.models.Turn;
 import com.example.android.infotainment.backend.models.TurnDataPoint;
 import com.example.android.infotainment.backend.models.UserData;
 import com.example.android.infotainment.backend.models.SlidingWindow;
+import com.example.android.infotainment.utils.Util;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.lang.Math;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 
@@ -27,17 +27,17 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private String TAG = "Analyst";
     private Context applicationContext;
     private AlertSystem alertSystem;
-    private UserDatabaseHelper userDatabaseHelper;
     private Queue<UserData> userDataLinkedList;
     private int userAverage = 70;
     private Double steering;
-    private BaselineDatabaseHelper baselineDatabaseHelper;
+
     //VARIABLES AND STRUCTURES REQUIRED FOR THE ALGORITHM;
     private final int WINDOW = 5; //Size of the sliding window
     private final int THRESHOLD = 0; //Difference between window and overall needed to trigger DTW
     private SlidingWindow sw = new SlidingWindow(WINDOW);
     private ArrayList<Double> mean = new ArrayList<Double>();
     private ArrayList<Double> stdDev = new ArrayList<Double>();
+    private Baselines baselines;
 
     /**
      * Analyses data coming in from the data parser and alerts the user.
@@ -46,35 +46,10 @@ public class DataAnalyst extends Thread implements DataReceiver {
     public DataAnalyst(Context applicationContext) {
         this.applicationContext = applicationContext;
         alertSystem = new AlertSystem(applicationContext);
-        userDatabaseHelper = new UserDatabaseHelper(applicationContext);
         userDataLinkedList = new ConcurrentLinkedQueue<>();
-        baselineDatabaseHelper = new BaselineDatabaseHelper(applicationContext);
-        // for sample usage of the base line, uncomment the line below
-        //baseLineTest();
-    }
-
-    /**
-     * Sample usage of the base line data.
-     */
-    private void baseLineTest() {
-        int turnID = baselineDatabaseHelper.getNextTurnId(Turn.TURN_LEFT);
-        Turn turn = new Turn(Turn.TURN_LEFT, turnID);
-        turn.addTurnPoint(new TurnDataPoint(100, 2, 55));
-        turn.addTurnPoint(new TurnDataPoint(99, 5, 60));
-        baselineDatabaseHelper.saveTurn(turn);
-        turnID = baselineDatabaseHelper.getNextTurnId(Turn.TURN_LEFT);
-        turn = new Turn(Turn.TURN_LEFT, turnID);
-        turn.addTurnPoint(new TurnDataPoint(300, 6, 55));
-        baselineDatabaseHelper.saveTurn(turn);
-        turnID = baselineDatabaseHelper.getNextTurnId(Turn.TURN_LEFT);
-        turn = new Turn(Turn.TURN_LEFT, turnID);
-        turn.addTurnPoint(new TurnDataPoint(3560, 6, 55));
-        turn.addTurnPoint(new TurnDataPoint(3560, 6, 2838));
-        baselineDatabaseHelper.saveTurn(turn);
-        ArrayList<Turn> turnData = baselineDatabaseHelper.getLeftTurnData();
-        for(Turn t : turnData) {
-            Log.i(TAG, t.toString());
-        }
+        baselines = new Baselines(applicationContext);
+        baselines.printBaselines();
+        //Util.print2dArray(baselines.getRight(), TAG);
     }
 
     /**
@@ -200,6 +175,4 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private double calculateTurn(double currentSteering) {
         return Math.abs(steering.doubleValue() - currentSteering);
     }
-
-
 }
