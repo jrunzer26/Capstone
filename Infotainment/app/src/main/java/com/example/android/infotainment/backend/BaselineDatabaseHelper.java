@@ -106,7 +106,6 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         Turn turn;
         int previousTurnID = -1;
         turn = new Turn(turnType, previousTurnID, flag);
-        System.out.println("Get turn data, size: " + cursor.getCount());
         while (!cursor.isAfterLast()) {
             // add the data to the object
             int turnID = cursor.getInt(cursor.getColumnIndex("turnID"));

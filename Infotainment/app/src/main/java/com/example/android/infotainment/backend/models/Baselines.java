@@ -50,7 +50,6 @@ public class Baselines {
         } else if (userDatabaseHelper.getNextTripID() > 2) {
             dbaInitPreviousSavedTrip();
         } // else : baselines are all size 0, not enough data
-        printBaselines();
     }
 
     /**
@@ -246,7 +245,7 @@ public class Baselines {
     /**
      * Prints all the baselines.
      */
-    private void printBaselines() {
+    public void printBaselines() {
         Log.i(TAG, "right turn baseline");
         Util.print2dArray(rightTurnBaseline, TAG);
         Log.i(TAG, "left turn baseline");

@@ -48,6 +48,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         alertSystem = new AlertSystem(applicationContext);
         userDataLinkedList = new ConcurrentLinkedQueue<>();
         baselines = new Baselines(applicationContext);
+        baselines.printBaselines();
         //Util.print2dArray(baselines.getRight(), TAG);
     }
 

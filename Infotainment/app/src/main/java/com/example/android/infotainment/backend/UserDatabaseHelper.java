@@ -151,11 +151,9 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
             onCreate(getWritableDatabase());
             cursor = db.rawQuery("SELECT tripID from Data", where);
         }
-        System.out.println("cursor count: " + cursor.getCount());
         if (cursor.getCount() > 0) {
             cursor.moveToLast();
             id = cursor.getInt(0) + 1;
-            System.out.println("id: "  + id);
         }
         db.close();
         cursor.close();
@@ -199,11 +197,9 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
     public ArrayList<UserData> getLastTripData() {
         String[] where = new String[1];
         where[0] = getCurrentTripID() +"";
-        Log.i(TAG, "trip id: " + where[0]);
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT *                  " +
                                     "from Data WHERE tripID = ?", where);
-        Log.i(TAG, "cursor size: " + cursor.getCount());
         return getAllDataFromCursor(cursor);
     }
 
