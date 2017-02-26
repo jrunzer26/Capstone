@@ -9,9 +9,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.example.android.infotainment.backend.models.SensorData;
-import com.example.android.infotainment.backend.models.SimData;
-import com.example.android.infotainment.backend.models.Time;
 import com.example.android.infotainment.backend.models.Turn;
 import com.example.android.infotainment.backend.models.TurnDataPoint;
 
@@ -66,13 +63,9 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
      * @param turn the turn to save in the databse.
      */
     public void saveTurn(Turn turn) {
-        //Log.i("before save", "saveTurn: " + turn.getFlag());
-        //printTable(turn.getTurnType());
-        //Log.i("baselineDB", "saveTurn size: " + turn.size() + "table name: " + getTurnTableName(turn.getTurnType()));
         ContentValues values;
         // user specific data
         SQLiteDatabase db = getWritableDatabase();
-
         String tableName = getTurnTableName(turn.getTurnType());
         for(TurnDataPoint point : turn.getTurnDataPoints()) {
             values = new ContentValues();
@@ -83,7 +76,6 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
             db.insert(tableName, null, values);
         }
         db.close();
-        //printTable(turn.getTurnType());
     }
 
     /**
@@ -92,7 +84,8 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
      * @return the turns associated with that turn type
      */
     public Turn getTurnData(int turnType, int flag) {
-        String[] where = new String[0];
+        //String[] where = new String[0];
+        String[] where = {Integer.toString(flag)};
         SQLiteDatabase db = this.getReadableDatabase();
         String table;
         table = getTurnTableName(turnType);
@@ -100,11 +93,11 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor;
         String[] columns = {"flag", "speed", "steering"};
         String selection = "flag = ?";
-        //printTable(turnType);
         try {
-            cursor = db.rawQuery("SELECT * from " + table /*+ " where flag LIKE ?"*/, where);
+            cursor = db.rawQuery("SELECT * from " + table + " where \"flag\" = ?", where);
             //cursor = db.query(table, columns, selection, where, null, null, null);
         } catch (SQLiteException e) {
+            e.printStackTrace();
             onCreate(getWritableDatabase());
             cursor = db.rawQuery("SELECT * from " + table + " where flag = ?", where);
         }
@@ -130,6 +123,11 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         return turn;
     }
 
+    /**
+     * Clears the turn from the database.
+     * @param turnType the type of turn
+     * @param flag the flag turn to delete
+     */
     public void clearTurn(int turnType, int flag) {
         String tableName = getTurnTableName(turnType);
         String [] where = {flag + ""};
@@ -143,8 +141,8 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Gets the turn table name based on the type.
-     * @param turnType
-     * @return
+     * @param turnType the turn type
+     * @return the table name
      */
     @NonNull
     private String getTurnTableName(int turnType) {
@@ -156,11 +154,14 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         return table;
     }
 
-    public void printTable(int turnType) {
+    /**
+     * Prints the table specified by the turn
+     * @param turnType the turn table to print
+     */
+    public void printTurnTable(int turnType) {
         String table = getTurnTableName(turnType);
         String[] where = new String[0];
         SQLiteDatabase db = this.getReadableDatabase();
-        table = getTurnTableName(turnType);
         // select all the turns
         Cursor cursor;
         try {
@@ -169,7 +170,6 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
             onCreate(getWritableDatabase());
             cursor = db.rawQuery("SELECT * from " + table, where);
         }
-        //Log.i("cursor", "print table length: " + cursor.getCount());
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             // add the data to the object
@@ -177,8 +177,7 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
             int queryFlag = cursor.getInt(cursor.getColumnIndex("flag"));
             double speed = cursor.getDouble(cursor.getColumnIndex("speed"));
             double steering = cursor.getDouble(cursor.getColumnIndex("steering"));
-            // add the point to the turn
-            //Log.i("print", "turnid: " + turnID + " flag: " + queryFlag + " speed: " + speed + " steering: " + steering);
+            Log.i("print", "turnid: " + turnID + " flag: " + queryFlag + " speed: " + speed + " steering: " + steering);
             // next line in database
             cursor.moveToNext();
         }
