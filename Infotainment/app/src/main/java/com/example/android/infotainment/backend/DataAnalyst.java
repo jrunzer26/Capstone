@@ -42,6 +42,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     //VARIABLES AND STRUCTURES REQUIRED FOR THE ALGORITHM;
     private final int WINDOW = 5; //Size of the sliding window
     private final int THRESHOLD = 0; //Difference between window and overall needed to trigger DTW
+
     private SlidingWindow sw = new SlidingWindow(WINDOW);
     private ArrayList<Double> mean = new ArrayList<Double>();
     private ArrayList<Double> stdDev = new ArrayList<Double>();
@@ -51,6 +52,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private int[] eventCounter = new int[6];
     private Baselines baselines;
     private VehicleHistory vsh = new VehicleHistory();
+    private final boolean isDoneSetup = false; //baselines.isSetup()
 
     /**
      * Analyses data coming in from the data parser and alerts the user.
@@ -96,7 +98,9 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
                 //ALGORITHM STARTS HERE
                 step1_HeartRateDeviations(sensorData, counter);
-                if(step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() -1))) {
+
+
+                if(isDoneSetup && step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() -1))) {
                     alertCheck(step3_GetMinSimilarity(baselines, vsh));
                     for (int event = 0; event<eventCounter.length; event++){
                         if (eventCounter[event] %2 == 0 && eventCounter[event] <5){
@@ -107,7 +111,11 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
                         }
                     }
+                } else { //Setup not done, or no deviation
+                    //Record to the database
                 }
+
+
 
 
 
