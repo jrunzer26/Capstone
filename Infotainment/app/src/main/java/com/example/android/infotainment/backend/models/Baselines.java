@@ -13,7 +13,7 @@ public class Baselines {
     private int[] cruiseBaseline;
     private int[] speedingBaseline;
 
-
+    //For the following two 2-dimensional arrays, the 0th index represents the steering data, and the 1st index represents the speed data.
     public double[][] getLeft(){
         return leftTurnBaseline;
     }
@@ -31,7 +31,7 @@ public class Baselines {
     public int[] getCruise(){
         return cruiseBaseline;
     }
-    public int[] speedingBaseline(){
+    public int[] getSpeeding(){
         return speedingBaseline;
     }
 }

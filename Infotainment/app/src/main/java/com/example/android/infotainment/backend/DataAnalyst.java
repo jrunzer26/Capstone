@@ -4,18 +4,26 @@ import android.content.Context;
 import android.util.Log;
 
 import com.example.android.infotainment.alert.AlertSystem;
+import com.example.android.infotainment.backend.FastDTW.dtw.FastDTW;
+import com.example.android.infotainment.backend.FastDTW.dtw.WarpPath;
 import com.example.android.infotainment.backend.models.SensorData;
 import com.example.android.infotainment.backend.models.SimData;
 import com.example.android.infotainment.backend.models.Turn;
 import com.example.android.infotainment.backend.models.TurnDataPoint;
 import com.example.android.infotainment.backend.models.UserData;
 import com.example.android.infotainment.backend.models.SlidingWindow;
+import com.example.android.infotainment.backend.models.Baselines;
+import com.example.android.infotainment.backend.FastDTW.dtw.TimeWarpInfo;
+import com.example.android.infotainment.backend.FastDTW.util.DistanceFunction;
+import com.example.android.infotainment.backend.FastDTW.util.DistanceFunctionFactory;
+import com.example.android.infotainment.backend.FastDTW.timeseries.TimeSeries;
+import com.example.android.infotainment.backend.models.VehicleHistory;
+
+
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.lang.Math;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 
@@ -38,6 +46,11 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private SlidingWindow sw = new SlidingWindow(WINDOW);
     private ArrayList<Double> mean = new ArrayList<Double>();
     private ArrayList<Double> stdDev = new ArrayList<Double>();
+    private final int radius = 30;
+    private final DistanceFunction distFn = DistanceFunctionFactory.getDistFnByName("EuclideanDistance");
+    private String[] drivingEvent = new String[2];
+    private int[] eventCounter = new int[6];
+
 
     /**
      * Analyses data coming in from the data parser and alerts the user.
@@ -102,12 +115,24 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 System.out.println(userData.toString());
                 SensorData sensorData = userData.getSensorData();
                 SimData simData = userData.getSimData();
+                Baselines baselines = new Baselines();
+                VehicleHistory vsh = new VehicleHistory();
+
 
 
                 //ALGORITHM STARTS HERE
                 step1_HeartRateDeviations(sensorData, counter);
                 if(step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() -1))) {
-                    //RUN FOLLOWING STEPS
+                    alertCheck(step3_GetMinSimilarity(baselines, vsh));
+                    for (int event = 0; event<eventCounter.length; event++){
+                        if (eventCounter[event] %2 == 0 && eventCounter[event] <5){
+                            //Mild system alert
+
+                        } else if (eventCounter[event]>=5){
+                            //Severe system alert.
+
+                        }
+                    }
                 }
 
 
@@ -199,6 +224,127 @@ public class DataAnalyst extends Thread implements DataReceiver {
      */
     private double calculateTurn(double currentSteering) {
         return Math.abs(steering.doubleValue() - currentSteering);
+    }
+
+
+
+
+
+    private String step3_GetMinSimilarity(Baselines b, VehicleHistory history){
+        final int SINGLE_DIM_EVENTS = 4;
+        final int TWO_DIM_EVENTS = 2;
+        TimeWarpInfo minSingle;
+        TimeWarpInfo[] minDouble;
+        FastDTW dtw = new FastDTW();
+
+        ArrayList<Object> speedHistory = new ArrayList<Object>(history.getSpeedHistory());
+        ArrayList<Object> turningHistory = new ArrayList<Object>(history.getTurningHistory());
+
+        minSingle = minSim_singleDimension(b, speedHistory, turningHistory, SINGLE_DIM_EVENTS, dtw);
+        minDouble = minSim_doubleDimension(b, speedHistory, turningHistory, TWO_DIM_EVENTS, dtw);
+        if (minSingle.getDistance() >= (minDouble[0].getDistance() + minDouble[1].getDistance())/2){
+            return (drivingEvent[0]);
+        } else {
+            return(drivingEvent[1]);
+        }
+
+    }
+
+    private TimeWarpInfo minSim_singleDimension(Baselines b, ArrayList sHist, ArrayList tHist, int events, FastDTW dtw){
+        TimeWarpInfo temp;
+        TimeWarpInfo toReturn = null;
+        String tempEvent="";
+        for (int i = 0; i< events; i++){
+            switch (i) {
+                case 0: {
+                    //Acceleration
+                    temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getAccel()), radius, distFn);
+                    tempEvent="accel";
+                    break;
+                }
+                case 1: {
+                    //Braking
+                    temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getBrake()), radius, distFn);
+                    tempEvent="braking";
+                    break;
+                }
+                case 2: {
+                    //Cruise
+                    temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getCruise()), radius, distFn);
+                    tempEvent="cruise";
+                    break;
+                }
+                case 3: {
+                    //Speeding
+                    temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getSpeeding()), radius, distFn);
+                    tempEvent="speeding";
+                    break;
+                }
+                default: {
+                    continue;
+                }
+            }
+            if (temp.getDistance() < 10000 || temp.getDistance() < toReturn.getDistance()){
+                toReturn = temp;
+                drivingEvent[0]= tempEvent;
+
+            }
+        }
+        return toReturn;
+    }
+
+    private TimeWarpInfo[] minSim_doubleDimension(Baselines b, ArrayList sHist, ArrayList tHist, int events, FastDTW dtw){
+        TimeWarpInfo[] temp = new TimeWarpInfo[2];
+        TimeWarpInfo[] toReturn = new TimeWarpInfo[2];
+        double avgDistance;
+        String tempEvent;
+        for (int i = 0; i< events; i++){
+            switch (i) {
+                case 0: {
+                    //Left Turns
+                    temp[0] = dtw.getWarpInfoBetween(new TimeSeries(tHist), new TimeSeries(b.getLeft()[0]), radius, distFn);
+                    temp[1] = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getLeft()[1]), radius, distFn);
+                    tempEvent = "left";
+                    break;
+                }
+                case 1: {
+                    //Right Turns
+                    temp[0] = dtw.getWarpInfoBetween(new TimeSeries(tHist), new TimeSeries(b.getRight()[0]), radius, distFn);
+                    temp[1] = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getRight()[1]), radius, distFn);
+                    tempEvent="right";
+                    break;
+                }
+
+                default: {
+                    continue;
+                }
+            }
+            avgDistance = (temp[0].getDistance() + temp[1].getDistance())/2;
+
+            if (avgDistance < 10000 || avgDistance < (toReturn[0].getDistance()+toReturn[1].getDistance())/2){
+                System.arraycopy(temp, 0, toReturn, 0, 2);
+                drivingEvent[1] = tempEvent;
+            }
+        }
+        return toReturn;
+    }
+
+    private void alertCheck(String event){
+        if (event.equals("accel")){
+            eventCounter[0]++;
+        } else if (event.equals("brake")) {
+            eventCounter[1]++;
+        } else if (event.equals("cruise")) {
+            eventCounter[2]++;
+        } else if (event.equals("speeding")) {
+            eventCounter[3]++;
+        } else if (event.equals("left")) {
+            eventCounter[4]++;
+        } else if (event.equals("right")) {
+            eventCounter[5]++;
+        } else {
+            System.out.println("ERROR IN ALERTCHECK: String invalid!");
+        }
     }
 
 
