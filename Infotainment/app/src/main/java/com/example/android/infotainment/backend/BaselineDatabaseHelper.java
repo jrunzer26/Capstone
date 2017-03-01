@@ -23,6 +23,10 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
     private static final String NAME = "USER_DATABASE";
     private static final String RIGHT_TURN = "RightTurn";
     private static final String LEFT_TURN = "LeftTurn";
+    private static final String ACCEL_TABLE = "Accel";
+    private static final String BRAKE_TABLE = "BRAKE";
+    private static final String CRUISE_TABLE = "CRUISE";
+    private static final String SPEEDING_TABLE = "SPEEDING";
     private static final int DATABASE_VERSION = 1;
 
     public BaselineDatabaseHelper(Context context) {
@@ -44,6 +48,31 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
                 ")                                     ";
         db.execSQL("CREATE TABLE " + RIGHT_TURN + turnSQLAttributes);
         db.execSQL("CREATE TABLE " + LEFT_TURN + turnSQLAttributes);
+        String accelerate_brakingSQLAttributes = "( " +
+                "id integer PRIMARY KEY AUTOINCREMENT, " +
+                "turnID int,                           " +
+                "speed single,                         " +
+                "flag int                              " +
+                ")                                     ";
+        db.execSQL("CREATE TABLE " + ACCEL_TABLE + accelerate_brakingSQLAttributes);
+        db.execSQL("CREATE TABLE " + BRAKE_TABLE + accelerate_brakingSQLAttributes);
+        String cruisingSQLQAttributes ="( " +
+                "id integer PRIMARY KEY AUTOINCREMENT, " +
+                "turnID int,                           " +
+                "steering single,                      " +
+                "flag int,                             " +
+                ")                                     ";
+        db.execSQL("CREATE TABLE " + CRUISE_TABLE + cruisingSQLQAttributes);
+        String speedingSQLAttributes = "( " +
+                "id integer PRIMARY KEY AUTOINCREMENT, " +
+                "turnID int,                           " +
+                "speed single,                         " +
+                "flag int,                             " +
+                "speedLimit int,                       " +
+                "devPercent double,                    " +
+                "devValue double,                      " +
+                ")                                     ";
+        db.execSQL("CREATE TABLE " + SPEEDING_TABLE + speedingSQLAttributes);
     }
 
 
@@ -57,6 +86,8 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
     }
+
+    // ######################### Turn Baselines #########################
 
     /**
      * Saves a turn in the database.
@@ -182,4 +213,7 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
     }
+
+    // ######################### Acceleration Baselines #########################
+
 }

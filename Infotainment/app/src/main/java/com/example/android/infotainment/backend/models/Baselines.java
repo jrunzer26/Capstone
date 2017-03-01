@@ -29,6 +29,9 @@ public class Baselines {
     private int[] accelBaseline;
     private int[] brakeBaseline;
     private int[] cruiseBaseline;
+    // baseline
+    // speeding baseline:
+    // index [0] = devPercent
     private int[] speedingBaseline;
 
     // baseline db helpers
@@ -64,13 +67,17 @@ public class Baselines {
         speedingBaseline = new int[0];
     }
 
+    // ######################### Turn Baselines #########################
+
     /**
      * Performs DBA for the baselines on all trip data in the database.
      */
     private void dbaFirstTimeInit() {
         ArrayList<UserData> allData = userDatabaseHelper.getData();
         ArrayList<Turn> turns = getTurnData(allData);
+        //ArrayList<>
         dbaLeftAndRightTurns(turns);
+        //dbaAcceleration(accelerationPoints);
     }
 
     /**
@@ -242,6 +249,12 @@ public class Baselines {
         baselineDatabaseHelper.saveTurn(turn);
     }
 
+    // ######################### Acceleration/Braking Baselines #########################
+
+    private void initAccelerationAndDecelerationBaseline() {
+
+    }
+
     /**
      * Prints all the baselines.
      */
@@ -274,5 +287,10 @@ public class Baselines {
 
     public int[] speedingBaseline(){
         return speedingBaseline;
+    }
+
+    public boolean isSetup() {
+        return leftTurnBaseline[0].length != 0 && rightTurnBaseline[0].length != 0
+                && accelBaseline.length != 0 && brakeBaseline.length != 0 && speedingBaseline.length != 0;
     }
 }
