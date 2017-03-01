@@ -33,7 +33,7 @@ public class Baselines {
     // speeding baseline:
     // index [0] = devPercent
     private int[] speedingBaseline;
-
+    //For the following two 2-dimensional arrays, the 0th index represents the steering data, and the 1st index represents the speed data.
     // baseline db helpers
     private BaselineDatabaseHelper baselineDatabaseHelper;
     private UserDatabaseHelper userDatabaseHelper;
@@ -285,7 +285,7 @@ public class Baselines {
         return cruiseBaseline;
     }
 
-    public int[] speedingBaseline(){
+    public int[] getSpeeding(){
         return speedingBaseline;
     }
 

@@ -93,7 +93,7 @@ public class DataParser {
      */
     private void saveData(UserData userData) {
         userDatabaseHelper.insertSimData(userData);
-    }
+    } // Move this to dataAnalyst
 
     /**
      * Closes the database
