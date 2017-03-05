@@ -236,7 +236,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
             switch (i) {
                 case 0: {
                     //Acceleration
-                    temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getAccel()), radius, distFn);
+                    temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getAccelFromSpeedBaseline()), radius, distFn);
                     tempEvent="accel";
                     break;
                 }

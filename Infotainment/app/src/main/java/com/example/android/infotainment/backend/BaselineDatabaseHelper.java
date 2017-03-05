@@ -9,8 +9,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.example.android.infotainment.backend.FastDTW.timeseries.PAA;
 import com.example.android.infotainment.backend.models.Turn;
 import com.example.android.infotainment.backend.models.TurnDataPoint;
+import com.example.android.infotainment.backend.models.UserData;
 
 
 import java.util.ArrayList;
@@ -23,6 +25,11 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
     private static final String NAME = "USER_DATABASE";
     private static final String RIGHT_TURN = "RightTurn";
     private static final String LEFT_TURN = "LeftTurn";
+    private static final String ACCEL_NEAR_STOPTABLE = "AccelNearStop";
+    private static final String ACCEL_FROM_SPEED = "AccelFromSpeed";
+    private static final String BRAKE_TABLE = "BRAKE";
+    private static final String CRUISE_TABLE = "CRUISE";
+    private static final String SPEEDING_TABLE = "SPEEDING";
     private static final int DATABASE_VERSION = 1;
 
     public BaselineDatabaseHelper(Context context) {
@@ -44,6 +51,32 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
                 ")                                     ";
         db.execSQL("CREATE TABLE " + RIGHT_TURN + turnSQLAttributes);
         db.execSQL("CREATE TABLE " + LEFT_TURN + turnSQLAttributes);
+        String accelerate_brakingSQLAttributes = "( " +
+                "id integer PRIMARY KEY AUTOINCREMENT, " +
+                "turnID int,                           " +
+                "speed single,                         " +
+                "flag int                              " +
+                ")                                     ";
+        db.execSQL("CREATE TABLE " + ACCEL_FROM_SPEED + accelerate_brakingSQLAttributes);
+        db.execSQL("CREATE TABLE " + ACCEL_NEAR_STOPTABLE + accelerate_brakingSQLAttributes);
+        db.execSQL("CREATE TABLE " + BRAKE_TABLE + accelerate_brakingSQLAttributes);
+        String cruisingSQLQAttributes ="( " +
+                "id integer PRIMARY KEY AUTOINCREMENT, " +
+                "turnID int,                           " +
+                "steering single,                      " +
+                "flag int                              " +
+                ")                                     ";
+        db.execSQL("CREATE TABLE " + CRUISE_TABLE + cruisingSQLQAttributes);
+        String speedingSQLAttributes = "( " +
+                "id integer PRIMARY KEY AUTOINCREMENT, " +
+                "turnID int,                           " +
+                "speed single,                         " +
+                "flag int,                             " +
+                "speedLimit int,                       " +
+                "devPercent double,                    " +
+                "devValue double                       " +
+                ")                                     ";
+        db.execSQL("CREATE TABLE " + SPEEDING_TABLE + speedingSQLAttributes);
     }
 
 
@@ -57,6 +90,8 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
     }
+
+    // ######################### Turn Baselines #########################
 
     /**
      * Saves a turn in the database.
@@ -181,5 +216,86 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
             cursor.moveToNext();
         }
         cursor.close();
+    }
+
+    // ######################### Acceleration Baselines #########################
+
+
+    /**
+     * Returns the acceleration baseline from the baseline db.
+     * @param flag the type of accel baseline to retreive
+     * @return the array containing the speed baseline timeseries.
+     */
+    public double[] getAccelerationBaseline(int flag) {
+        String [] where = {};
+        SQLiteDatabase db = this.getReadableDatabase();
+        String table;
+        table = getAccelerationTableName(flag);
+        // select all the turns
+        Cursor cursor;
+        try {
+            cursor = db.rawQuery("SELECT * from " + table, where);
+        } catch (SQLiteException e) {
+            e.printStackTrace();
+            onCreate(getWritableDatabase());
+            cursor = db.rawQuery("SELECT * from " + table, where);
+        }
+        cursor.moveToFirst();
+        int size = cursor.getCount();
+        double [] contents = new double[size];
+        int count = 0;
+        while (!cursor.isAfterLast()) {
+            // add the data to the object
+            double speed = cursor.getDouble(cursor.getColumnIndex("speed"));
+            // add the point to the turn
+            contents[count] = speed;
+            count++;
+            // next line in database
+            cursor.moveToNext();
+        }
+        cursor.close();
+        return contents;
+    }
+
+    /**
+     * Overwrites the acceelration baseline.
+     * @param speeds the data to write.
+     * @param flag the flag for the specific table.
+     */
+    public void overWriteAccelerationBaseline(double[] speeds, int flag) {
+        String tableName = getAccelerationTableName(flag);
+        clearTable(tableName);
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values;
+        for (double data : speeds) {
+            values = new ContentValues();
+            values.put("speed", data);
+            db.insert(tableName, null, values);
+        }
+        db.close();
+    }
+
+    /**
+     * Clears a table.
+     * @param tableName the table name.
+     */
+    private void clearTable(String tableName) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("delete from " + tableName);
+    }
+
+    /**
+     * Gets the acceleration table name.
+      * @param flag the flag of the accel table.
+     * @return the table name.
+     */
+    private String getAccelerationTableName(int flag) {
+        if (flag == UserData.FLAG_ACCELERATION_FROM_SPEED) {
+            return ACCEL_FROM_SPEED;
+        } else if (flag == UserData.FLAG_ACCELERATION_NEAR_STOP) {
+            return ACCEL_NEAR_STOPTABLE;
+        } else {
+            return null;
+        }
     }
 }

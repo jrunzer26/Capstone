@@ -15,40 +15,44 @@ public class UserData {
     public static final int FLAG_STRAIGHT = 6;
     public static final int FLAG_STRAIGHT_SPEEDING = 7;
     public static final int FLAG_EXIT_TURN = 8;
+    public static final int FLAG_ACCELERATION = 9;
+    public static final int FLAG_BRAKING = 10;
+    public static final int FLAG_ACCELERATION_NEAR_STOP = 11;
+    public static final int FLAG_ACCELERATION_FROM_SPEED = 12;
 
     private int tripID = 0;
     private SimData simData;
     private SensorData sensorData;
-    private int flag = FLAG_NONE;
+    private int turnFlag = FLAG_NONE;
 
 
-    private void initFlag() {
+    private void initFlags() {
         if (simData.getSteering() > 30) {
-            flag = FLAG_RIGHT_TURN;
+            turnFlag = FLAG_RIGHT_TURN;
         } else if(simData.getSteering() < -30) {
-            flag = FLAG_LEFT_TURN;
+            turnFlag = FLAG_LEFT_TURN;
         } else {
-            flag = FLAG_NONE;
+            turnFlag = FLAG_NONE;
         }
     }
 
 
-    public int getFlag() {
-        return flag;
+    public int getTurnFlag() {
+        return turnFlag;
     }
 
-    public void setFlag(int flag) {
-        this.flag = flag;
+    public void setTurnFlag(int turnFlag) {
+        this.turnFlag = turnFlag;
     }
 
     public void addToFlag(int flag) {
         if (flag == FLAG_SPEEDING) {
-            if (this.flag == FLAG_LEFT_TURN) {
-                this.flag = FLAG_LEFT_TURN_SPEEDING;
-            } else if (this.flag == FLAG_RIGHT_TURN) {
-                this.flag = FLAG_RIGHT_TURN_SPEEDING;
+            if (this.turnFlag == FLAG_LEFT_TURN) {
+                this.turnFlag = FLAG_LEFT_TURN_SPEEDING;
+            } else if (this.turnFlag == FLAG_RIGHT_TURN) {
+                this.turnFlag = FLAG_RIGHT_TURN_SPEEDING;
             } else {
-                this.flag = FLAG_SPEEDING;
+                this.turnFlag = FLAG_SPEEDING;
             }
         }
     }
@@ -83,7 +87,7 @@ public class UserData {
      */
     public void setSimData(SimData simData) {
         this.simData = simData;
-        initFlag();
+        initFlags();
     }
 
     /**
@@ -111,7 +115,7 @@ public class UserData {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Trip ID: " + tripID + "\n");
-        stringBuilder.append("Flag: " + flag + "\n");
+        stringBuilder.append("Flag: " + turnFlag + "\n");
         stringBuilder.append("-----------------------------------------\n");
         stringBuilder.append(sensorData.toString());
         stringBuilder.append("-----------------------------------------\n");
