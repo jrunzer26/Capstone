@@ -34,7 +34,7 @@ public class Baselines {
     private double[][] rightTurnBaseline;
     private double[] accelNearStopBaseline;
     private double[] accelFromSpeedBaseline;
-    private int[] brakeBaseline;
+    private double[] brakeBaseline;
     private int[] cruiseBaseline;
     // baseline
     // speeding baseline:
@@ -70,7 +70,7 @@ public class Baselines {
         rightTurnBaseline = new double[TURN_PARAMETERS][0];
         accelFromSpeedBaseline = new double[0];
         accelNearStopBaseline = new double[0];
-        brakeBaseline = new int[0];
+        brakeBaseline = new double[0];
         cruiseBaseline = new int[0];
         speedingBaseline = new int[0];
     }
@@ -82,6 +82,7 @@ public class Baselines {
         ArrayList<UserData> allData = userDatabaseHelper.getData();
         startTurnDba(allData);
         startAccelerationDba(allData);
+        startBrakingDba(allData);
     }
 
     /**
@@ -91,6 +92,7 @@ public class Baselines {
         ArrayList<UserData> lastTripData = userDatabaseHelper.getLastTripData();
         startTurnDba(lastTripData);
         startAccelerationDba(lastTripData);
+        startBrakingDba(lastTripData);
     }
 
     // ######################### Turn Baselines #########################
@@ -108,10 +110,15 @@ public class Baselines {
     private ArrayList<Turn> getTurnData(ArrayList<UserData> userDatas) {
         ArrayList<Turn> turns = new ArrayList<>();
         Turn currentTurn = null;
+        int lastUserDataTripID = 0;
+        if (userDatas.size() > 0)
+            lastUserDataTripID = userDatas.get(0).getTripID();
         for (int i = 0; i < userDatas.size(); i++) {
+
             UserData userData = userDatas.get(i);
+            int tripID = userData.getTripID();
             SimData simData = userData.getSimData();
-            if (userData.getTurnFlag() != UserData.FLAG_NONE) {
+            if (userData.getTurnFlag() != UserData.FLAG_NONE || tripID != lastUserDataTripID) {
                 int turnType;
                 // assign the turn type based on the flag.
                 if (userData.getTurnFlag() == UserData.FLAG_LEFT_TURN || userData.getTurnFlag() == UserData.FLAG_LEFT_TURN_SPEEDING) {
@@ -122,6 +129,7 @@ public class Baselines {
                     turnType = -1;
                 }
                 if (turnType != -1) {
+                    lastUserDataTripID = tripID;
                     // add the data to the currentTurn
                     if (currentTurn == null) {
                         currentTurn = new Turn(turnType, 0, userData.getTurnFlag());
@@ -133,6 +141,9 @@ public class Baselines {
             } else if (currentTurn != null) {
                 turns.add(currentTurn);
                 currentTurn = null;
+                lastUserDataTripID = tripID;
+            } else {
+                lastUserDataTripID = tripID;
             }
         }
         return turns;
@@ -261,7 +272,7 @@ public class Baselines {
         baselineDatabaseHelper.saveTurn(turn);
     }
 
-    // ######################### Acceleration/Braking Baselines #########################
+    // ######################### Acceleration Baselines #########################
 
     private void startAccelerationDba(ArrayList<UserData> lastTripData) {
         ArrayList<ArrayList<UserData>> accelTimeseries = getAccelTimeSeries(lastTripData);
@@ -291,11 +302,13 @@ public class Baselines {
         double deltaSpeed;
         double acceleration;
         for (int i = 0; i < allData.size() - ACCELERATION_WINDOW; i++) {
+            int tripID1 = allData.get(i).getTripID();
+            int tripID2 = allData.get(i + BRAKING_WINDOW).getTripID();
             SimData firstPoint = allData.get(i).getSimData();
             SimData lastPoint = allData.get(i + ACCELERATION_WINDOW).getSimData();
             deltaSpeed = lastPoint.getSpeed() - firstPoint.getSpeed();
             acceleration = deltaSpeed / (deltaTime + 0.0);
-            if (currentlyAccelerating && acceleration < ACCLERATION_THRESHOLD_KMpHpS) {
+            if (currentlyAccelerating && acceleration < ACCLERATION_THRESHOLD_KMpHpS || tripID1 != tripID2) {
                 currentlyAccelerating = false;
                 // add and reset the current time series
                 if (currentAccelTimeseries.size() > 0) {
@@ -402,6 +415,111 @@ public class Baselines {
         }
     }
 
+    // ######################### Braking Baseline #########################
+
+    /**
+     * Starts the braking dba sequence
+     * @param data the data to perform the dba on.
+     */
+    private void startBrakingDba(ArrayList<UserData> data) {
+        ArrayList<ArrayList<UserData>> brakeTimeSeries = getBrakeTimeSeries(data);
+        Log.i(TAG, "brake extracted length: " + brakeTimeSeries.size());
+        dbaBraking(brakeTimeSeries);
+    }
+
+    /**
+     * Analyzes the previous user data and sorts the user data into bundles of acceleration time series.
+     * @param allData the data to extract from.
+     * @return the array list of the selected timeseries.
+     */
+    private ArrayList<ArrayList<UserData>> getBrakeTimeSeries(ArrayList<UserData> allData) {
+        boolean currentlyAccelerating = false;
+        ArrayList<UserData> currentAccelTimeseries = new ArrayList<>();
+        ArrayList<ArrayList<UserData>> allAccelerationTimeseries = new ArrayList<>();
+        // change in time for the two data points.
+        double deltaTime = DataParser.pollTimeSeconds * BRAKING_WINDOW;
+        double deltaSpeed;
+        double acceleration;
+        for (int i = 0; i < allData.size() - BRAKING_WINDOW; i++) {
+            int tripID1 = allData.get(i).getTripID();
+            int tripID2 = allData.get(i + BRAKING_WINDOW).getTripID();
+            SimData firstPoint = allData.get(i).getSimData();
+            SimData lastPoint = allData.get(i + BRAKING_WINDOW).getSimData();
+            deltaSpeed = lastPoint.getSpeed() - firstPoint.getSpeed();
+            acceleration = deltaSpeed / (deltaTime + 0.0);
+            if (currentlyAccelerating && acceleration > BRAKING_THRESHOLD_KMpHpS || tripID1 != tripID2) {
+                currentlyAccelerating = false;
+                // add and reset the current time series
+                if (currentAccelTimeseries.size() > 0) {
+                    allAccelerationTimeseries.add(currentAccelTimeseries);
+                }
+                currentAccelTimeseries = new ArrayList<>();
+            } else if(acceleration <= BRAKING_THRESHOLD_KMpHpS) {
+                if (!currentlyAccelerating) {
+                    // add all 10 points to the accel series if we detect the first acceleration occurrence.
+                    for (int j = i; j < BRAKING_WINDOW + i; j++) {
+                        currentAccelTimeseries.add(allData.get(j));
+                    }
+                    currentlyAccelerating = true;
+                } else {
+                    // add the last point to the list to avoid duplication.
+                    currentAccelTimeseries.add(allData.get(i + BRAKING_WINDOW));
+                }
+            }
+        }
+        // add the missed timeseries if the data is the side of the for loop and the user doesn't stop accelerating
+        if (currentlyAccelerating) {
+            allAccelerationTimeseries.add(currentAccelTimeseries);
+        }
+        return allAccelerationTimeseries;
+    }
+
+    /**
+     * Performs braking dba on the data
+     * @param brakingTimeSeries the series to perform dba on.
+     */
+    private void dbaBraking(ArrayList<ArrayList<UserData>> brakingTimeSeries) {
+        int totalTimeSeries = brakingTimeSeries.size();
+        int maxBaselineLength = 0;
+        // find the max size
+        for (int i = 0; i < brakingTimeSeries.size(); i++) {
+            int size = brakingTimeSeries.get(i).size();
+            if (maxBaselineLength < size)
+                maxBaselineLength = size;
+        }
+        double[] baselineContents = baselineDatabaseHelper.getBrakingBaseline();
+        // see if the max is still greater than the baseline length
+        if (baselineContents.length > maxBaselineLength) {
+            maxBaselineLength = baselineContents.length;
+        }
+        brakeBaseline = new double[maxBaselineLength];
+        // init the baseline from the db
+        for (int i = 0; i < baselineContents.length; i++) {
+            brakeBaseline [i] = baselineContents[i];
+        }
+        if (totalTimeSeries > 0) {
+            double[][] brakingSeries = new double[totalTimeSeries][maxBaselineLength];
+            // ############################### NEED DTW HERE ####################################
+            // convert the turns into the 2d sequence arrays
+            for (int i = 0; i < brakingTimeSeries.size(); i++) {
+                ArrayList<UserData> accelData = brakingTimeSeries.get(i);
+                int accelSize = accelData.size();
+                for (int j = 0; j < brakingSeries[0].length; j++) {
+                    if (accelSize > j) {
+                        brakingSeries[i][j] = accelData.get(j).getSimData().getSpeed();
+                    } else {
+                        brakingSeries[i][j] = 0; // for now, shouldn't happen in general
+                    }
+                }
+            }
+            // dba a few times for the average
+            DBA.DBA(brakeBaseline, brakingSeries);
+            DBA.DBA(brakeBaseline, brakingSeries);
+            // save the baseline in the db.
+            baselineDatabaseHelper.overWriteBrakingBaseline(brakeBaseline);
+        }
+    }
+
     /**
      * Prints all the baselines.
      */
@@ -414,6 +532,8 @@ public class Baselines {
         Util.printArray(accelNearStopBaseline, TAG);
         Log.i(TAG, "From Speed accel baseline");
         Util.printArray(accelFromSpeedBaseline, TAG);
+        Log.i(TAG, "Braking baseline");
+        Util.printArray(brakeBaseline, TAG);
     }
 
     public double[][] getLeft(){
@@ -430,7 +550,7 @@ public class Baselines {
 
     public double[] getAccelFromSpeedBaseline() { return accelFromSpeedBaseline; }
 
-    public int[] getBrake(){
+    public double[] getBrake(){
         return brakeBaseline;
     }
 

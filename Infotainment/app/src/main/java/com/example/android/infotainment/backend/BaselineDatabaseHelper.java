@@ -227,11 +227,15 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
      * @return the array containing the speed baseline timeseries.
      */
     public double[] getAccelerationBaseline(int flag) {
-        String [] where = {};
-        SQLiteDatabase db = this.getReadableDatabase();
         String table;
         table = getAccelerationTableName(flag);
         // select all the turns
+        return getSpeedsFromTable(table);
+    }
+
+    private double[] getSpeedsFromTable(String table) {
+        String [] where = {};
+        SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor;
         try {
             cursor = db.rawQuery("SELECT * from " + table, where);
@@ -297,5 +301,31 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         } else {
             return null;
         }
+    }
+
+    // ######################### Braking Baselines #########################
+
+    /**
+     * Overwrites te current brake baseline.
+     * @param speeds the speeds to add to the db
+     */
+    public void overWriteBrakingBaseline(double[] speeds) {
+        clearTable(BRAKE_TABLE);
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values;
+        for (double data : speeds) {
+            values = new ContentValues();
+            values.put("speed", data);
+            db.insert(BRAKE_TABLE, null, values);
+        }
+        db.close();
+    }
+
+    /**
+     * Returns the braking baseline.
+     * @return the data.
+     */
+    public double[] getBrakingBaseline() {
+        return getSpeedsFromTable(BRAKE_TABLE);
     }
 }
