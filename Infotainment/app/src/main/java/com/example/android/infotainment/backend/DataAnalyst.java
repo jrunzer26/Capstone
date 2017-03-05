@@ -94,7 +94,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 SimData simData = userData.getSimData();
 
 
-
+            /*
 
                 //ALGORITHM STARTS HERE
                 step1_HeartRateDeviations(sensorData, counter);
@@ -119,7 +119,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
 
 
-
+    */
                 // TODO: Remove these variables, use the simData object
                 Double turn = null;
                 if (steering == null) {

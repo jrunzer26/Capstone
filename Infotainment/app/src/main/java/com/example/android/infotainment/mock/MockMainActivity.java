@@ -56,8 +56,8 @@ public class MockMainActivity extends AppCompatActivity {
         menuTab.setContent(R.id.menuTab_linear);
         menuTab.setIndicator(getString(R.string.main_menu));
         host.addTab(menuTab);
-        mockCarBluetoothHandler = new MockCarBluetoothHandler(null, null, dataParser);
-        mockWatchBluetoothHandler = new MockWatchBluetoothHandler(null, null, dataParser);
+        mockCarBluetoothHandler = new MockCarBluetoothHandler(null, MockMainActivity.this, dataParser);
+        mockWatchBluetoothHandler = new MockWatchBluetoothHandler(null, MockMainActivity.this, dataParser);
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
