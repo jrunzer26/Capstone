@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import com.example.android.infotainment.backend.models.SensorData;
 import com.example.android.infotainment.backend.models.SimData;
@@ -14,7 +13,6 @@ import com.example.android.infotainment.backend.models.Time;
 import com.example.android.infotainment.backend.models.UserData;
 
 import java.util.ArrayList;
-import java.util.jar.Pack200;
 
 /**
  * Created by 100520993 on 11/15/2016.
@@ -81,7 +79,7 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         SensorData sensorData = userData.getSensorData();
         // user specific data
         values.put("tripID", userData.getTripID());
-        values.put("flag", userData.getFlag());
+        values.put("flag", userData.getTurnFlag());
         // sim data
         values.put("speed", simData.getSpeed());
         values.put("gear", simData.getGear());
@@ -214,7 +212,7 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
             // add the data to the object
             // user data
             userData.setTripID(cursor.getInt(cursor.getColumnIndex("tripID")));
-            userData.setFlag(cursor.getInt(cursor.getColumnIndex("flag")));
+            userData.setTurnFlag(cursor.getInt(cursor.getColumnIndex("flag")));
             // sim data
             simData.setSpeed(cursor.getInt(cursor.getColumnIndex("speed")));
             simData.setGear(cursor.getString(cursor.getColumnIndex("gear")));
