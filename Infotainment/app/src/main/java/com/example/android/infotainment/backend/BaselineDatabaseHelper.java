@@ -327,7 +327,7 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
     // ######################### Speeding Baselines #########################
 
     public void overwriteBrakingBasline(double deviationPercents) {
-                
+
     }
 
 }
