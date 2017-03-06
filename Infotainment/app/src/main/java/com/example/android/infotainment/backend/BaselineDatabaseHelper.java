@@ -69,12 +69,7 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE " + CRUISE_TABLE + cruisingSQLQAttributes);
         String speedingSQLAttributes = "( " +
                 "id integer PRIMARY KEY AUTOINCREMENT, " +
-                "turnID int,                           " +
-                "speed single,                         " +
-                "flag int,                             " +
-                "speedLimit int,                       " +
-                "devPercent double,                    " +
-                "devValue double                       " +
+                "devPercent double                    " +
                 ")                                     ";
         db.execSQL("CREATE TABLE " + SPEEDING_TABLE + speedingSQLAttributes);
     }
@@ -328,4 +323,11 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
     public double[] getBrakingBaseline() {
         return getSpeedsFromTable(BRAKE_TABLE);
     }
+
+    // ######################### Speeding Baselines #########################
+
+    public void overwriteBrakingBasline(double deviationPercents) {
+                
+    }
+
 }

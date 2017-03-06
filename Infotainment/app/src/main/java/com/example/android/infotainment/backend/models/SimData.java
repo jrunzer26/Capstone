@@ -32,6 +32,7 @@ public class SimData {
     public static final int ROAD_TYPE_DIRT = 52;
 
     private double speed = 0;
+    private double speedLimit = 0;
     private String gear = null;
     private boolean cruseControl = false;
     private boolean pause = false;
@@ -55,6 +56,7 @@ public class SimData {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("speed: ").append(speed).append("\n");
+        stringBuilder.append("speed limit: ").append(speedLimit).append("\n");
         stringBuilder.append("gear: ").append(gear).append("\n");
         stringBuilder.append("cruseControl: ").append(cruseControl).append("\n");
         stringBuilder.append("pause: ").append(pause).append("\n");
@@ -69,6 +71,24 @@ public class SimData {
         stringBuilder.append("roadCondition: ").append(roadCondition).append("\n");
         stringBuilder.append("roadType: ").append(roadType).append("\n");
         return stringBuilder.toString();
+    }
+
+
+    public double getSpeedLimit() {
+        return speedLimit;
+    }
+
+    public void setSpeedLimit(double speedLimit) {
+        this.speedLimit = speedLimit;
+    }
+
+    /**
+     * Returns the deviation percentage from the speed limit. 1 - speed / speedLimit
+     * positive if under the speed limit, negative if over.
+     * @return
+     */
+    public double getDeviationPercent() throws ArithmeticException {
+        return  1 - speed / (speedLimit + 0.0);
     }
 
     /**
