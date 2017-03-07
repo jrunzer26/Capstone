@@ -100,15 +100,29 @@ public class MockCarBluetoothHandler {
 
          */
 
+        /* ACCELERATION TESTS */
         //fromNearStopAccelTest();
         //fromSpeedAccelTest();
         //fromSpeedAccelRandomLengths();
+        slowAccelerationTest();
 
+
+        /* Steering Tests */
         //steeringTest();
-        //slowAccelerationTest();
 
+        /* Braking Tests */
+        //brakingTest();
+        //constantSpeed(100, 10);
     }
 
+    private void brakingTest() {
+        constantSpeed(60, 10);
+        for (int i = 0; i < 10; i++) {
+            SimData simData = new SimData();
+            simData.setSpeed(60 - i * 5);
+            simDatas.add(simData);
+        }
+    }
     private void steeringTest() {
         for (int i = 0; i < 30; i++) {
             SimData simData = new SimData();
