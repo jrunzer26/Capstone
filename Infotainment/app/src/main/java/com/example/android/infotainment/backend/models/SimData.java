@@ -45,7 +45,7 @@ public class SimData {
     private Time time = new Time(12, 00, 00);
     private int roadCondition = 0;
     private int roadType =0;
-
+    private double speedLimit = 0;
 
     /**
      * Outputs the state of the SimData.
@@ -279,6 +279,17 @@ public class SimData {
      */
     public int getRoadType() {return roadType;}
 
+    /**
+     * Sets the speed limit of the road
+     * @param speedLimit the speed limit.
+     */
+    public void setSpeedLimit(double speedLimit) {this.speedLimit = speedLimit;}
+
+    /**
+     * Gets the speed limit of the road
+     * @return the speed limit
+     */
+    public double getSpeedLimit() {return speedLimit;}
 
     public SimData copy() {
         SimData copiedData = new SimData();
@@ -294,6 +305,7 @@ public class SimData {
         copiedData.setRoadSeverity(roadSeverity);
         copiedData.setRoadCondition(roadCondition);
         copiedData.setRoadType(roadType);
+        copiedData.setSpeedLimit(speedLimit);
         return copiedData;
     }
 

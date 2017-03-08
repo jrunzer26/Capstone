@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingRight="@dimen/padding_driveTab_border"
     android:paddingLeft="@dimen/padding_driveTab_border"
     android:paddingBottom="@dimen/padding_driveTab_border"
-    android:paddingTop="@dimen/paddingTop_vehicleSimulatorDrive_beforeButtons">
+    android:paddingTop="@dimen/paddingTop_vehicleSimulatorDrive_beforeButtons"
+    android:weightSum="1">
 
 
     <LinearLayout
@@ -199,12 +201,58 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <Button
-            android:text="Connect"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/button_reConnect"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true" />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:text="Speed Limit: "
+                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:textSize="40sp"
+                android:paddingTop="20sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/textView5"
+                android:paddingTop="20sp"
+                android:text="60 Km/h "
+                android:textSize="40sp" />
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="100dp"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/button_incSpeedLimit"
+                    android:text="▲" />
+
+                <Button
+                    android:text="▼"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/button_decSpeedLimit" />
+
+            </LinearLayout>
+
+            <Button
+                android:text="Connect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/button_reConnect"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
+                android:layout_weight="1"
+                android:layout_marginLeft="110sp"
+                android:layout_marginRight="110sp" />
+
+        </LinearLayout>
+
     </RelativeLayout>
+
 </LinearLayout>

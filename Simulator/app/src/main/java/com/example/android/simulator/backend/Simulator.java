@@ -59,6 +59,7 @@ public class Simulator implements Runnable, Car {
         setCurrentSimDataSteering();
         setCurrentSimDataAcceleration();
         setCurrentSimDataTime();
+        setCurrentSimSpeedLimit();
         // set the climate Severity, Visibility, and Feel
         currentSimData.setRoadSeverity(EnvironmentSimulatorFragment.severity);
         currentSimData.setClimateDensity(EnvironmentSimulatorFragment.climateFeel);
@@ -100,6 +101,12 @@ public class Simulator implements Runnable, Car {
         double acceleration = Double.parseDouble(seekBarAccValue.getText().toString()
                         .substring(0, seekBarAccValue.getText().toString().indexOf(' ')));
         currentSimData.setAcceleration(acceleration);
+    }
+
+    private void setCurrentSimSpeedLimit() {
+        final TextView speedLimit = (TextView)view.findViewById(R.id.textView5);
+        double speedLim = Double.parseDouble(speedLimit.getText().toString().substring(0, speedLimit.getText().toString().indexOf(' ')));
+        currentSimData.setSpeedLimit(speedLim);
     }
 
     /**
@@ -167,6 +174,7 @@ public class Simulator implements Runnable, Car {
         dos.writeInt(time.getSecond());
         dos.writeInt(iteratedSimData.getRoadCondition());
         dos.writeInt(iteratedSimData.getRoadType());
+        dos.writeDouble(iteratedSimData.getSpeedLimit());
     }
 
     /**
