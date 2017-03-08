@@ -46,7 +46,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private SlidingWindow sw = new SlidingWindow(WINDOW);
     private ArrayList<Double> mean = new ArrayList<Double>();
     private ArrayList<Double> stdDev = new ArrayList<Double>();
-    private final int radius = 30;
+    private final int RADIUS = 30;
     private final DistanceFunction distFn = DistanceFunctionFactory.getDistFnByName("EuclideanDistance");
     private String[] drivingEvent = new String[2];
     private int[] eventCounter = new int[6];
@@ -236,25 +236,25 @@ public class DataAnalyst extends Thread implements DataReceiver {
             switch (i) {
                 case 0: {
                     //Acceleration
-                    temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getAccelFromSpeedBaseline()), radius, distFn);
+                    temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getAccelFromSpeedBaseline()), RADIUS, distFn);
                     tempEvent="accel";
                     break;
                 }
                 case 1: {
                     //Braking
-                    temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getBrake()), radius, distFn);
+                    temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getBrake()), RADIUS, distFn);
                     tempEvent="braking";
                     break;
                 }
                 case 2: {
                     //Cruise
-                    temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getCruise()), radius, distFn);
+                    temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getCruise()), RADIUS, distFn);
                     tempEvent="cruise";
                     break;
                 }
                 case 3: {
                     //Speeding
-                    temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getSpeeding()), radius, distFn);
+                    temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getSpeeding()), RADIUS, distFn);
                     tempEvent="speeding";
                     break;
                 }
@@ -280,15 +280,15 @@ public class DataAnalyst extends Thread implements DataReceiver {
             switch (i) {
                 case 0: {
                     //Left Turns
-                    temp[0] = dtw.getWarpInfoBetween(new TimeSeries(tHist), new TimeSeries(b.getLeft()[0]), radius, distFn);
-                    temp[1] = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getLeft()[1]), radius, distFn);
+                    temp[0] = dtw.getWarpInfoBetween(new TimeSeries(tHist), new TimeSeries(b.getLeft()[0]), RADIUS, distFn);
+                    temp[1] = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getLeft()[1]), RADIUS, distFn);
                     tempEvent = "left";
                     break;
                 }
                 case 1: {
                     //Right Turns
-                    temp[0] = dtw.getWarpInfoBetween(new TimeSeries(tHist), new TimeSeries(b.getRight()[0]), radius, distFn);
-                    temp[1] = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getRight()[1]), radius, distFn);
+                    temp[0] = dtw.getWarpInfoBetween(new TimeSeries(tHist), new TimeSeries(b.getRight()[0]), RADIUS, distFn);
+                    temp[1] = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getRight()[1]), RADIUS, distFn);
                     tempEvent="right";
                     break;
                 }
