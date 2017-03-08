@@ -138,7 +138,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
                     turn = calculateTurn(simData.getSteering());
                 }
                 int deviation = determineHRDeviation(sensorData);
-                System.out.println(deviation);
+                System.out.println("deviation: " + deviation);
                 if(deviation >= 20) {
                     //HR Deviation values come from: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2653595/
                     System.out.println("High deviation occurred");

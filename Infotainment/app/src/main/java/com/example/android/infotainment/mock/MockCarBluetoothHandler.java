@@ -69,6 +69,7 @@ public class MockCarBluetoothHandler {
         simDatas = new ArrayList<>();
 
 
+        /*
         try{
             String line;
 
@@ -86,6 +87,7 @@ public class MockCarBluetoothHandler {
 
         }
 
+*/
         /*
 
         SimData speed70 = new SimData();
@@ -104,14 +106,15 @@ public class MockCarBluetoothHandler {
         //fromNearStopAccelTest();
         //fromSpeedAccelTest();
         //fromSpeedAccelRandomLengths();
-        slowAccelerationTest();
+        //slowAccelerationTest();
 
 
         /* Steering Tests */
         //steeringTest();
 
         /* Braking Tests */
-        //brakingTest();
+        brakingTest();
+        brakingTest2();
         //constantSpeed(100, 10);
     }
 
@@ -123,6 +126,16 @@ public class MockCarBluetoothHandler {
             simDatas.add(simData);
         }
     }
+
+    private void brakingTest2() {
+        constantSpeed(100, 10);
+        for (int i = 0; i < 20; i++) {
+            SimData simData = new SimData();
+            simData.setSpeed(100 - i * 8);
+            simDatas.add(simData);
+        }
+    }
+
     private void steeringTest() {
         for (int i = 0; i < 30; i++) {
             SimData simData = new SimData();

@@ -485,41 +485,56 @@ public class Baselines {
      */
     private void dbaBraking(ArrayList<ArrayList<UserData>> brakingTimeSeries) {
         int totalTimeSeries = brakingTimeSeries.size();
-        int maxBaselineLength = 0;
-        // find the max size
-        for (int i = 0; i < brakingTimeSeries.size(); i++) {
-            int size = brakingTimeSeries.get(i).size();
-            if (maxBaselineLength < size)
-                maxBaselineLength = size;
-        }
-        double[] baselineContents = baselineDatabaseHelper.getBrakingBaseline();
+
+        double[] baseline = baselineDatabaseHelper.getBrakingBaseline();
         // see if the max is still greater than the baseline length
-        if (baselineContents.length > maxBaselineLength) {
-            maxBaselineLength = baselineContents.length;
-        }
-        brakeBaseline = new double[maxBaselineLength];
-        // init the baseline from the db
-        for (int i = 0; i < baselineContents.length; i++) {
-            brakeBaseline [i] = baselineContents[i];
-        }
+
+        Log.i("total time series", totalTimeSeries+"");
         if (totalTimeSeries > 0) {
-            double[][] brakingSeries = new double[totalTimeSeries][maxBaselineLength];
+            double[][] brakingSeries = new double[totalTimeSeries][];
             // ############################### NEED DTW HERE ####################################
             // convert the turns into the 2d sequence arrays
             for (int i = 0; i < brakingTimeSeries.size(); i++) {
                 ArrayList<UserData> accelData = brakingTimeSeries.get(i);
                 int accelSize = accelData.size();
-                for (int j = 0; j < brakingSeries[0].length; j++) {
-                    if (accelSize > j) {
-                        brakingSeries[i][j] = accelData.get(j).getSimData().getSpeed();
-                    } else {
-                        brakingSeries[i][j] = 0; // for now, shouldn't happen in general
-                    }
+                double[] series = new double[accelSize];
+                // convert to array.
+                for (int j = 0; j < accelSize; j++) {
+                    series[j] = accelData.get(j).getSimData().getSpeed();
                 }
+                brakingSeries[i] = series;
+            }
+            // average out the list of series
+            double [] newBaseline = dtwPairAlg(brakingSeries);
+            int multiplicityBaseline = 10;
+            if (baseline.length == 0) {
+                Log.i("BRAKE", "baseline length = 0");
+                brakeBaseline = newBaseline;
+            } else {
+                Log.i("BRAKE", "MERGE BASELINES");
+                // dtw to get the warp paths of the new baseline + the other created baseline
+                TimeWarpInfo moreInfo = com.example.android.infotainment.backend.FastDTW.dtw.FastDTW.getWarpInfoBetween(
+                        new TimeSeries(newBaseline), new TimeSeries(baseline), DataAnalyst.radius, DataAnalyst.distFn);
+                int size = moreInfo.getPath().getTS2().size();
+                double[] warpNewBaseline = new double[size];
+                double[] warpBaseline = new double[size];
+                pathToArray(moreInfo, newBaseline, baseline, warpNewBaseline, warpBaseline);
+                Util.printArray(newBaseline, "new baseline");
+                Util.printArray(baseline, "baseline");
+                brakingSeries = new double[multiplicityBaseline + 1][];
+                for(int i = 0; i < multiplicityBaseline; i++) {
+                    brakingSeries[i] = warpBaseline;
+                }
+                brakingSeries[multiplicityBaseline] = warpNewBaseline;
+                brakeBaseline = new double[size];
             }
             // dba a few times for the average
-            DBA.DBA(brakeBaseline, brakingSeries);
-            DBA.DBA(brakeBaseline, brakingSeries);
+            if (brakeBaseline == null) {
+                brakeBaseline = new double[0];
+            } else {
+                DBA.DBA(brakeBaseline, brakingSeries);
+            }
+
             // save the baseline in the db.
             baselineDatabaseHelper.overWriteBrakingBaseline(brakeBaseline);
         }
@@ -590,10 +605,15 @@ public class Baselines {
     private void pathToArray(TimeWarpInfo info, double[] timeSeries1, double[] timeSeries2, double[] warpTimeSeries1, double[] warpTimeSeries2) {
         ArrayList<Integer> timeSeries1Path = info.getPath().getTS1();
         ArrayList<Integer> timeSeries2Path = info.getPath().getTS2();
+        Util.printArray(timeSeries1, "timeSeries1");
+        Util.printArray(timeSeries2, "timeseries2");
         for (int i = 0; i < timeSeries1Path.size(); i++) {
             warpTimeSeries1 [i] = timeSeries1[timeSeries1Path.get(i)];
             warpTimeSeries2 [i] = timeSeries2[timeSeries2Path.get(i)];
         }
+        Util.printArray(warpTimeSeries1, "warpSeries1");
+        Util.printArray(warpTimeSeries2, "warpseries2");
+
     }
 
     /**
