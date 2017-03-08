@@ -5,7 +5,11 @@ import android.util.Log;
 
 import com.example.android.infotainment.backend.BaselineDatabaseHelper;
 import com.example.android.infotainment.backend.DBA;
+import com.example.android.infotainment.backend.DataAnalyst;
 import com.example.android.infotainment.backend.DataParser;
+import com.example.android.infotainment.backend.FastDTW.dtw.TimeWarpInfo;
+import com.example.android.infotainment.backend.FastDTW.dtw.WarpPath;
+import com.example.android.infotainment.backend.FastDTW.timeseries.TimeSeries;
 import com.example.android.infotainment.backend.UserDatabaseHelper;
 import com.example.android.infotainment.utils.Util;
 
@@ -44,6 +48,7 @@ public class Baselines {
     // baseline db helpers
     private BaselineDatabaseHelper baselineDatabaseHelper;
     private UserDatabaseHelper userDatabaseHelper;
+
 
     /**
      * Creates the Baslines from the db or from previous trip data.
@@ -517,6 +522,77 @@ public class Baselines {
             DBA.DBA(brakeBaseline, brakingSeries);
             // save the baseline in the db.
             baselineDatabaseHelper.overWriteBrakingBaseline(brakeBaseline);
+        }
+    }
+
+    // ##################### DTW & DBA Alggorithm ##############################
+
+    /**
+     * Expanding dba algorithm using dtw warp path to recursively expand the dba result.
+     * @param allNewData the data to combine into one array
+     * @return the dba average.
+     */
+    public double[] dtwPairAlg(double[][] allNewData) {
+        double[] timeSeries1;
+        double[] timeSeries2;
+        // if there is nothing to create the baseline with send back the original baseline that was provided.
+        if (!(allNewData.length > 1)) {
+            return null;
+        }
+        double [][] iterationData;
+        int iterationCount;
+        int iterationSize;
+        while(allNewData.length > 1) {
+            iterationSize = allNewData.length / 2;
+            // add one for the extra time series.
+            if (allNewData.length % 2 != 0) {
+                iterationSize += 1;
+            }
+            iterationData = new double[iterationSize][];
+            iterationCount = 0;
+            for (int i = 0; i < allNewData.length; i+= 2) {
+                if (!(i + 1 < allNewData.length)) {
+                    // add to the end of the iterationData, to make sure the extra is kept.
+                    iterationData[iterationCount++] = allNewData[i];
+                    break;
+                }
+                timeSeries1 = allNewData[i];
+                timeSeries2 = allNewData[i + 1];
+                // dtw to find warp path.
+                TimeWarpInfo info = com.example.android.infotainment.backend.FastDTW.dtw.FastDTW.getWarpInfoBetween(new TimeSeries(timeSeries1), new TimeSeries(timeSeries2), DataAnalyst.radius, DataAnalyst.distFn);
+                int size = info.getPath().getTS2().size();
+                double[] warpTimeSeries1 = new double[size];
+                double[] warpTimeSeries2 = new double[size];
+                // create the two paired timeseries based on the warp path
+                pathToArray(info, timeSeries1, timeSeries2, warpTimeSeries1, warpTimeSeries2);
+                // average the two.
+                double[] baseline = new double[size];
+                DBA.DBA(baseline, new double[][]{warpTimeSeries1, warpTimeSeries2});
+                // add to the iteration data
+                iterationData[iterationCount++] = baseline;
+                // move to next pair
+            }
+            // move to the next iteration.
+            allNewData = iterationData;
+        }
+        // take the next data from the new data for timeseries2
+        return allNewData[0];
+    }
+
+    /**
+     * Find the warping result from the dtw warped path indexes.
+     * @param info the path info based on the dtw of the time series.
+     * @param timeSeries1 the original time series.
+     * @param timeSeries2
+     * @param warpTimeSeries1 the array large enough for the warped time series.
+     * @param warpTimeSeries2
+     */
+    private void pathToArray(TimeWarpInfo info, double[] timeSeries1, double[] timeSeries2, double[] warpTimeSeries1, double[] warpTimeSeries2) {
+        ArrayList<Integer> timeSeries1Path = info.getPath().getTS1();
+        ArrayList<Integer> timeSeries2Path = info.getPath().getTS2();
+        for (int i = 0; i < timeSeries1Path.size(); i++) {
+            warpTimeSeries1 [i] = timeSeries1[timeSeries1Path.get(i)];
+            warpTimeSeries2 [i] = timeSeries2[timeSeries2Path.get(i)];
         }
     }
 

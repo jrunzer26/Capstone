@@ -226,10 +226,10 @@ public class WarpPath
       return tsIindexes.hashCode() * tsJindexes.hashCode();
    }
 
-   public ArrayList getTsIindexes(){
+   public ArrayList getTS1(){
       return tsIindexes;
    }
-   public ArrayList getTsJindexes(){
+   public ArrayList getTS2(){
       return tsJindexes;
    }
 
