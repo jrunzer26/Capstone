@@ -73,7 +73,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         //double [] test1 = {1,1};
         //DBA.DBA(test1, testData);
        // Util.printArray(test1, "ALL DBA");
-        Util.printArray(baselines.dtwPairAlg(testData), "PAIR ALG RESULT");
+        //Util.printArray(baselines.dtwPairAlg(testData), "PAIR ALG RESULT");
         //Util.print2dArray(baselines.getRight(), TAG);
     }
 

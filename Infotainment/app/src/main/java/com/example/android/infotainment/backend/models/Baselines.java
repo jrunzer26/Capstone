@@ -60,6 +60,7 @@ public class Baselines {
         baselineDatabaseHelper = new BaselineDatabaseHelper(context);
         userDatabaseHelper = new UserDatabaseHelper(context);
         // init the baselines depending on the current trip id.
+
         if (userDatabaseHelper.getNextTripID() == 2) {
             dbaFirstTimeInit();
         } else if (userDatabaseHelper.getNextTripID() > 2) {
@@ -488,11 +489,15 @@ public class Baselines {
 
         double[] baseline = baselineDatabaseHelper.getBrakingBaseline();
         // see if the max is still greater than the baseline length
-
+        int max = baseline.length;
+        for(int i = 0; i < brakingTimeSeries.size(); i++) {
+            int size = brakingTimeSeries.get(i).size();
+            if (size > max)
+                max = size;
+        }
         Log.i("total time series", totalTimeSeries+"");
         if (totalTimeSeries > 0) {
             double[][] brakingSeries = new double[totalTimeSeries][];
-            // ############################### NEED DTW HERE ####################################
             // convert the turns into the 2d sequence arrays
             for (int i = 0; i < brakingTimeSeries.size(); i++) {
                 ArrayList<UserData> accelData = brakingTimeSeries.get(i);
@@ -504,95 +509,33 @@ public class Baselines {
                 }
                 brakingSeries[i] = series;
             }
-            // average out the list of series
-            double [] newBaseline = dtwPairAlg(brakingSeries);
             int multiplicityBaseline = 10;
             if (baseline.length == 0) {
                 Log.i("BRAKE", "baseline length = 0");
-                brakeBaseline = newBaseline;
+                brakeBaseline = new double[max];
+                DBA.DBA(brakeBaseline, brakingSeries);
             } else {
                 Log.i("BRAKE", "MERGE BASELINES");
-                // dtw to get the warp paths of the new baseline + the other created baseline
-                TimeWarpInfo moreInfo = com.example.android.infotainment.backend.FastDTW.dtw.FastDTW.getWarpInfoBetween(
-                        new TimeSeries(newBaseline), new TimeSeries(baseline), DataAnalyst.radius, DataAnalyst.distFn);
-                int size = moreInfo.getPath().getTS2().size();
-                double[] warpNewBaseline = new double[size];
-                double[] warpBaseline = new double[size];
-                pathToArray(moreInfo, newBaseline, baseline, warpNewBaseline, warpBaseline);
-                Util.printArray(newBaseline, "new baseline");
-                Util.printArray(baseline, "baseline");
-                brakingSeries = new double[multiplicityBaseline + 1][];
-                for(int i = 0; i < multiplicityBaseline; i++) {
-                    brakingSeries[i] = warpBaseline;
+                double[][] series2 = new double[multiplicityBaseline + brakingSeries.length][];
+                for (int i = multiplicityBaseline; i < series2.length; i++) {
+                    series2[i] = brakingSeries[i - multiplicityBaseline];
                 }
-                brakingSeries[multiplicityBaseline] = warpNewBaseline;
-                brakeBaseline = new double[size];
-            }
-            // dba a few times for the average
-            if (brakeBaseline == null) {
-                brakeBaseline = new double[0];
-            } else {
+                for(int i = 0; i < multiplicityBaseline; i++) {
+                    series2[i] = baseline;
+                }
+                brakeBaseline = new double[max];
                 DBA.DBA(brakeBaseline, brakingSeries);
             }
-
+            Util.print2dArray(brakingSeries, "TIMESERIES");
+            Util.printArray(brakeBaseline, "brake baseline");
             // save the baseline in the db.
             baselineDatabaseHelper.overWriteBrakingBaseline(brakeBaseline);
+        } else {
+            brakeBaseline = baseline;
         }
     }
 
     // ##################### DTW & DBA Alggorithm ##############################
-
-    /**
-     * Expanding dba algorithm using dtw warp path to recursively expand the dba result.
-     * @param allNewData the data to combine into one array
-     * @return the dba average.
-     */
-    public double[] dtwPairAlg(double[][] allNewData) {
-        double[] timeSeries1;
-        double[] timeSeries2;
-        // if there is nothing to create the baseline with send back the original baseline that was provided.
-        if (!(allNewData.length > 1)) {
-            return null;
-        }
-        double [][] iterationData;
-        int iterationCount;
-        int iterationSize;
-        while(allNewData.length > 1) {
-            iterationSize = allNewData.length / 2;
-            // add one for the extra time series.
-            if (allNewData.length % 2 != 0) {
-                iterationSize += 1;
-            }
-            iterationData = new double[iterationSize][];
-            iterationCount = 0;
-            for (int i = 0; i < allNewData.length; i+= 2) {
-                if (!(i + 1 < allNewData.length)) {
-                    // add to the end of the iterationData, to make sure the extra is kept.
-                    iterationData[iterationCount++] = allNewData[i];
-                    break;
-                }
-                timeSeries1 = allNewData[i];
-                timeSeries2 = allNewData[i + 1];
-                // dtw to find warp path.
-                TimeWarpInfo info = com.example.android.infotainment.backend.FastDTW.dtw.FastDTW.getWarpInfoBetween(new TimeSeries(timeSeries1), new TimeSeries(timeSeries2), DataAnalyst.radius, DataAnalyst.distFn);
-                int size = info.getPath().getTS2().size();
-                double[] warpTimeSeries1 = new double[size];
-                double[] warpTimeSeries2 = new double[size];
-                // create the two paired timeseries based on the warp path
-                pathToArray(info, timeSeries1, timeSeries2, warpTimeSeries1, warpTimeSeries2);
-                // average the two.
-                double[] baseline = new double[size];
-                DBA.DBA(baseline, new double[][]{warpTimeSeries1, warpTimeSeries2});
-                // add to the iteration data
-                iterationData[iterationCount++] = baseline;
-                // move to next pair
-            }
-            // move to the next iteration.
-            allNewData = iterationData;
-        }
-        // take the next data from the new data for timeseries2
-        return allNewData[0];
-    }
 
     /**
      * Find the warping result from the dtw warped path indexes.
