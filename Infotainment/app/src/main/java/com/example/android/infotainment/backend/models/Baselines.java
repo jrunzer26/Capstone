@@ -121,7 +121,6 @@ public class Baselines {
             UserData userData = userDatas.get(i);
             int tripID = userData.getTripID();
             SimData simData = userData.getSimData();
-
             int turnType;
             if (userData.getTurnFlag() == UserData.FLAG_LEFT_TURN || userData.getTurnFlag() == UserData.FLAG_LEFT_TURN_SPEEDING) {
                 turnType = Turn.TURN_LEFT;
@@ -130,18 +129,14 @@ public class Baselines {
             } else {
                 turnType = -1;
             }
-            Log.i("info", "turnType: " + turnType + " prev turn type: " + prevTurnType + " flag: " + userData.getTurnFlag());
             if (userData.getTurnFlag() != UserData.FLAG_NONE || tripID != lastUserDataTripID && turnType != prevTurnType) {
                 // assign the turn type based on the flag.
                 if (turnType != -1) {
                     lastUserDataTripID = tripID;
-
                     // add the data to the currentTurn
                     if (currentTurn == null) {
                         currentTurn = new Turn(0, turnType, userData.getTurnFlag());
-                        Log.i("creating turn", "creating");
                     }
-                    Log.i("adding to turn", "turnType: " + turnType + " prev turn type: " + prevTurnType);
                     currentTurn.addTurnPoint(new TurnDataPoint(simData.getSpeed(),
                             simData.getSteering()));
                     prevTurnType = turnType;
@@ -152,7 +147,6 @@ public class Baselines {
                 currentTurn = null;
                 lastUserDataTripID = tripID;
                 prevTurnType = turnType;
-                Log.i("info", "going back in time");
                 i--; // go back one to re look at the missed data.
             } else {
                 prevTurnType = turnType;
@@ -232,7 +226,6 @@ public class Baselines {
             initTurnBaseline(maxBaselineLength, turnBaseline, rightTurnBaseline, turns);
             averageSteeringSequence = rightTurnBaseline[0];
             averageSpeedSequence = rightTurnBaseline[1];
-            Log.i("right turn baseline", "in else");
         }
         if (totalTurns > 0) {
             // convert the turns into the 2d sequence arrays
