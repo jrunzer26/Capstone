@@ -96,8 +96,8 @@ public class MockCarBluetoothHandler {
          */
 
         /* ACCELERATION TESTS */
-        //fromNearStopAccelTest();
-        //fromSpeedAccelTest();
+        fromNearStopAccelTest();
+        fromSpeedAccelTest();
         //fromSpeedAccelRandomLengths();
         //slowAccelerationTest();
 

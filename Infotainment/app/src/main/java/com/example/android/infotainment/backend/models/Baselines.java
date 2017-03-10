@@ -116,20 +116,21 @@ public class Baselines {
         int lastUserDataTripID = 0;
         if (userDatas.size() > 0)
             lastUserDataTripID = userDatas.get(0).getTripID();
+        int prevTurnType = -2;
         for (int i = 0; i < userDatas.size(); i++) {
             UserData userData = userDatas.get(i);
             int tripID = userData.getTripID();
             SimData simData = userData.getSimData();
-            if (userData.getTurnFlag() != UserData.FLAG_NONE || tripID != lastUserDataTripID) {
-                int turnType;
+            int turnType;
+            if (userData.getTurnFlag() == UserData.FLAG_LEFT_TURN || userData.getTurnFlag() == UserData.FLAG_LEFT_TURN_SPEEDING) {
+                turnType = Turn.TURN_LEFT;
+            } else if(userData.getTurnFlag() == UserData.FLAG_RIGHT_TURN || userData.getTurnFlag() == UserData.FLAG_RIGHT_TURN_SPEEDING) {
+                turnType = Turn.TURN_RIGHT;
+            } else {
+                turnType = -1;
+            }
+            if (userData.getTurnFlag() != UserData.FLAG_NONE || tripID != lastUserDataTripID && turnType != prevTurnType) {
                 // assign the turn type based on the flag.
-                if (userData.getTurnFlag() == UserData.FLAG_LEFT_TURN || userData.getTurnFlag() == UserData.FLAG_LEFT_TURN_SPEEDING) {
-                    turnType = Turn.TURN_LEFT;
-                } else if(userData.getTurnFlag() == UserData.FLAG_RIGHT_TURN || userData.getTurnFlag() == UserData.FLAG_RIGHT_TURN_SPEEDING) {
-                    turnType = Turn.TURN_RIGHT;
-                } else {
-                    turnType = -1;
-                }
                 if (turnType != -1) {
                     lastUserDataTripID = tripID;
                     // add the data to the currentTurn
@@ -138,13 +139,17 @@ public class Baselines {
                     }
                     currentTurn.addTurnPoint(new TurnDataPoint(simData.getSpeed(),
                             simData.getSteering()));
+                    prevTurnType = turnType;
                 }
                 // add to the turn array if there is a new turn detected
             } else if (currentTurn != null) {
                 turns.add(currentTurn);
                 currentTurn = null;
                 lastUserDataTripID = tripID;
+                prevTurnType = turnType;
+                i--; // go back one to re look at the missed data.
             } else {
+                prevTurnType = turnType;
                 lastUserDataTripID = tripID;
             }
         }
@@ -162,6 +167,7 @@ public class Baselines {
         ArrayList<Turn> leftTurns = new ArrayList<>();
         ArrayList<Turn> rightTurns = new ArrayList<>();
         sortTurnData(turns, leftTurns, rightTurns);
+        Log.i("extracted right turns ", ""+rightTurns.size());
         dbaTurns(Turn.TURN_LEFT, leftTurns, UserData.FLAG_LEFT_TURN);
         dbaTurns(Turn.TURN_RIGHT, rightTurns, UserData.FLAG_RIGHT_TURN);
     }
