@@ -55,7 +55,7 @@ public class MockWatchBluetoothHandler {
         SensorData sensorData = sensorDatas.get(index);
         dataParser.sendHRData(sensorData);
         index++;
-        System.out.println(index);
+        //System.out.println(index);
         if (index == sensorDatas.size())
             index = 0;
     }

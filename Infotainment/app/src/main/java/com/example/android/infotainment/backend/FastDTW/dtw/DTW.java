@@ -108,8 +108,7 @@ public class DTW
       final double[][] costMatrix = new double[tsI.size()][tsJ.size()];
       final int maxI = tsI.size()-1;
       final int maxJ = tsJ.size()-1;
-      System.out.println(maxI);
-      System.out.println(maxJ);
+
 
       // Calculate the values for the first column, from the bottom up.
       costMatrix[0][0] = distFn.calcDistance(tsI.getMeasurementVector(0),
