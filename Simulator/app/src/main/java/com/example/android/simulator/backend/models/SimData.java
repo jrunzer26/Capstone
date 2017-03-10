@@ -32,6 +32,7 @@ public class SimData {
     public static final int ROAD_TYPE_DIRT = 52;
 
     private double speed = 0;
+    private double speedLimit = 60;
     private String gear = PARK;
     private boolean cruseControl = false;
     private boolean pause = false;
@@ -68,6 +69,7 @@ public class SimData {
         stringBuilder.append(time);
         stringBuilder.append("roadCondition: ").append(roadCondition).append("\n");
         stringBuilder.append("roadType: ").append(roadType).append("\n");
+        stringBuilder.append("SpeedLimit: ").append(speedLimit).append("\n");
         return stringBuilder.toString();
     }
 
@@ -279,6 +281,18 @@ public class SimData {
      */
     public int getRoadType() {return roadType;}
 
+    /**
+     * Sets the speedLimit
+     * @param speedLimit - the speed limit of the road
+     */
+    public void setSpeedLimit(double speedLimit) {this.speedLimit = speedLimit;}
+
+    /**
+     * Gets the speedLimit
+     * @return the speed limit
+     */
+    public double getSpeedLimit() {return speedLimit;}
+
 
     public SimData copy() {
         SimData copiedData = new SimData();
@@ -294,6 +308,7 @@ public class SimData {
         copiedData.setRoadSeverity(roadSeverity);
         copiedData.setRoadCondition(roadCondition);
         copiedData.setRoadType(roadType);
+        copiedData.setSpeedLimit(speedLimit);
         return copiedData;
     }
 

@@ -52,6 +52,8 @@ public class VehicleSimulatorFragment extends Fragment {
     private BluetoothAdapter bluetoothAdapter;
     private final int seekBarZeroProgress = 15;
     Button connectButton;
+    Button incSpeedLimit;
+    Button decSpeedLimit;
 
     /**
      * Creates the savedInstanceState
@@ -81,6 +83,8 @@ public class VehicleSimulatorFragment extends Fragment {
         seekBarDeg.setMax((DEG_MAX-DEG_MIN)/STEP);
 
         connectButton = (Button)view.findViewById(R.id.button_reConnect);
+        incSpeedLimit = (Button)view.findViewById(R.id.button_incSpeedLimit);
+        decSpeedLimit = (Button)view.findViewById(R.id.button_decSpeedLimit);
 
         //Retreive the Simulator object that was created in the main and use it in this fragment
         sim = ((MainActivity)this.getActivity()).getSimulator();
@@ -90,6 +94,8 @@ public class VehicleSimulatorFragment extends Fragment {
 
         final TextView seekBarAccValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_acceleration);
         final TextView seekBarDegValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_steering);
+        final TextView currentSpeedLimit = (TextView)view.findViewById(R.id.textView5);
+
 
         buttonListenerInit(view);
 
@@ -173,6 +179,25 @@ public class VehicleSimulatorFragment extends Fragment {
             }
         }, 0, REFRESH_RATE);
 
+
+        incSpeedLimit.setOnClickListener( new View.OnClickListener() {
+           @Override
+            public void onClick(View v) {
+               int speed = Integer.parseInt(currentSpeedLimit.getText().toString().substring(0, currentSpeedLimit.getText().toString().indexOf(' ')));
+               int newSpeed = speed + 10;
+               currentSpeedLimit.setText(String.valueOf(newSpeed) + " Km/h");
+
+           }
+        });
+
+        decSpeedLimit.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int speed = Integer.parseInt(currentSpeedLimit.getText().toString().substring(0, currentSpeedLimit.getText().toString().indexOf(' ')));
+                int newSpeed = speed - 10;
+                currentSpeedLimit.setText(String.valueOf(newSpeed) + " Km/h");
+            }
+        });
 
 
         connectButton.setOnClickListener( new View.OnClickListener() {
