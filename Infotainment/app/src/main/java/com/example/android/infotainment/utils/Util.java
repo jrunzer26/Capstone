@@ -51,4 +51,16 @@ public class Util {
         }
         Log.i(tag, stringBuilder.toString());
     }
+
+    public static void print2dUserDataListSteering(ArrayList<ArrayList<UserData>> arrayList2D, String tag) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < arrayList2D.size(); i++) {
+            ArrayList<UserData> data = arrayList2D.get(i);
+            for (int j = 0; j < data.size(); j++) {
+                stringBuilder.append(data.get(j).getSimData().getSteering()).append("\t");
+            }
+            stringBuilder.append("\n");
+        }
+        Log.i(tag, stringBuilder.toString());
+    }
 }

@@ -9,13 +9,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.example.android.infotainment.backend.FastDTW.timeseries.PAA;
 import com.example.android.infotainment.backend.models.Turn;
 import com.example.android.infotainment.backend.models.TurnDataPoint;
 import com.example.android.infotainment.backend.models.UserData;
-
-
-import java.util.ArrayList;
 
 /**
  * Created by 100520993 on 1/30/2017.
@@ -73,11 +69,7 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         String speedingSQLAttributes = "( " +
                 "id integer PRIMARY KEY AUTOINCREMENT, " +
                 "turnID int,                           " +
-                "speed single,                         " +
-                "flag int,                             " +
-                "speedLimit int,                       " +
                 "devPercent double,                    " +
-                "devValue double,                      " +
                 "multi int                             " +
                 ")                                     ";
         db.execSQL("CREATE TABLE " + SPEEDING_TABLE + speedingSQLAttributes);
@@ -236,10 +228,10 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         String table;
         table = getAccelerationTableName(flag);
         // select all the turns
-        return getSpeedsFromTable(table);
+        return getDoubleArrayFromTable(table, "speed");
     }
 
-    private double[] getSpeedsFromTable(String table) {
+    private double[] getDoubleArrayFromTable(String table, String col) {
         String [] where = {};
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor;
@@ -256,7 +248,7 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         int count = 0;
         while (!cursor.isAfterLast()) {
             // add the data to the object
-            double speed = cursor.getDouble(cursor.getColumnIndex("speed"));
+            double speed = cursor.getDouble(cursor.getColumnIndex(col));
 
             // add the point to the turn
             contents[count] = speed;
@@ -355,16 +347,62 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+
+    public int getBrakeMulti() {
+        return getMultiplicityFromTable(BRAKE_TABLE);
+    }
+
     /**
      * Returns the braking baseline.
      * @return the data.
      */
     public double[] getBrakingBaseline() {
-        return getSpeedsFromTable(BRAKE_TABLE);
+        return getDoubleArrayFromTable(BRAKE_TABLE, "speed");
     }
 
+    // ######################### Cruising Baselines #########################
 
-    public int getBrakeMulti() {
-        return getMultiplicityFromTable(BRAKE_TABLE);
+    public double[] getCruisingBaseline() {
+        return getDoubleArrayFromTable(CRUISE_TABLE, "steering");
+    }
+
+    public void overWriteCruisingBaseline(double[] steering, int multi) {
+        clearTable(CRUISE_TABLE);
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values;
+        for (double data : steering) {
+            values = new ContentValues();
+            values.put("steering", data);
+            values.put("multi", multi);
+            db.insert(CRUISE_TABLE, null, values);
+        }
+        db.close();
+    }
+
+    public int getCruiseMulti() {
+        return getMultiplicityFromTable(CRUISE_TABLE);
+    }
+
+    // ######################### Speeding Baselines #########################
+
+    public double[] getSpeedingBaseline() {
+        return getDoubleArrayFromTable(SPEEDING_TABLE, "devPercent");
+    }
+
+    public void overWriteSpeedingBaseline(double[] devPercents, int multi) {
+        clearTable(SPEEDING_TABLE);
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values;
+        for (double data : devPercents) {
+            values = new ContentValues();
+            values.put("devPercent", data);
+            values.put("multi", multi);
+            db.insert(SPEEDING_TABLE, null, values);
+        }
+        db.close();
+    }
+
+    public int getSpeedingMulti() {
+        return getMultiplicityFromTable(SPEEDING_TABLE);
     }
 }
