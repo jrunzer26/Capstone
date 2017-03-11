@@ -14,6 +14,7 @@ public class Turn {
     private ArrayList<TurnDataPoint> data;
     private int id;
     private int flag;
+    private int multi;
 
     /**
      * Creates a new turn.
@@ -32,6 +33,14 @@ public class Turn {
         this.turnType = turnType;
         data = new ArrayList<>();
         this.flag = flag;
+    }
+
+    public int getMulti() {
+        return multi;
+    }
+
+    public void setMulti(int multi) {
+        this.multi = multi;
     }
 
     public int getFlag() {

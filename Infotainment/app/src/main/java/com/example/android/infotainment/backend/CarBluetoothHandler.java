@@ -94,6 +94,7 @@ public class CarBluetoothHandler extends Thread {
                         temp.setTime(time);
                         temp.setRoadCondition(dis.readInt());
                         temp.setRoadType(dis.readInt());
+                        temp.setSpeedLimit(dis.readDouble());
                         // sends the data to the parser
                         dataParser.sendSimData(temp);
                     }

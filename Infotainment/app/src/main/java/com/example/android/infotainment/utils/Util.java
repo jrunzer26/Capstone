@@ -18,7 +18,7 @@ public class Util {
             for (int i = 0; i < array.length; i++) {
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append("\t");
-                for (int j = 0; j < array[0].length; j++) {
+                for (int j = 0; j < array[i].length; j++) {
                     stringBuilder.append(array[i][j]).append("\t");
                 }
                 Log.i(tag, stringBuilder.toString());
@@ -46,6 +46,18 @@ public class Util {
             ArrayList<UserData> data = arrayList2D.get(i);
             for (int j = 0; j < data.size(); j++) {
                 stringBuilder.append(data.get(j).getSimData().getSpeed()).append("\t");
+            }
+            stringBuilder.append("\n");
+        }
+        Log.i(tag, stringBuilder.toString());
+    }
+
+    public static void print2dUserDataListSteering(ArrayList<ArrayList<UserData>> arrayList2D, String tag) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < arrayList2D.size(); i++) {
+            ArrayList<UserData> data = arrayList2D.get(i);
+            for (int j = 0; j < data.size(); j++) {
+                stringBuilder.append(data.get(j).getSimData().getSteering()).append("\t");
             }
             stringBuilder.append("\n");
         }

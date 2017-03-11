@@ -46,8 +46,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private SlidingWindow sw = new SlidingWindow(WINDOW);
     private ArrayList<Double> mean = new ArrayList<Double>();
     private ArrayList<Double> stdDev = new ArrayList<Double>();
-    private final int RADIUS = 30;
-    private final DistanceFunction distFn = DistanceFunctionFactory.getDistFnByName("EuclideanDistance");
+    public static final int radius = 30;
+    public static final DistanceFunction distFn = DistanceFunctionFactory.getDistFnByName("EuclideanDistance");
     private String[] drivingEvent = new String[2];
     private int[] eventCounter = new int[6];
     private Baselines baselines;
@@ -64,6 +64,16 @@ public class DataAnalyst extends Thread implements DataReceiver {
         userDataLinkedList = new ConcurrentLinkedQueue<>();
         baselines = new Baselines(applicationContext);
         baselines.printBaselines();
+        double[][] testData = {
+                {1},
+                {2, 2},
+                {3, 3, 3},
+                {4, 4, 4, 3}
+        };
+        //double [] test1 = {1,1};
+        //DBA.DBA(test1, testData);
+       // Util.printArray(test1, "ALL DBA");
+        //Util.printArray(baselines.dtwPairAlg(testData), "PAIR ALG RESULT");
         //Util.print2dArray(baselines.getRight(), TAG);
     }
 
@@ -128,7 +138,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
                     turn = calculateTurn(simData.getSteering());
                 }
                 int deviation = determineHRDeviation(sensorData);
-                System.out.println(deviation);
+                System.out.println("deviation: " + deviation);
                 if(deviation >= 20) {
                     //HR Deviation values come from: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2653595/
                     System.out.println("High deviation occurred");
