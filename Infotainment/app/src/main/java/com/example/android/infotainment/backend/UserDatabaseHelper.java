@@ -38,6 +38,7 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
                 "id integer PRIMARY KEY AUTOINCREMENT, " +
                 "tripID int, " +
                 "speed single, " +
+                "speedLimit single, " +
                 "gear varchar(64), " +
                 "cruseControl boolean, " +
                 "signal int, " +
@@ -82,6 +83,7 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         values.put("flag", userData.getTurnFlag());
         // sim data
         values.put("speed", simData.getSpeed());
+        values.put("speedLimit", simData.getSpeedLimit());
         values.put("gear", simData.getGear());
         values.put("cruseControl", simData.isCruseControl());
         values.put("signal", simData.getSignal());
@@ -169,14 +171,15 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
     public void printRelevantDataSet() {
         String[] where = new String[0];
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT tripID, speed, steering, acceleration, " +
+        Cursor cursor = db.rawQuery("SELECT tripID, speed, speedLimit, steering, acceleration, " +
                 "timeHour, timeMinute, timeSecond, heartRate, flag from Data", where);
         cursor.moveToFirst();
-        System.out.printf("\t%6s\t%-6s\t%8s\t%12s\t%2s\t%4s\t%6s\t%6s\t%6s\n", "TripID", "Speed", "Steering",
+        System.out.printf("\t%6s\t%-6s\t%-6s\t%8s\t%12s\t%2s\t%4s\t%6s\t%6s\t%6s\n", "TripID", "Speed", "SpeedLimit", "Steering",
                 "Acceleration", "HR", "Hour", "Minute", "Second", "Flag");
         while(!cursor.isAfterLast()) {
             int tripID = cursor.getInt(cursor.getColumnIndex("tripID"));
             double speed = cursor.getDouble(cursor.getColumnIndex("speed"));
+            double speedLimit = cursor.getDouble(cursor.getColumnIndex("speedLimit"));
             double steering = cursor.getDouble(cursor.getColumnIndex("steering"));
             double acceleration = cursor.getDouble(cursor.getColumnIndex("tripID"));
             int hr = cursor.getInt(cursor.getColumnIndex("heartRate"));
@@ -184,7 +187,7 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
             int timeMinute = cursor.getInt(cursor.getColumnIndex("timeMinute"));
             int timeSecond = cursor.getInt(cursor.getColumnIndex("timeSecond"));
             int flag = cursor.getInt(cursor.getColumnIndex("flag"));
-            System.out.printf("\t%6d\t%6.2f\t%8.2f\t%12.2f\t%2d\t%4d\t%6d\t%6d\t%6d\n", tripID, speed, steering,
+            System.out.printf("\t%6d\t%6.2f\t%6.2f\t%8.2f\t%12.2f\t%2d\t%4d\t%6d\t%6d\t%6d\n", tripID, speed, speedLimit, steering,
                     acceleration, hr, timeHour, timeMinute, timeSecond, flag);
             cursor.moveToNext();
         }
@@ -215,6 +218,7 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
             userData.setTurnFlag(cursor.getInt(cursor.getColumnIndex("flag")));
             // sim data
             simData.setSpeed(cursor.getInt(cursor.getColumnIndex("speed")));
+            simData.setSpeedLimit(cursor.getInt(cursor.getColumnIndex("speedLimit")));
             simData.setGear(cursor.getString(cursor.getColumnIndex("gear")));
             simData.setSignal(cursor.getInt(cursor.getColumnIndex("signal")));
             simData.setSteering(cursor.getDouble(cursor.getColumnIndex("steering")));

@@ -45,7 +45,7 @@ public class SimData {
     private Time time = new Time(12, 00, 00);
     private int roadCondition = 0;
     private int roadType =0;
-    private double speedLimit = 0;
+    private double speedLimit = 50;
 
     /**
      * Outputs the state of the SimData.
@@ -55,6 +55,7 @@ public class SimData {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("speed: ").append(speed).append("\n");
+        stringBuilder.append("speed limit: ").append(speedLimit).append("\n");
         stringBuilder.append("gear: ").append(gear).append("\n");
         stringBuilder.append("cruseControl: ").append(cruseControl).append("\n");
         stringBuilder.append("pause: ").append(pause).append("\n");
@@ -71,6 +72,13 @@ public class SimData {
         return stringBuilder.toString();
     }
 
+    public double getSpeedingDevPercent() {
+        if (speedLimit != 0) {
+            return speed / (speedLimit + 0.0);
+        } else {
+            return 0;
+        }
+    }
     /**
      * Gets the speed.
      * @return the car speed.

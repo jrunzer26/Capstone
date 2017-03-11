@@ -2,7 +2,6 @@ package com.example.android.infotainment.backend.models;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 
 import com.example.android.infotainment.backend.BaselineDatabaseHelper;
 import com.example.android.infotainment.backend.DBA;
@@ -39,7 +38,6 @@ public class Baselines {
     private double[] accelNearStopBaseline;
     private double[] accelFromSpeedBaseline;
     private double[] brakeBaseline;
-    private double[] cruiseBaseline;
     // baseline
     // speeding baseline:
     // index [0] = devPercent
@@ -77,7 +75,7 @@ public class Baselines {
         accelFromSpeedBaseline = new double[0];
         accelNearStopBaseline = new double[0];
         brakeBaseline = new double[0];
-        cruiseBaseline = new double[0];
+        speedingBaseline = new double[0];
         speedingBaseline = new double[0];
     }
 
@@ -714,11 +712,11 @@ public class Baselines {
             }
             int multiplicityBaseline = baselineDatabaseHelper.getCruiseMulti();
             Log.i("cruise multi: ", ""+multiplicityBaseline);
-            cruiseBaseline = new double[max];
+            speedingBaseline = new double[max];
             if (baseline.length == 0) {
                 Log.i("Cruise", "baseline length = 0");
                 for(int i = 0; i < cruiseSeries[0].length; i++) {
-                    cruiseBaseline[i] = cruiseSeries[0][i];
+                    speedingBaseline[i] = cruiseSeries[0][i];
                 }
             } else {
                 Log.i("cruise", "MERGE BASELINES");
@@ -729,19 +727,19 @@ public class Baselines {
                 for(int i = 0; i < multiplicityBaseline; i++) {
                     series2[i] = baseline;
                 }
-                cruiseBaseline = new double[max];
+                speedingBaseline = new double[max];
                 for(int i = 0; i < baseline.length; i++) {
-                    cruiseBaseline[i] = baseline[i];
+                    speedingBaseline[i] = baseline[i];
                 }
             }
-            DBA.DBA(cruiseBaseline, cruiseSeries);
+            DBA.DBA(speedingBaseline, cruiseSeries);
             Util.print2dArray(cruiseSeries, "cruise TIMESERIES");
-            Util.printArray(cruiseBaseline, "cruise baseline");
+            Util.printArray(speedingBaseline, "cruise baseline");
             // save the baseline in the db.
             multiplicityBaseline = cruiseSeries.length;
-            baselineDatabaseHelper.overWriteCruisingBaseline(cruiseBaseline, multiplicityBaseline);
+            baselineDatabaseHelper.overWriteCruisingBaseline(speedingBaseline, multiplicityBaseline);
         } else {
-            cruiseBaseline = baseline;
+            speedingBaseline = baseline;
         }
     }
     // ##### Speeding Baseline ###########
@@ -783,12 +781,10 @@ public class Baselines {
                 currentlyDecelerating = true;
                 firstOccuranceSpeeding = true;
             }
-            Log.i(" BRAKING", "currently accel: " + currentlyAccelerating + " currently decel: " + currentlyDecelerating + " count: " + count);
             if (!currentlyAccelerating && !currentlyDecelerating && !firstOccuranceSpeeding && count < SPEEDING_SIZE - 1) {
                 currentSpeedingTimeseries.add(allData.get(i + ACCELERATION_WINDOW));
-                Log.i("increasing timeseries: ", "count: " + count);
                 count++;
-            } else if (!currentlyAccelerating && !currentlyAccelerating && firstOccuranceSpeeding) {
+            } else if (!currentlyAccelerating && !currentlyDecelerating && firstOccuranceSpeeding) {
                 for (int j = i; j < ACCELERATION_WINDOW + i; j++) {
                     currentSpeedingTimeseries.add(allData.get(j));
                     count++;
@@ -797,7 +793,6 @@ public class Baselines {
             } else if (count > 0) {
                 if (!currentlyAccelerating && !currentlyDecelerating)
                     currentSpeedingTimeseries.add(allData.get(i + ACCELERATION_WINDOW));
-                Log.i("adding", "count : " + count);
                 allSpeedingTimeseries.add(currentSpeedingTimeseries);
                 currentSpeedingTimeseries = new ArrayList<>();
                 count = 0;
@@ -811,65 +806,61 @@ public class Baselines {
     }
 
     private void dbaSpeeding(ArrayList<ArrayList<UserData>> extractedSpeeding) {
-        for (int i = 0; i < extractedSpeeding.size(); i++) {
-            Log.i("sizes", "extracted size: " + extractedSpeeding.get(i).size());
-        }
+        int totalTimeSeries = extractedSpeeding.size();
 
-        double[] baseline = baselineDatabaseHelper.getCruisingBaseline();
+        double[] baseline = baselineDatabaseHelper.getSpeedingBaseline();
         // see if the max is still greater than the baseline length
         int max = baseline.length;
-        for(int i = 0; i < cruiseData.size(); i++) {
-            int size = cruiseData.get(i).size();
+        for(int i = 0; i < extractedSpeeding.size(); i++) {
+            int size = extractedSpeeding.get(i).size();
             if (size > max)
                 max = size;
         }
         Log.i("total time series", totalTimeSeries+"");
         if (totalTimeSeries > 0) {
-            double[][] cruiseSeries = new double[totalTimeSeries][];
+            double[][] speedingSeries = new double[totalTimeSeries][];
             // convert the turns into the 2d sequence arrays
-            for (int i = 0; i < cruiseData.size(); i++) {
-                ArrayList<UserData> currentCruiseData = cruiseData.get(i);
-                int accelSize = currentCruiseData.size();
-                double[] series = new double[accelSize];
+            for (int i = 0; i < extractedSpeeding.size(); i++) {
+                ArrayList<UserData> currentSpeedingData = extractedSpeeding.get(i);
+                int size = currentSpeedingData.size();
+                double[] series = new double[size];
                 // convert to array.
-                for (int j = 0; j < accelSize; j++) {
-                    series[j] = currentCruiseData.get(j).getSimData().getSteering();
+                for (int j = 0; j < size; j++) {
+                    series[j] = currentSpeedingData.get(j).getSimData().getSpeedingDevPercent();
                 }
-                cruiseSeries[i] = series;
+                speedingSeries[i] = series;
             }
-            int multiplicityBaseline = baselineDatabaseHelper.getCruiseMulti();
-            Log.i("cruise multi: ", ""+multiplicityBaseline);
-            cruiseBaseline = new double[max];
+            int multiplicityBaseline = baselineDatabaseHelper.getSpeedingMulti();
+            Log.i("speeding multi: ", ""+multiplicityBaseline);
+            speedingBaseline = new double[max];
             if (baseline.length == 0) {
-                Log.i("Cruise", "baseline length = 0");
-                for(int i = 0; i < cruiseSeries[0].length; i++) {
-                    cruiseBaseline[i] = cruiseSeries[0][i];
+                Log.i("speeding", "baseline length = 0");
+                for(int i = 0; i < speedingSeries[0].length; i++) {
+                    speedingBaseline[i] = speedingSeries[0][i];
                 }
             } else {
-                Log.i("cruise", "MERGE BASELINES");
-                double[][] series2 = new double[multiplicityBaseline + cruiseSeries.length][];
+                Log.i("speeding", "MERGE BASELINES");
+                double[][] series2 = new double[multiplicityBaseline + speedingSeries.length][];
                 for (int i = multiplicityBaseline; i < series2.length; i++) {
-                    series2[i] = cruiseSeries[i - multiplicityBaseline];
+                    series2[i] = speedingSeries[i - multiplicityBaseline];
                 }
                 for(int i = 0; i < multiplicityBaseline; i++) {
                     series2[i] = baseline;
                 }
-                cruiseBaseline = new double[max];
+                speedingBaseline = new double[max];
                 for(int i = 0; i < baseline.length; i++) {
-                    cruiseBaseline[i] = baseline[i];
+                    speedingBaseline[i] = baseline[i];
                 }
             }
-            DBA.DBA(cruiseBaseline, cruiseSeries);
-            Util.print2dArray(cruiseSeries, "cruise TIMESERIES");
-            Util.printArray(cruiseBaseline, "cruise baseline");
+            DBA.DBA(speedingBaseline, speedingSeries);
+            Util.print2dArray(speedingSeries, "speeding TIMESERIES");
+            Util.printArray(speedingBaseline, "speeding baseline");
             // save the baseline in the db.
-            multiplicityBaseline = cruiseSeries.length;
-            baselineDatabaseHelper.overWriteCruisingBaseline(cruiseBaseline, multiplicityBaseline);
+            multiplicityBaseline = speedingSeries.length;
+            baselineDatabaseHelper.overWriteSpeedingBaseline(speedingBaseline, multiplicityBaseline);
         } else {
-            cruiseBaseline = baseline;
+            speedingBaseline = baseline;
         }
-
-
     }
 
     /**
@@ -887,7 +878,7 @@ public class Baselines {
         Log.i(TAG, "Braking baseline");
         Util.printArray(brakeBaseline, TAG);
         Log.i(TAG, "Cruising baseline");
-        Util.printArray(cruiseBaseline, TAG);
+        Util.printArray(speedingBaseline, TAG);
         Log.i(TAG, "Speeding baseline");
         Util.printArray(speedingBaseline, TAG);
     }
@@ -911,7 +902,7 @@ public class Baselines {
     }
 
     public double[] getCruise(){
-        return cruiseBaseline;
+        return speedingBaseline;
     }
 
     public double[] getSpeeding(){
