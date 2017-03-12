@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     UUID myUUID;
     ThreadConnectBTdevice myThreadConnectBTdevice;
     BluetoothAdapter bluetoothAdapter;
+    final int REFRESH_RATE = 100;
     private Simulator sim;
     Button connectButton;
 
@@ -87,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 sim.run();
             }
-        }, 2000, 1000);
+        }, 2000, REFRESH_RATE);
 
     }
 

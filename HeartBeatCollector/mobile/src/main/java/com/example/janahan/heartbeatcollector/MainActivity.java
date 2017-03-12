@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
-        }, 0, 1000);
+        }, 0, 100);
 
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
