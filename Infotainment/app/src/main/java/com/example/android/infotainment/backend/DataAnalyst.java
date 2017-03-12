@@ -10,6 +10,7 @@ import com.example.android.infotainment.backend.models.SensorData;
 import com.example.android.infotainment.backend.models.SimData;
 import com.example.android.infotainment.backend.models.UserData;
 import com.example.android.infotainment.backend.models.SlidingWindow;
+import com.example.android.infotainment.backend.models.MinData;
 import com.example.android.infotainment.backend.FastDTW.dtw.TimeWarpInfo;
 import com.example.android.infotainment.backend.FastDTW.util.DistanceFunction;
 import com.example.android.infotainment.backend.FastDTW.util.DistanceFunctionFactory;
@@ -49,6 +50,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private String[] drivingEvent = new String[2];
     private Baselines baselines;
     private VehicleHistory vehicleHistory;
+    private MinData[] md = new MinData[2];
     private boolean isDoneSetup = false; //baselines.isSetup()
 
     //Variables for alert system the threshholds follow the case statements
@@ -128,7 +130,6 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 SensorData sensorData = userData.getSensorData();
                 SimData simData = userData.getSimData();
 
-
                 //ALGORITHM STARTS HERE
                 step1_HeartRateDeviations(sensorData, counter);
 
@@ -137,6 +138,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 Log.i(" hrCompare", step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() -1)) + "");
                 if(isDoneSetup && step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() -1)) && vehicleHistory.hasEnoughData()) {
                     alertCheck(step3_GetMinSimilarity(baselines, vehicleHistory));
+                    //We now know what is the most similar
+                    //Pass this into a ratio checker
                 } else { //Setup not done, or no deviation
                     //Record to the database
                 }
@@ -247,11 +250,11 @@ public class DataAnalyst extends Thread implements DataReceiver {
         ArrayList<Object> speedHistory = new ArrayList<Object>(history.getSpeedHistory());
         ArrayList<Object> turningHistory = new ArrayList<Object>(history.getTurningHistory());
 
-        minSingle = minSim_singleDimension(b, speedHistory, turningHistory, SINGLE_DIM_EVENTS, dtw);
+        minSingle = minSim_singleDimension(b, speedHistory, SINGLE_DIM_EVENTS, dtw);
         minDouble = minSim_doubleDimension(b, speedHistory, turningHistory, TWO_DIM_EVENTS, dtw);
-        if (minSingle.getDistance() >= (minDouble[0].getDistance() + minDouble[1].getDistance())/2 && ratioDistance_singleDimension(minSingle) > PERCENT_THRESHOLD){
+        if (minSingle.getDistance() >= (minDouble[0].getDistance() + minDouble[1].getDistance())/2 && ratioDistance_singleDimension(minSingle, md[0]) > PERCENT_THRESHOLD){
             return (drivingEvent[0]);
-        } else if (minSingle.getDistance() <(minDouble[0].getDistance() + minDouble[1].getDistance())/2 && ratioDistance_doubleDimension(minDouble) > PERCENT_THRESHOLD) {
+        } else if (minSingle.getDistance() <(minDouble[0].getDistance() + minDouble[1].getDistance())/2 && ratioDistance_doubleDimension(minDouble, md) > PERCENT_THRESHOLD) {
             return(drivingEvent[1]);
         } else {
             return "none";
@@ -259,34 +262,36 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
     }
 
-    private TimeWarpInfo minSim_singleDimension(Baselines b, ArrayList sHist, ArrayList tHist, int events, FastDTW dtw){
+
+    private TimeWarpInfo minSim_singleDimension(Baselines b, ArrayList sHist, int events, FastDTW dtw){
         TimeWarpInfo temp;
         TimeWarpInfo toReturn = null;
         String tempEvent="";
+        double[] baseline;
         Log.i("sHist length: ", sHist.size()+"");
         for (int i = 0; i< events; i++){
             switch (i) {
                 case 0: {
                     //Acceleration
-                    temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getAccelFromSpeedBaseline()), RADIUS, distFn);
+                    baseline = b.getAccelFromSpeedBaseline();
                     tempEvent="accel";
                     break;
                 }
                 case 1: {
                     //Braking
-                    temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getBrake()), RADIUS, distFn);
+                    baseline = b.getBrake();
                     tempEvent="braking";
                     break;
                 }
                 case 2: {
                     //Cruise
-                    temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getCruise()), RADIUS, distFn);
+                    baseline = b.getCruise();
                     tempEvent="cruise";
                     break;
                 }
                 case 3: {
+                    baseline = b.getSpeeding();
                     //Speeding
-                    temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getSpeeding()), RADIUS, distFn);
                     tempEvent="speeding";
                     break;
                 }
@@ -294,23 +299,28 @@ public class DataAnalyst extends Thread implements DataReceiver {
                     continue;
                 }
             }
+            temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(baseline), RADIUS, distFn);
             if (temp.getDistance() < 10000 || temp.getDistance() < toReturn.getDistance()){
                 toReturn = temp;
+                md[0].setBaseline(baseline);
+                md[0].setEvent(tempEvent);
+                md[0].setVData(sHist);
                 drivingEvent[0]= tempEvent;
-
             }
         }
         return toReturn;
     }
 
-    private double ratioDistance_singleDimension(TimeWarpInfo twi){
+
+    private double ratioDistance_singleDimension(TimeWarpInfo twi, MinData series){
         double sum1 = 0.0;
         double sum2 = 0.0;
         double average1;
         double average2;
+
         for (int i = 0; i < twi.getPath().getTS1().size(); i++){
-            sum1 += (double)twi.getPath().getTS1().get(i);
-            sum2 += (double)twi.getPath().getTS2().get(i);
+            sum1 += (double)series.getVData().get((Integer)twi.getPath().getTS1().get(i));
+            sum2 += series.getBaseline()[(Integer)twi.getPath().getTS2().get(i)];
         }
         average1 = (sum1/twi.getPath().getTS1().size());
         average2 = (sum2/twi.getPath().getTS2().size());
@@ -323,19 +333,21 @@ public class DataAnalyst extends Thread implements DataReceiver {
         TimeWarpInfo[] toReturn = new TimeWarpInfo[2];
         double avgDistance;
         String tempEvent;
+        double[] baseline1;
+        double[] baseline2;
         for (int i = 0; i< events; i++){
             switch (i) {
                 case 0: {
                     //Left Turns
-                    temp[0] = dtw.getWarpInfoBetween(new TimeSeries(tHist), new TimeSeries(b.getLeft()[0]), RADIUS, distFn);
-                    temp[1] = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getLeft()[1]), RADIUS, distFn);
+                    baseline1=b.getLeft()[0];
+                    baseline2=b.getLeft()[1];
                     tempEvent = "left";
                     break;
                 }
                 case 1: {
                     //Right Turns
-                    temp[0] = dtw.getWarpInfoBetween(new TimeSeries(tHist), new TimeSeries(b.getRight()[0]), RADIUS, distFn);
-                    temp[1] = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(b.getRight()[1]), RADIUS, distFn);
+                    baseline1=b.getRight()[0];
+                    baseline2=b.getRight()[1];
                     tempEvent="right";
                     break;
                 }
@@ -344,22 +356,37 @@ public class DataAnalyst extends Thread implements DataReceiver {
                     continue;
                 }
             }
+
+            temp[0] = dtw.getWarpInfoBetween(new TimeSeries(tHist), new TimeSeries(baseline1), RADIUS, distFn);
+            temp[1] = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(baseline2), RADIUS, distFn);
+
             avgDistance = (temp[0].getDistance() + temp[1].getDistance())/2;
 
             if (avgDistance < 10000 || avgDistance < (toReturn[0].getDistance()+toReturn[1].getDistance())/2){
                 System.arraycopy(temp, 0, toReturn, 0, 2);
+
+                md[0].setBaseline(baseline1);
+                md[0].setVData(tHist);
+                md[0].setEvent(tempEvent);
+
+                md[1].setBaseline(baseline2);
+                md[1].setVData(sHist);
+                md[1].setEvent(tempEvent);
+
                 drivingEvent[1] = tempEvent;
             }
         }
         return toReturn;
     }
 
-    private double ratioDistance_doubleDimension(TimeWarpInfo[] twi){
+    /**
+     *
+     * @param twi: Index 0 contains the warp path of steering data, Index 1 contains the warp path of speed data.
+     * @param series: Index 0 contains the vehicle data and baseline of the steering wheel, Index 1 contains the vehicle data and time of the speed
+     * @return
+     */
+    private double ratioDistance_doubleDimension(TimeWarpInfo[] twi, MinData[] series){
         double sum1_1 = 0.0, sum1_2 = 0.0, sum2_1 = 0.0, sum2_2 = 0.0;
-        ArrayList path1_1 = twi[0].getPath().getTS1();
-        ArrayList path1_2 = twi[0].getPath().getTS2();
-        ArrayList path2_1 = twi[1].getPath().getTS1();
-        ArrayList path2_2 = twi[1].getPath().getTS2();
         double average1_1;
         double average1_2;
         double average2_1;
@@ -368,21 +395,21 @@ public class DataAnalyst extends Thread implements DataReceiver {
         double set1;
         double set2;
 
-        for (int i = 0; i < path1_1.size(); i++){
-            sum1_1 += (Double) path1_1.get(i);
-            sum1_2 += (Double) path1_2.get(i);
+        for (int i = 0; i < twi[0].getPath().getTS1().size(); i++){
+            sum1_1 += (Double) series[0].getVData().get((Integer)twi[0].getPath().getTS1().get(i));
+            sum1_2 += series[0].getBaseline()[(Integer)twi[0].getPath().getTS2().get(i)];
         }
-        average1_1 = sum1_1 / path1_1.size();
-        average1_2 = sum1_2 / path1_2.size();
+        average1_1 = sum1_1 / twi[0].getPath().getTS1().size();
+        average1_2 = sum1_2 / twi[0].getPath().getTS2().size();
 
         set1 = ((average1_1<average1_2) ? average1_1/average1_2 : average1_2 / average1_1);
 
-        for (int j = 0; j< path2_1.size(); j++) {
-            sum2_1 += (Double) path2_1.get(j);
-            sum2_2 += (Double) path2_2.get(j);
+        for (int j = 0; j< twi[1].getPath().getTS2().size(); j++) {
+            sum2_1 += (Double) series[1].getVData().get((Integer)twi[1].getPath().getTS1().get(j));
+            sum2_2 += series[1].getBaseline()[(Integer)twi[1].getPath().getTS2().get(j)];
         }
-        average2_1 = sum2_1 / path2_1.size();
-        average2_2 = sum2_2 / path2_2.size();
+        average2_1 = sum2_1 / twi[1].getPath().getTS1().size();
+        average2_2 = sum2_2 / twi[1].getPath().getTS2().size();
 
         set2 = ((average2_1<average2_2) ? average2_1/average2_2 : average2_2 / average2_1);
         return ((set1 > set2) ? set1 : set2);
