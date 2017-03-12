@@ -132,7 +132,7 @@ public class DTW
                                                            costMatrix[i][j-1]));
             costMatrix[i][j] = minGlobalCost + distFn.calcDistance(tsI.getMeasurementVector(i),
                                                                    tsJ.getMeasurementVector(j));
-            System.out.println(costMatrix[i][j]);
+            //System.out.println(costMatrix[i][j]);
          }  // end for loop
       }  // end for loop
 

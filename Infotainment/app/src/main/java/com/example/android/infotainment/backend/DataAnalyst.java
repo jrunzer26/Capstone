@@ -5,12 +5,9 @@ import android.util.Log;
 
 import com.example.android.infotainment.alert.AlertSystem;
 import com.example.android.infotainment.backend.FastDTW.dtw.FastDTW;
-import com.example.android.infotainment.backend.FastDTW.dtw.WarpPath;
 import com.example.android.infotainment.backend.models.Baselines;
 import com.example.android.infotainment.backend.models.SensorData;
 import com.example.android.infotainment.backend.models.SimData;
-import com.example.android.infotainment.backend.models.Turn;
-import com.example.android.infotainment.backend.models.TurnDataPoint;
 import com.example.android.infotainment.backend.models.UserData;
 import com.example.android.infotainment.backend.models.SlidingWindow;
 import com.example.android.infotainment.backend.FastDTW.dtw.TimeWarpInfo;
@@ -18,7 +15,6 @@ import com.example.android.infotainment.backend.FastDTW.util.DistanceFunction;
 import com.example.android.infotainment.backend.FastDTW.util.DistanceFunctionFactory;
 import com.example.android.infotainment.backend.FastDTW.timeseries.TimeSeries;
 import com.example.android.infotainment.backend.models.VehicleHistory;
-import com.example.android.infotainment.utils.Util;
 
 
 import java.util.ArrayList;
@@ -41,7 +37,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
     //VARIABLES AND STRUCTURES REQUIRED FOR THE ALGORITHM;
     private final int WINDOW = 5; //Size of the sliding window
-    private final int THRESHOLD = 0; //Difference between window and overall needed to trigger DTW
+    //private final int THRESHOLD = 0; //Difference between window and overall needed to trigger DTW
+    private final int THRESHOLD = -1;
 
     private SlidingWindow sw = new SlidingWindow(WINDOW);
     private ArrayList<Double> mean = new ArrayList<Double>();
@@ -51,7 +48,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     public static final DistanceFunction distFn = DistanceFunctionFactory.getDistFnByName("EuclideanDistance");
     private String[] drivingEvent = new String[2];
     private Baselines baselines;
-    private VehicleHistory vsh = new VehicleHistory();
+    private VehicleHistory vehicleHistory;
     private boolean isDoneSetup = false; //baselines.isSetup()
 
     //Variables for alert system the threshholds follow the case statements
@@ -84,6 +81,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         baselines = new Baselines(applicationContext);
         baselines.printBaselines();
         isDoneSetup = baselines.isSetup();
+        vehicleHistory = new VehicleHistory(baselines.maxBaselineSize());
         double[][] testData = {
                 {1},
                 {2, 2},
@@ -101,6 +99,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
         //Util.print2dArray(baselines.getRight(), TAG);
     }
 
+
+
     /**
      * Append the user data to the queue to be processed.
      * @param userData
@@ -108,6 +108,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     @Override
     public void onReceive(UserData userData) {
         userDataLinkedList.add(userData);
+        vehicleHistory.insertData(userData);
     }
 
     /**
@@ -132,8 +133,10 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 step1_HeartRateDeviations(sensorData, counter);
 
                 Log.i(" isDone: ", isDoneSetup + "");
-                if(isDoneSetup && step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() -1))) {
-                    alertCheck(step3_GetMinSimilarity(baselines, vsh));
+                Log.i(" hasEnoughData: ", vehicleHistory.hasEnoughData() +"");
+                Log.i(" hrCompare", step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() -1)) + "");
+                if(isDoneSetup && step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() -1)) && vehicleHistory.hasEnoughData()) {
+                    alertCheck(step3_GetMinSimilarity(baselines, vehicleHistory));
                 } else { //Setup not done, or no deviation
                     //Record to the database
                 }
@@ -203,6 +206,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         double rollingStdDev = 0;
         sw.add(sensorData.getHeartRate());
         mean.add(findMean(sensorData.getHeartRate()));
+        Log.i("sensor data", sensorData.getHeartRate()+"");
         if(dataCounter == 1){
             stdDev.add(0.0);
         }else {
@@ -217,7 +221,11 @@ public class DataAnalyst extends Thread implements DataReceiver {
     }
 
     private boolean step2_HRComparison(double window, double threshold){
-        return ((window - threshold) > THRESHOLD);
+        Log.i(" window", window+"");
+        Log.i(" threshold", threshold+"");
+        //####################################### UNCOMMENT IN REAL IMPLEMENTATION
+        //return ((window - threshold) > THRESHOLD);
+        return true;
     }
 
     /**
@@ -255,6 +263,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         TimeWarpInfo temp;
         TimeWarpInfo toReturn = null;
         String tempEvent="";
+        Log.i("sHist length: ", sHist.size()+"");
         for (int i = 0; i< events; i++){
             switch (i) {
                 case 0: {
@@ -300,8 +309,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
         double average1;
         double average2;
         for (int i = 0; i < twi.getPath().getTS1().size(); i++){
-            sum1 += (Double)twi.getPath().getTS1().get(i);
-            sum2 += (Double)twi.getPath().getTS2().get(i);
+            sum1 += (double)twi.getPath().getTS1().get(i);
+            sum2 += (double)twi.getPath().getTS2().get(i);
         }
         average1 = (sum1/twi.getPath().getTS1().size());
         average2 = (sum2/twi.getPath().getTS2().size());
