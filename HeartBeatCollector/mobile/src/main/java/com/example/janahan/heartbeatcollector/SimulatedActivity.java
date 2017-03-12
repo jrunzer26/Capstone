@@ -100,7 +100,7 @@ public class SimulatedActivity extends Activity{
                 }
 
             }
-        }, 1000, 1000);
+        }, 1000, 100);
 
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -146,17 +146,26 @@ public class SimulatedActivity extends Activity{
      * Looks for the server in a list of paired bluetooth on that device
      */
     public void setup() {
+        int size = 0;
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
-        BluetoothDevice device;
+
+        BluetoothDevice device = null;
         if(pairedDevices.size() > 0) {
             for (BluetoothDevice dev: pairedDevices) {
+                size++;
                 device = dev;
                 if(device.getName().equals("Jason R (Galaxy Tab4)")){
                     myThreadConnectBTdevice = new ThreadConnectBTdevice(device, myUUID);
                     myThreadConnectBTdevice.start();
                     break;
+                } else if(size == pairedDevices.size()) {
+                    myThreadConnectBTdevice = new ThreadConnectBTdevice(device, myUUID);
+                    myThreadConnectBTdevice.start();
                 }
             }
+        } else {
+            myThreadConnectBTdevice = new ThreadConnectBTdevice(device, myUUID);
+            myThreadConnectBTdevice.start();
         }
     }
 }

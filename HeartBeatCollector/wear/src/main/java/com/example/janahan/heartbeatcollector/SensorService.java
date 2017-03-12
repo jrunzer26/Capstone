@@ -46,13 +46,13 @@ public class SensorService extends Service implements SensorEventListener {
                                 public void run() {
                                     mSensorM.registerListener(SensorService.this, mHeartrateS, SensorManager.SENSOR_DELAY_NORMAL);
                                     try {
-                                        Thread.sleep(measurementDuration * 1000);
+                                        Thread.sleep(measurementDuration * 100);
                                     } catch (InterruptedException e) {
                                         Log.e(TAG, "Interrupted while waitting to unregister Heartrate Sensor");
                                     }
                                     mSensorM.unregisterListener(SensorService.this, mHeartrateS);
                                 }
-                            }, 3, measurementDuration + measurementBreak, TimeUnit.SECONDS);
+                            }, 3, measurementDuration, TimeUnit.MILLISECONDS);
 
                 } else {
                     Log.d(TAG, "No Heartrate Sensor found");

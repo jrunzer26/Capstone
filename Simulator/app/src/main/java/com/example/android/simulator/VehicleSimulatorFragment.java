@@ -129,7 +129,7 @@ public class VehicleSimulatorFragment extends Fragment {
             public void run() {
                 updateConnection(view);
             }
-        }, 2000, 1000);
+        }, 2000, REFRESH_RATE);
 
         seekBarDeg.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
             /**
