@@ -49,11 +49,29 @@ public class DataAnalyst extends Thread implements DataReceiver {
     public static final int radius = 30;
     public static final DistanceFunction distFn = DistanceFunctionFactory.getDistFnByName("EuclideanDistance");
     private String[] drivingEvent = new String[2];
-    private int[] eventCounter = new int[6];
     private Baselines baselines;
     private VehicleHistory vsh = new VehicleHistory();
     private final boolean isDoneSetup = false; //baselines.isSetup()
 
+    //Variables for alert system the threshholds follow the case statements
+    private final int FATAL_THRESHHOLD[] ={
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+    };
+    private final int WARNING_THRESHHOLD [] ={
+            500,
+            500,
+            500,
+            500,
+            500,
+            500
+    };
+    private int [] repeatSevere = new int [6];
+    private int[] eventCounter = new int[6];
     /**
      * Analyses data coming in from the data parser and alerts the user.
      * @param applicationContext the current context
@@ -70,6 +88,10 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 {3, 3, 3},
                 {4, 4, 4, 3}
         };
+        for(int i = 0; i < 6; i++){
+            repeatSevere [i] = 1;
+            eventCounter [i] = 0;
+        }
         //double [] test1 = {1,1};
         //DBA.DBA(test1, testData);
        // Util.printArray(test1, "ALL DBA");
@@ -145,10 +167,10 @@ public class DataAnalyst extends Thread implements DataReceiver {
                     // Create an alert if the user is driving aggressively.
                     if (simData.getSpeed() > 120 && turn != null && turn.doubleValue() >= 15) {
                         alertSystem.alert(applicationContext, AlertSystem.ALERT_TYPE_FATAL,
-                                "Aggressive Driving Detected");
+                                1);
                     } else if (simData.getSpeed() > 120) {
                         alertSystem.alert(applicationContext, AlertSystem.ALERT_TYPE_WARNING,
-                                "Be careful!");
+                                2);
                     }
                 } else if (deviation>=10 && deviation <20) {
                     System.out.println("Moderate deviation occurred");
@@ -318,21 +340,37 @@ public class DataAnalyst extends Thread implements DataReceiver {
     }
 
     private void alertCheck(String event){
+        int incomingEvent = -1;
         if (event.equals("accel")){
             eventCounter[0]++;
+            incomingEvent = 0;
         } else if (event.equals("brake")) {
             eventCounter[1]++;
+            incomingEvent = 1;
         } else if (event.equals("cruise")) {
             eventCounter[2]++;
+            incomingEvent = 2;
         } else if (event.equals("speeding")) {
             eventCounter[3]++;
+            incomingEvent = 3;
         } else if (event.equals("left")) {
             eventCounter[4]++;
+            incomingEvent = 4;
         } else if (event.equals("right")) {
             eventCounter[5]++;
+            incomingEvent = 5;
         } else {
             System.out.println("ERROR IN ALERTCHECK: String invalid!");
+            return ;
         }
+        System.out.println("------------------------EVENT: " + incomingEvent + " " + eventCounter[incomingEvent]);
+        if(eventCounter[incomingEvent] >= FATAL_THRESHHOLD[incomingEvent] * repeatSevere[incomingEvent] ){
+            repeatSevere[incomingEvent]++;
+            alertSystem.alert(applicationContext, alertSystem.ALERT_TYPE_FATAL, incomingEvent);
+        }else if(eventCounter[incomingEvent] >= WARNING_THRESHHOLD[incomingEvent]){
+            alertSystem.alert(applicationContext, alertSystem.ALERT_TYPE_WARNING, incomingEvent);
+        }
+
     }
 
 }
