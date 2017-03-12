@@ -6,11 +6,18 @@ import android.util.Log;
 import com.example.android.infotainment.backend.BaselineDatabaseHelper;
 import com.example.android.infotainment.backend.DBA;
 import com.example.android.infotainment.backend.DataParser;
+import com.example.android.infotainment.backend.FastDTW.dtw.DTW;
+import com.example.android.infotainment.backend.FastDTW.dtw.FastDTW;
+import com.example.android.infotainment.backend.FastDTW.timeseries.TimeSeries;
+import com.example.android.infotainment.backend.FastDTW.util.DistanceFunction;
+import com.example.android.infotainment.backend.FastDTW.util.DistanceFunctionFactory;
 import com.example.android.infotainment.backend.FastDTW.dtw.TimeWarpInfo;
+
 import com.example.android.infotainment.backend.UserDatabaseHelper;
 import com.example.android.infotainment.utils.Util;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Created by 100514374 on 2/17/2017.
@@ -47,7 +54,10 @@ public class Baselines {
     // baseline db helpers
     private BaselineDatabaseHelper baselineDatabaseHelper;
     private UserDatabaseHelper userDatabaseHelper;
-
+    // DTW variables
+    private FastDTW dtw = new FastDTW();
+    private final int RADIUS = 30;
+    private final DistanceFunction distFn = DistanceFunctionFactory.getDistFnByName("EuclideanDistance");
 
     /**
      * Creates the Baslines from the db or from previous trip data.
@@ -237,6 +247,7 @@ public class Baselines {
             averageSpeedSequence = rightTurnBaseline[1];
         }
         if (totalTurns > 0) {
+            // ############################### NEED DTW HERE ####################################
             // convert the turns into the 2d sequence arrays
             for (int i = 0; i < turns.size(); i++) {
                 Turn turn = turns.get(i);
