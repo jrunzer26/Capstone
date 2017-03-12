@@ -76,7 +76,7 @@ public class Baselines {
         accelFromSpeedBaseline = new double[0];
         accelNearStopBaseline = new double[0];
         brakeBaseline = new double[0];
-        speedingBaseline = new double[0];
+        cruiseBaseline = new double[0];
         speedingBaseline = new double[0];
     }
 
