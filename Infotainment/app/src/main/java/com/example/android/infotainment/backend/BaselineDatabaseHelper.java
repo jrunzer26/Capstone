@@ -9,13 +9,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.example.android.infotainment.backend.FastDTW.timeseries.PAA;
 import com.example.android.infotainment.backend.models.Turn;
 import com.example.android.infotainment.backend.models.TurnDataPoint;
 import com.example.android.infotainment.backend.models.UserData;
-
-
-import java.util.ArrayList;
 
 /**
  * Created by 100520993 on 1/30/2017.
@@ -47,7 +43,8 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
                 "turnID int,                           " +
                 "speed single,                         " +
                 "steering single,                      " +
-                "flag int                              " +
+                "flag int,                             " +
+                "multi int                             " +
                 ")                                     ";
         db.execSQL("CREATE TABLE " + RIGHT_TURN + turnSQLAttributes);
         db.execSQL("CREATE TABLE " + LEFT_TURN + turnSQLAttributes);
@@ -55,7 +52,8 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
                 "id integer PRIMARY KEY AUTOINCREMENT, " +
                 "turnID int,                           " +
                 "speed single,                         " +
-                "flag int                              " +
+                "flag int,                             " +
+                "multi int                             " +
                 ")                                     ";
         db.execSQL("CREATE TABLE " + ACCEL_FROM_SPEED + accelerate_brakingSQLAttributes);
         db.execSQL("CREATE TABLE " + ACCEL_NEAR_STOPTABLE + accelerate_brakingSQLAttributes);
@@ -64,17 +62,15 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
                 "id integer PRIMARY KEY AUTOINCREMENT, " +
                 "turnID int,                           " +
                 "steering single,                      " +
-                "flag int                              " +
+                "flag int,                             " +
+                "multi int                             " +
                 ")                                     ";
         db.execSQL("CREATE TABLE " + CRUISE_TABLE + cruisingSQLQAttributes);
         String speedingSQLAttributes = "( " +
                 "id integer PRIMARY KEY AUTOINCREMENT, " +
                 "turnID int,                           " +
-                "speed single,                         " +
-                "flag int,                             " +
-                "speedLimit int,                       " +
                 "devPercent double,                    " +
-                "devValue double                       " +
+                "multi int                             " +
                 ")                                     ";
         db.execSQL("CREATE TABLE " + SPEEDING_TABLE + speedingSQLAttributes);
     }
@@ -97,7 +93,7 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
      * Saves a turn in the database.
      * @param turn the turn to save in the databse.
      */
-    public void saveTurn(Turn turn) {
+    public void saveTurn(Turn turn, int multi) {
         ContentValues values;
         // user specific data
         SQLiteDatabase db = getWritableDatabase();
@@ -108,6 +104,7 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
             values.put("turnID", turn.getId());
             values.put("speed", point.getSpeed());
             values.put("steering", point.getSteering());
+            values.put("multi", multi);
             db.insert(tableName, null, values);
         }
         db.close();
@@ -126,8 +123,6 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         table = getTurnTableName(turnType);
         // select all the turns
         Cursor cursor;
-        String[] columns = {"flag", "speed", "steering"};
-        String selection = "flag = ?";
         try {
             cursor = db.rawQuery("SELECT * from " + table + " where \"flag\" = ?", where);
             //cursor = db.query(table, columns, selection, where, null, null, null);
@@ -141,12 +136,14 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         Turn turn;
         int previousTurnID = -1;
         turn = new Turn(turnType, previousTurnID, flag);
+        int multi = 0;
         while (!cursor.isAfterLast()) {
             // add the data to the object
             int turnID = cursor.getInt(cursor.getColumnIndex("turnID"));
             int queryFlag = cursor.getInt(cursor.getColumnIndex("flag"));
             double speed = cursor.getDouble(cursor.getColumnIndex("speed"));
             double steering = cursor.getDouble(cursor.getColumnIndex("steering"));
+            multi = cursor.getInt(cursor.getColumnIndex("multi"));
             // add the point to the turn
             TurnDataPoint dataPoint = new TurnDataPoint(speed, steering);
             turn.addTurnPoint(dataPoint);
@@ -154,6 +151,7 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
             cursor.moveToNext();
         }
         cursor.close();
+        turn.setMulti(multi);
         return turn;
     }
 
@@ -179,7 +177,7 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
      * @return the table name
      */
     @NonNull
-    private String getTurnTableName(int turnType) {
+    public String getTurnTableName(int turnType) {
         String table;
         if (turnType == Turn.TURN_LEFT)
             table = LEFT_TURN;
@@ -230,10 +228,10 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         String table;
         table = getAccelerationTableName(flag);
         // select all the turns
-        return getSpeedsFromTable(table);
+        return getDoubleArrayFromTable(table, "speed");
     }
 
-    private double[] getSpeedsFromTable(String table) {
+    private double[] getDoubleArrayFromTable(String table, String col) {
         String [] where = {};
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor;
@@ -250,7 +248,8 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         int count = 0;
         while (!cursor.isAfterLast()) {
             // add the data to the object
-            double speed = cursor.getDouble(cursor.getColumnIndex("speed"));
+            double speed = cursor.getDouble(cursor.getColumnIndex(col));
+
             // add the point to the turn
             contents[count] = speed;
             count++;
@@ -261,12 +260,37 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         return contents;
     }
 
+    public int getMultiplicityFromTable(String tableName) {
+        String [] where = {};
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor;
+        int multi = 0;
+        try {
+            cursor = db.rawQuery("SELECT * from " + tableName, where);
+        } catch (SQLiteException e) {
+            e.printStackTrace();
+            onCreate(getWritableDatabase());
+            cursor = db.rawQuery("SELECT * from " + tableName, where);
+        }
+        cursor.moveToFirst();
+        int size = cursor.getCount();
+        double [] contents = new double[size];
+        int count = 0;
+        if(!cursor.isAfterLast()) {
+            // add the data to the object
+            multi = cursor.getInt(cursor.getColumnIndex("multi"));
+        }
+        cursor.close();
+        return multi;
+    }
+
+
     /**
      * Overwrites the acceelration baseline.
      * @param speeds the data to write.
      * @param flag the flag for the specific table.
      */
-    public void overWriteAccelerationBaseline(double[] speeds, int flag) {
+    public void overWriteAccelerationBaseline(double[] speeds, int flag, int multi) {
         String tableName = getAccelerationTableName(flag);
         clearTable(tableName);
         SQLiteDatabase db = getWritableDatabase();
@@ -274,6 +298,7 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         for (double data : speeds) {
             values = new ContentValues();
             values.put("speed", data);
+            values.put("multi", multi);
             db.insert(tableName, null, values);
         }
         db.close();
@@ -293,7 +318,7 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
       * @param flag the flag of the accel table.
      * @return the table name.
      */
-    private String getAccelerationTableName(int flag) {
+    public String getAccelerationTableName(int flag) {
         if (flag == UserData.FLAG_ACCELERATION_FROM_SPEED) {
             return ACCEL_FROM_SPEED;
         } else if (flag == UserData.FLAG_ACCELERATION_NEAR_STOP) {
@@ -309,16 +334,22 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
      * Overwrites te current brake baseline.
      * @param speeds the speeds to add to the db
      */
-    public void overWriteBrakingBaseline(double[] speeds) {
+    public void overWriteBrakingBaseline(double[] speeds, int multi) {
         clearTable(BRAKE_TABLE);
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values;
         for (double data : speeds) {
             values = new ContentValues();
             values.put("speed", data);
+            values.put("multi", multi);
             db.insert(BRAKE_TABLE, null, values);
         }
         db.close();
+    }
+
+
+    public int getBrakeMulti() {
+        return getMultiplicityFromTable(BRAKE_TABLE);
     }
 
     /**
@@ -326,6 +357,52 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
      * @return the data.
      */
     public double[] getBrakingBaseline() {
-        return getSpeedsFromTable(BRAKE_TABLE);
+        return getDoubleArrayFromTable(BRAKE_TABLE, "speed");
+    }
+
+    // ######################### Cruising Baselines #########################
+
+    public double[] getCruisingBaseline() {
+        return getDoubleArrayFromTable(CRUISE_TABLE, "steering");
+    }
+
+    public void overWriteCruisingBaseline(double[] steering, int multi) {
+        clearTable(CRUISE_TABLE);
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values;
+        for (double data : steering) {
+            values = new ContentValues();
+            values.put("steering", data);
+            values.put("multi", multi);
+            db.insert(CRUISE_TABLE, null, values);
+        }
+        db.close();
+    }
+
+    public int getCruiseMulti() {
+        return getMultiplicityFromTable(CRUISE_TABLE);
+    }
+
+    // ######################### Speeding Baselines #########################
+
+    public double[] getSpeedingBaseline() {
+        return getDoubleArrayFromTable(SPEEDING_TABLE, "devPercent");
+    }
+
+    public void overWriteSpeedingBaseline(double[] devPercents, int multi) {
+        clearTable(SPEEDING_TABLE);
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values;
+        for (double data : devPercents) {
+            values = new ContentValues();
+            values.put("devPercent", data);
+            values.put("multi", multi);
+            db.insert(SPEEDING_TABLE, null, values);
+        }
+        db.close();
+    }
+
+    public int getSpeedingMulti() {
+        return getMultiplicityFromTable(SPEEDING_TABLE);
     }
 }

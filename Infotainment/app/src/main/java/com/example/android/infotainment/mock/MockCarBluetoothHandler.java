@@ -4,24 +4,16 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 
 import com.example.android.infotainment.backend.DataParser;
-import com.example.android.infotainment.backend.models.SensorData;
 import com.example.android.infotainment.backend.models.SimData;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.InputStreamReader;
-import java.io.IOException;
+
 import android.content.res.AssetManager;
 
 
@@ -69,6 +61,7 @@ public class MockCarBluetoothHandler {
         simDatas = new ArrayList<>();
 
 
+        /*
         try{
             String line;
 
@@ -86,6 +79,8 @@ public class MockCarBluetoothHandler {
 
         }
 
+*/
+        //constantSpeed(50, 10);
         /*
 
         SimData speed70 = new SimData();
@@ -101,20 +96,48 @@ public class MockCarBluetoothHandler {
          */
 
         /* ACCELERATION TESTS */
-        //fromNearStopAccelTest();
-        //fromSpeedAccelTest();
+        fromNearStopAccelTest();
+        fromSpeedAccelTest();
         //fromSpeedAccelRandomLengths();
-        slowAccelerationTest();
+        //slowAccelerationTest();
 
 
         /* Steering Tests */
-        //steeringTest();
+        //steeringLeftTest();
+        //steeringRightTest();
 
         /* Braking Tests */
         //brakingTest();
+        //brakingTest2();
+
+        /* Cruising Tests */
+        //crusingTest();
         //constantSpeed(100, 10);
     }
 
+
+    private void crusingTest() {
+        for(int i = 0; i < 10; i++) {
+            SimData simData = new SimData();
+            simData.setSpeed(60);
+            simData.setSpeedLimit(40);
+            simDatas.add(simData);
+        }
+        for (int i = 0; i < 10; i++) {
+            SimData simData = new SimData();
+            simData.setSpeed(60);
+            simData.setSteering(i);
+            simData.setSpeedLimit(50);
+            simDatas.add(simData);
+        }
+        for (int i = 9; i >= 0; i--) {
+            SimData simData = new SimData();
+            simData.setSpeed(60);
+            simData.setSteering(i);
+            simDatas.add(simData);
+        }
+        constantSpeed(60, 10);
+    }
     private void brakingTest() {
         constantSpeed(60, 10);
         for (int i = 0; i < 10; i++) {
@@ -123,13 +146,48 @@ public class MockCarBluetoothHandler {
             simDatas.add(simData);
         }
     }
-    private void steeringTest() {
-        for (int i = 0; i < 30; i++) {
+
+    private void brakingTest2() {
+        constantSpeed(100, 10);
+        for (int i = 0; i < 20; i++) {
             SimData simData = new SimData();
-            simData.setSteering(-40 - i * 3);
-            simData.setSpeed(200);
+            simData.setSpeed(100 - i * 8);
             simDatas.add(simData);
         }
+    }
+
+    private void steeringLeftTest() {
+        SimData simData3 = new SimData();
+        simData3.setSteering(0);
+        simData3.setSpeed(100);
+        simDatas.add(simData3);
+        for (int i = 0; i < 30; i++) {
+            SimData simData2 = new SimData();
+            simData2.setSteering(-40 - i * 3);
+            simData2.setSpeed(100);
+            simDatas.add(simData2);
+        }
+        SimData simData = new SimData();
+        simData.setSteering(0);
+        simData.setSpeed(100);
+        simDatas.add(simData);
+    }
+
+    private void steeringRightTest() {
+        SimData simData = new SimData();
+        simData.setSteering(0);
+        simData.setSpeed(100);
+        simDatas.add(simData);
+        for (int i = 0; i < 30; i++) {
+            SimData simData2 = new SimData();
+            simData2.setSteering(40 + i * 3);
+            simData2.setSpeed(100);
+            simDatas.add(simData2);
+        }
+        SimData simData3 = new SimData();
+        simData3.setSteering(0);
+        simData3.setSpeed(100);
+        simDatas.add(simData3);
     }
 
     private void fromSpeedAccelRandomLengths() {
