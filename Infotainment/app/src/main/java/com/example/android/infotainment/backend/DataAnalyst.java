@@ -125,33 +125,16 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 SensorData sensorData = userData.getSensorData();
                 SimData simData = userData.getSimData();
 
-
-            /*
-
                 //ALGORITHM STARTS HERE
                 step1_HeartRateDeviations(sensorData, counter);
 
-
+                Log.i(" isDone: ", isDoneSetup + "");
                 if(isDoneSetup && step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() -1))) {
                     alertCheck(step3_GetMinSimilarity(baselines, vsh));
-                    for (int event = 0; event<eventCounter.length; event++){
-                        if (eventCounter[event] %2 == 0 && eventCounter[event] <5){
-                            //Mild system alert
-
-                        } else if (eventCounter[event]>=5){
-                            //Severe system alert.
-
-                        }
-                    }
                 } else { //Setup not done, or no deviation
                     //Record to the database
                 }
 
-
-
-
-
-    */
                 // TODO: Remove these variables, use the simData object
                 Double turn = null;
                 if (steering == null) {
