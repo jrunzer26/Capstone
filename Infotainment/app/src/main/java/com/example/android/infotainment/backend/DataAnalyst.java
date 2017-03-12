@@ -52,7 +52,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private String[] drivingEvent = new String[2];
     private Baselines baselines;
     private VehicleHistory vsh = new VehicleHistory();
-    private final boolean isDoneSetup = false; //baselines.isSetup()
+    private boolean isDoneSetup = false; //baselines.isSetup()
 
     //Variables for alert system the threshholds follow the case statements
     private final int FATAL_THRESHHOLD[] ={
@@ -83,6 +83,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         userDataLinkedList = new ConcurrentLinkedQueue<>();
         baselines = new Baselines(applicationContext);
         baselines.printBaselines();
+        isDoneSetup = baselines.isSetup();
         double[][] testData = {
                 {1},
                 {2, 2},

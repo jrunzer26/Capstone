@@ -61,12 +61,12 @@ public class MockMainActivity extends AppCompatActivity {
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < 10; i++)
                     mockCarBluetoothHandler.run();
-                for(int i = 0; i < 5; i++)
+                for(int i = 0; i < 10; i++)
                     mockWatchBluetoothHandler.run();
             }
-        }, 0, 5000);
+        }, 0, 1000);
     }
 
     /**
