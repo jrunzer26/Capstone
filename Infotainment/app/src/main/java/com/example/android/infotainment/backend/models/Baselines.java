@@ -77,6 +77,25 @@ public class Baselines {
         } // else : baselines are all size 0, not enough data
     }
 
+    public int maxBaselineSize() {
+        int max = 0;
+        if (rightTurnBaseline.length > max)
+            max = rightTurnBaseline.length;
+        if (leftTurnBaseline.length > max)
+            max = leftTurnBaseline.length;
+        if (accelFromSpeedBaseline.length > max)
+            max = accelFromSpeedBaseline.length;
+        if (brakeBaseline.length > max)
+            max = brakeBaseline.length;
+        if (cruiseBaseline.length > max)
+            max = cruiseBaseline.length;
+        if(accelNearStopBaseline.length > max)
+            max = accelNearStopBaseline.length;
+        if(speedingBaseline.length > max)
+            max = speedingBaseline.length;
+        return max;
+    }
+
     /**
      * Initializes the baseline arrays with size 0.
      */
@@ -270,8 +289,9 @@ public class Baselines {
                     steeringSequence[i] = new double[baselinePoints.size()];
                     speedSequence[i] = new double[baselinePoints.size()];
                     for (int j = 0; j < baselinePoints.size(); j++) {
-                        steeringSequence[i][j] = baselinePoints.get(i).getSteering();
-                        speedSequence[i][j] = baselinePoints.get(i).getSpeed();
+
+                        steeringSequence[i][j] = baselinePoints.get(j).getSteering();
+                        speedSequence[i][j] = baselinePoints.get(j).getSpeed();
                     }
                 }
                 // init the average sequence from baseline

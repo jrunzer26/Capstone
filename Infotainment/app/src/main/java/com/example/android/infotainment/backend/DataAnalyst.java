@@ -5,12 +5,9 @@ import android.util.Log;
 
 import com.example.android.infotainment.alert.AlertSystem;
 import com.example.android.infotainment.backend.FastDTW.dtw.FastDTW;
-import com.example.android.infotainment.backend.FastDTW.dtw.WarpPath;
 import com.example.android.infotainment.backend.models.Baselines;
 import com.example.android.infotainment.backend.models.SensorData;
 import com.example.android.infotainment.backend.models.SimData;
-import com.example.android.infotainment.backend.models.Turn;
-import com.example.android.infotainment.backend.models.TurnDataPoint;
 import com.example.android.infotainment.backend.models.UserData;
 import com.example.android.infotainment.backend.models.SlidingWindow;
 import com.example.android.infotainment.backend.FastDTW.dtw.TimeWarpInfo;
@@ -18,7 +15,6 @@ import com.example.android.infotainment.backend.FastDTW.util.DistanceFunction;
 import com.example.android.infotainment.backend.FastDTW.util.DistanceFunctionFactory;
 import com.example.android.infotainment.backend.FastDTW.timeseries.TimeSeries;
 import com.example.android.infotainment.backend.models.VehicleHistory;
-import com.example.android.infotainment.utils.Util;
 
 
 import java.util.ArrayList;
@@ -51,7 +47,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     public static final DistanceFunction distFn = DistanceFunctionFactory.getDistFnByName("EuclideanDistance");
     private String[] drivingEvent = new String[2];
     private Baselines baselines;
-    private VehicleHistory vsh = new VehicleHistory();
+    private VehicleHistory vehicleHistory;
     private boolean isDoneSetup = false; //baselines.isSetup()
 
     //Variables for alert system the threshholds follow the case statements
@@ -84,6 +80,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         baselines = new Baselines(applicationContext);
         baselines.printBaselines();
         isDoneSetup = baselines.isSetup();
+        vehicleHistory = new VehicleHistory(baselines.maxBaselineSize());
         double[][] testData = {
                 {1},
                 {2, 2},
@@ -101,6 +98,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
         //Util.print2dArray(baselines.getRight(), TAG);
     }
 
+
+
     /**
      * Append the user data to the queue to be processed.
      * @param userData
@@ -108,6 +107,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     @Override
     public void onReceive(UserData userData) {
         userDataLinkedList.add(userData);
+        vehicleHistory.insertData(userData);
     }
 
     /**
@@ -132,8 +132,9 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 step1_HeartRateDeviations(sensorData, counter);
 
                 Log.i(" isDone: ", isDoneSetup + "");
-                if(isDoneSetup && step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() -1))) {
-                    alertCheck(step3_GetMinSimilarity(baselines, vsh));
+                Log.i(" hasEnoughData: ", vehicleHistory.hasEnoughData() +"");
+                if(isDoneSetup && step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() -1)) && vehicleHistory.hasEnoughData()) {
+                    alertCheck(step3_GetMinSimilarity(baselines, vehicleHistory));
                 } else { //Setup not done, or no deviation
                     //Record to the database
                 }
@@ -255,6 +256,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         TimeWarpInfo temp;
         TimeWarpInfo toReturn = null;
         String tempEvent="";
+        Log.i("sHist length: ", sHist.size()+"");
         for (int i = 0; i< events; i++){
             switch (i) {
                 case 0: {
