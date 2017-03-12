@@ -132,6 +132,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 //ALGORITHM STARTS HERE
                 step1_HeartRateDeviations(sensorData, counter);
 
+
                 Log.i(" isDone: ", isDoneSetup + "");
                 Log.i(" hasEnoughData: ", vehicleHistory.hasEnoughData() +"");
                 Log.i(" hrCompare", step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() -1)) + "");
