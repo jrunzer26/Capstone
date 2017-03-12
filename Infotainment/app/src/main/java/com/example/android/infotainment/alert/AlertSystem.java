@@ -21,6 +21,13 @@ public class AlertSystem {
     private final int ALERT_TIME = 10000; // seconds
     private SoundPool soundPool;
     private int fatalSound;
+    private final String [] MESSAGES_DRIVING = {
+            "braking",
+            "cruise",
+            "speeding",
+            "right",
+            "left"
+    };
 
     /**
      * Creates an alert system to manage the alerts.
@@ -40,15 +47,21 @@ public class AlertSystem {
      */
     public void alert(Context context, int type) {
         String message =  context.getResources().getString(R.string.alertSystem_default_warning);
-        alert(context, type, message);
+        alert(context, type, -1);
     }
     /**
      * Alerts the driver.
      * @param context the current context
      * @param type the type of warning
-     * @param message
+     * @param incomingEvent the type of Event coming in
      */
-    public void alert(final Context context, int type, String message){
+    public void alert(final Context context, int type, int incomingEvent){
+        String message;
+        try{
+            message = "Attention weird driving detected in " + MESSAGES_DRIVING[incomingEvent];
+        }catch(ArrayIndexOutOfBoundsException e){
+            message = "WARNING";
+        }
         if (currentAlert == null) {
             currentAlert = new TopAlert(context, type, message);
             currentAlert.show();
@@ -76,7 +89,7 @@ public class AlertSystem {
      */
     public void alert(Context context, int type, String message, int heartRate) {
         // TODO: 10/31/2016 alert system
-         //TODO: ???????
+        //TODO: ???????
     }
 
     /**
@@ -92,7 +105,7 @@ public class AlertSystem {
          * runs in the background and decrements the time of the alert.
          */
 
-         // TODO: Change sleep to a constant, update the values to match more frequent polling
+        // TODO: Change sleep to a constant, update the values to match more frequent polling
         @Override
         public void run() {
             super.run();

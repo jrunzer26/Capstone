@@ -103,15 +103,15 @@ public class MockCarBluetoothHandler {
 
 
         /* Steering Tests */
-        //steeringLeftTest();
-        //steeringRightTest();
+        steeringLeftTest();
+        steeringRightTest();
 
         /* Braking Tests */
-        //brakingTest();
+        brakingTest();
         //brakingTest2();
 
         /* Cruising Tests */
-        //crusingTest();
+        crusingTest();
         //constantSpeed(100, 10);
     }
 
