@@ -1,13 +1,14 @@
 package com.example.android.infotainment.backend.models;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by 100514374 on 3/12/2017.
  */
 
 public class MinData {
-    private ArrayList vData;
+    private List vData;
     private double[] baseline;
     private String event;
 
@@ -15,7 +16,7 @@ public class MinData {
         this.baseline = baseline;
     }
 
-    public void setVData(ArrayList data){
+    public void setVData(List data){
         vData = data;
     }
 
@@ -27,11 +28,15 @@ public class MinData {
         return baseline;
     }
 
-    public ArrayList getVData(){
+    public List getVData(){
         return vData;
     }
 
     public String getEvent(){
         return event;
+    }
+
+    public String toString() {
+        return event + " baseline size: " + baseline.length + " vData size: " + vData.size();
     }
 }

@@ -95,7 +95,30 @@ public class MockCarBluetoothHandler {
 
          */
 
+        //baselineInit();
+
         /* ACCELERATION TESTS */
+        //fromNearStopAccelTest();
+        //fromSpeedAccelTest();
+        //fromSpeedAccelRandomLengths();
+        //slowAccelerationTest();
+
+
+        /* Steering Tests */
+        //steeringLeftTest();
+        //steeringRightTest();
+
+        /* Braking Tests */
+        brakingTest();
+        //brakingTest2();
+
+        /* Cruising Tests */
+        //crusingTest();
+        //constantSpeed(100, 10);
+    }
+
+    private void baselineInit() {
+                /* ACCELERATION TESTS */
         fromNearStopAccelTest();
         fromSpeedAccelTest();
         //fromSpeedAccelRandomLengths();
@@ -108,11 +131,9 @@ public class MockCarBluetoothHandler {
 
         /* Braking Tests */
         brakingTest();
-        //brakingTest2();
 
         /* Cruising Tests */
         crusingTest();
-        //constantSpeed(100, 10);
     }
 
 

@@ -5,6 +5,7 @@ import android.util.Log;
 import com.example.android.infotainment.backend.models.UserData;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by 100520993 on 2/19/2017.
@@ -62,5 +63,13 @@ public class Util {
             stringBuilder.append("\n");
         }
         Log.i(tag, stringBuilder.toString());
+    }
+
+    public static void printList(List vData, String s) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for(Object i : vData) {
+            stringBuilder.append("\t").append(i);
+        }
+        Log.i(s, stringBuilder.toString());
     }
 }

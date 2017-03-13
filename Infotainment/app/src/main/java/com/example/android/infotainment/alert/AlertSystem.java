@@ -22,6 +22,7 @@ public class AlertSystem {
     private SoundPool soundPool;
     private int fatalSound;
     private final String [] MESSAGES_DRIVING = {
+            "accel",
             "braking",
             "cruise",
             "speeding",
