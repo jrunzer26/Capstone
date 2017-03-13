@@ -40,6 +40,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private Queue<UserData> userDataLinkedList;
     private int userAverage = 70;
     private Double steering;
+    private final int SIMILARITY_UP_BOUND = 1000;
 
     //VARIABLES AND STRUCTURES REQUIRED FOR THE ALGORITHM;
     private final int WINDOW = 50; //Size of the sliding window
@@ -320,7 +321,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
             }
             //Log.i(" minSingle " + i, sHist.size() + " " + baseline.length);
             temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(baseline), RADIUS, distFn);
-            if (temp.getDistance() < 1000) {
+            if (temp.getDistance() <  SIMILARITY_UP_BOUND) {
                 if ((toReturn == null) || temp.getDistance() < toReturn.getDistance()) {
                     toReturn = temp;
                     //Log.i(" toReturn", temp.getPath().toString()+"");
@@ -399,7 +400,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
             avgDistance = (temp[0].getDistance() + temp[1].getDistance())/2;
             Log.i("avg dist", avgDistance + "");
-            if (avgDistance < 1000) {
+            if (avgDistance < SIMILARITY_UP_BOUND) {
                 if ((toReturn[0] == null || toReturn[1] == null) || avgDistance < (toReturn[0].getDistance()+toReturn[1].getDistance())/2) {
                     System.arraycopy(temp, 0, toReturn, 0, 2);
                     Log.i("set md: 1", tempEvent);
