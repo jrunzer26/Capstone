@@ -73,7 +73,7 @@ public class CarBluetoothHandler extends Thread {
                 if(bytes> 0){
                     byte[] bfcopy = new byte[bytes];
                     //  reads the packaged data from the car simulator
-                    for (int i = 0; i < 5; i++) {
+                    for (int i = 0; i < 10; i++) {
                         System.arraycopy(buffer, 0, bfcopy, 0, bytes);
                         ByteArrayInputStream bais = new ByteArrayInputStream(bfcopy);
                         DataInputStream dis = new DataInputStream(bais);

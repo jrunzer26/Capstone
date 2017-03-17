@@ -40,7 +40,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private Queue<UserData> userDataLinkedList;
     private int userAverage = 70;
     private Double steering;
-    private final int SIMILARITY_UP_BOUND = 1000;
+    private final int SIMILARITY_UP_BOUND = 500;
 
     //VARIABLES AND STRUCTURES REQUIRED FOR THE ALGORITHM;
     private final int WINDOW = 50; //Size of the sliding window
@@ -94,12 +94,6 @@ public class DataAnalyst extends Thread implements DataReceiver {
         for(int i = 0; i < md.length; i++) {
             md[i] = new MinData();
         }
-        double[][] testData = {
-                {1},
-                {2, 2},
-                {3, 3, 3},
-                {4, 4, 4, 3}
-        };
         for(int i = 0; i < 6; i++){
             repeatSevere [i] = 1;
             eventCounter [i] = 0;
@@ -154,36 +148,6 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 } else { //Setup not done, or no deviation
                     //Record to the database
                 }
-
-
-                /*
-                // TODO: Remove these variables, use the simData object
-                Double turn = null;
-                if (steering == null) {
-                    steering = simData.getSteering();
-                } else {
-                    turn = calculateTurn(simData.getSteering());
-                }
-                int deviation = determineHRDeviation(sensorData);
-                System.out.println("deviation: " + deviation);
-                if(deviation >= 20) {
-                    //HR Deviation values come from: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2653595/
-                    System.out.println("High deviation occurred");
-                    // Create an alert if the user is driving aggressively.
-                    if (simData.getSpeed() > 120 && turn != null && turn.doubleValue() >= 15) {
-                        alertSystem.alert(applicationContext, AlertSystem.ALERT_TYPE_FATAL,
-                                1);
-                    } else if (simData.getSpeed() > 120) {
-                        alertSystem.alert(applicationContext, AlertSystem.ALERT_TYPE_WARNING,
-                                2);
-                    }
-                } else if (deviation>=10 && deviation <20) {
-                    System.out.println("Moderate deviation occurred");
-                } else {
-                    System.out.println("No deviation occurred");
-                }
-                // TODO: Change to binary conditioning (each bit represents a condition)
-                */
             }
         }
     }
@@ -260,9 +224,12 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
         List<Double> speedHistory = new ArrayList<>();
         for(int i = 0; i < history.getSpeedHistory().size(); i++) {
-            speedHistory.add(history.getSpeedHistory().get(i));
+            try {
+                speedHistory.add(history.getSpeedHistory().get(i));
+            } catch(IndexOutOfBoundsException e) {
+                speedHistory.add(history.getSpeedHistory().get(i-1));
+            }
         }
-
         List<Double> turningHistory = new ArrayList<>(history.getTurningHistory());
 
         minSingle = minSim_singleDimension(b, speedHistory, SINGLE_DIM_EVENTS, dtw);
@@ -315,12 +282,17 @@ public class DataAnalyst extends Thread implements DataReceiver {
                     tempEvent="brake";
                     break;
                 }
+                case 2: {
+                    baseline = b.getNearStopAccel();
+                    tempEvent="accelNearStop";;
+                }
                 default: {
                     continue;
                 }
             }
             //Log.i(" minSingle " + i, sHist.size() + " " + baseline.length);
             temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(baseline), RADIUS, distFn);
+            Log.i(" dtw", tempEvent + " sim: " + temp.getDistance());
             if (temp.getDistance() <  SIMILARITY_UP_BOUND) {
                 if ((toReturn == null) || temp.getDistance() < toReturn.getDistance()) {
                     toReturn = temp;
@@ -329,13 +301,14 @@ public class DataAnalyst extends Thread implements DataReceiver {
                     minDataSingleDim.setEvent(tempEvent);
                     minDataSingleDim.setVData(sHist);
                     drivingEvent[0]= tempEvent;
+                    Log.i("event changed", tempEvent);
                     //Log.i(" in if", minDataSingleDim.getBaseline().length+"" + " event: " + tempEvent);
                 }
             }
             //Log.i(" print: " + i, minDataSingleDim.toString());
             //Log.i(" toReturn", toReturn.getPath().toString()+"");
         }
-        Log.i(" toReturn FINAL", toReturn.getPath().toString()+"");
+        //Log.i(" toReturn FINAL", toReturn.getPath().toString()+"");
         return toReturn;
     }
 
@@ -402,6 +375,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
             Log.i("avg dist", avgDistance + "");
             if (avgDistance < SIMILARITY_UP_BOUND) {
                 if ((toReturn[0] == null || toReturn[1] == null) || avgDistance < (toReturn[0].getDistance()+toReturn[1].getDistance())/2) {
+
                     System.arraycopy(temp, 0, toReturn, 0, 2);
                     Log.i("set md: 1", tempEvent);
                     md[0].setBaseline(speedBaseline);

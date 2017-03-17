@@ -37,7 +37,8 @@ public class MockWatchBluetoothHandler {
         sensorDatas = new ArrayList<>();
         AM = mainContext.getAssets();
         try {
-            InputStream is = AM.open("test1.csv");
+            //InputStream is = AM.open("baselineInput.csv");
+            InputStream is = AM.open("brakeInput.csv");
             br= new BufferedReader(new InputStreamReader(is));
         } catch(FileNotFoundException e){
             System.out.println("File not found!\n" + e);

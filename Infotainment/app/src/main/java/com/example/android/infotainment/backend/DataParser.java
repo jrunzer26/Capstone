@@ -23,7 +23,7 @@ public class DataParser {
     private int tripID;
     private Queue<SimData> carData;
     private Queue<SensorData> heartRateData;
-    public static final double pollTimeSeconds = 1; // seconds
+    public static final double pollTimeSeconds = 0.1; // seconds
 
 
     /**

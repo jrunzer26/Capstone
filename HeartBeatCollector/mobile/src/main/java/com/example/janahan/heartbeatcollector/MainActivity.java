@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
                         sim.setHeartRate(l);
                         System.out.println(l);
                         count++;
-                        if (count == 5) {
+                        if (count == 10) {
                             count = 0;
                             sim.run();
                         }
