@@ -70,12 +70,12 @@ public class DataAnalyst extends Thread implements DataReceiver {
             500
     };
     private final int WARNING_THRESHHOLD [] ={
-            200,
-            200,
-            200,
-            200,
-            200,
-            200
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
     };
     private int [] repeatSevere = new int [6];
     private int[] eventCounter = new int[6];
@@ -216,7 +216,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     }
 
     private void step3_GetMinSimilarity(Baselines b, VehicleHistory history){
-        final int SINGLE_DIM_EVENTS = 2;
+        final int SINGLE_DIM_EVENTS = 4;
         final int TWO_DIM_EVENTS = 2;
         TimeWarpInfo minSingle;
         TimeWarpInfo[] minDouble;
@@ -230,9 +230,18 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 speedHistory.add(history.getSpeedHistory().get(i-1));
             }
         }
+        List<Double> speedDevHistory = new ArrayList<>();
+        for(int i = 0; i < history.getSpeedingDevHistory().size(); i++) {
+            try {
+                speedDevHistory.add(history.getSpeedingDevHistory().get(i));
+            } catch(IndexOutOfBoundsException e) {
+                speedDevHistory.add(history.getSpeedingDevHistory().get(i-1));
+            }
+        }
+
         List<Double> turningHistory = new ArrayList<>(history.getTurningHistory());
 
-        minSingle = minSim_singleDimension(b, speedHistory, SINGLE_DIM_EVENTS, dtw);
+        minSingle = minSim_singleDimension(b, speedHistory, speedDevHistory, SINGLE_DIM_EVENTS, dtw);
         minDouble = minSim_doubleDimension(b, speedHistory, turningHistory, TWO_DIM_EVENTS, dtw);
 
         if (minSingle != null && minDouble[0] != null && minDouble[1] != null) {
@@ -262,11 +271,12 @@ public class DataAnalyst extends Thread implements DataReceiver {
     }
 
 
-    private TimeWarpInfo minSim_singleDimension(Baselines b, List sHist, int events, FastDTW dtw){
+    private TimeWarpInfo minSim_singleDimension(Baselines b, List sHist, List speedDevHist, int events, FastDTW dtw){
         TimeWarpInfo temp;
         TimeWarpInfo toReturn = null;
         String tempEvent="";
         double[] baseline;
+        List history = sHist;
         Log.i("sHist length: ", sHist.size()+"");
         for (int i = 0; i< events; i++){
             switch (i) {
@@ -274,24 +284,40 @@ public class DataAnalyst extends Thread implements DataReceiver {
                     //Acceleration
                     baseline = b.getAccelFromSpeedBaseline();
                     tempEvent="accel";
+                    history = sHist;
                     break;
                 }
                 case 1: {
                     //Braking
                     baseline = b.getBrake();
                     tempEvent="brake";
+                    history = sHist;
                     break;
                 }
                 case 2: {
                     baseline = b.getNearStopAccel();
-                    tempEvent="accelNearStop";;
+                    tempEvent="accelNearStop";
+                    history = sHist;
+                    break;
+                }
+                case 3: {
+                    baseline = b.getSpeeding();
+                    tempEvent = "speeding";
+                    history = speedDevHist;
+                    break;
                 }
                 default: {
                     continue;
                 }
             }
             //Log.i(" minSingle " + i, sHist.size() + " " + baseline.length);
-            temp = dtw.getWarpInfoBetween(new TimeSeries(sHist), new TimeSeries(baseline), RADIUS, distFn);
+            Log.i("temp event", tempEvent + " length: " + history.size());
+            /*
+            for(int j =0; j < history.size(); j++) {
+                Log.i(tempEvent, "" + history.get(j));
+            }
+            */
+            temp = dtw.getWarpInfoBetween(new TimeSeries(history), new TimeSeries(baseline), RADIUS, distFn);
             Log.i(" dtw", tempEvent + " sim: " + temp.getDistance());
             if (temp.getDistance() <  SIMILARITY_UP_BOUND) {
                 if ((toReturn == null) || temp.getDistance() < toReturn.getDistance()) {
@@ -362,7 +388,6 @@ public class DataAnalyst extends Thread implements DataReceiver {
                     tempEvent="right";
                     break;
                 }
-
                 default: {
                     continue;
                 }
