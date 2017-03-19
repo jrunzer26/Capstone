@@ -217,7 +217,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
     private void step3_GetMinSimilarity(Baselines b, VehicleHistory history){
         final int SINGLE_DIM_EVENTS = 4;
-        final int TWO_DIM_EVENTS = 2;
+        final int TWO_DIM_EVENTS = 3;
         TimeWarpInfo minSingle;
         TimeWarpInfo[] minDouble;
         FastDTW dtw = new FastDTW();
@@ -262,8 +262,12 @@ public class DataAnalyst extends Thread implements DataReceiver {
         }
 
 
-        if (minDouble[0] == null || minDouble[1] == null) {
+        if (minDouble[0] == null && minDouble[1] == null) {
             alertCheck("none");
+        } else if (minDouble[0] != null && minDouble[1] == null) {
+            if (ratioDistance_singleDimension(minDouble[0], md[1]) < PERCENT_THRESHOLD) {
+                alertCheck(drivingEvent[1]);
+            }
         } else if (ratioDistance_doubleDimension(minDouble, md) < PERCENT_THRESHOLD) {
             alertCheck(drivingEvent[1]);
         }
@@ -388,19 +392,35 @@ public class DataAnalyst extends Thread implements DataReceiver {
                     tempEvent="right";
                     break;
                 }
+                case 2: {
+                    steeringBaseline =  b.getCruise();
+                    speedBaseline = null;
+                    tempEvent="cruising";
+                    break;
+                }
                 default: {
                     continue;
                 }
             }
 
             temp[0] = dtw.getWarpInfoBetween(new TimeSeries(speedHist), new TimeSeries(speedBaseline), RADIUS, distFn);
-            temp[1] = dtw.getWarpInfoBetween(new TimeSeries(steeringHist), new TimeSeries(steeringBaseline), RADIUS, distFn);
+            temp[1] = null;
+            if (!tempEvent.equals("cruising")) {
+                temp[0] = dtw.getWarpInfoBetween(new TimeSeries(steeringHist), new TimeSeries(steeringBaseline), RADIUS, distFn);
+                avgDistance = (temp[0].getDistance() + temp[1].getDistance())/2;
+            } else {
+                avgDistance = temp[0].getDistance();
+            }
 
-            avgDistance = (temp[0].getDistance() + temp[1].getDistance())/2;
             Log.i("avg dist", avgDistance + "");
             if (avgDistance < SIMILARITY_UP_BOUND) {
-                if ((toReturn[0] == null || toReturn[1] == null) || avgDistance < (toReturn[0].getDistance()+toReturn[1].getDistance())/2) {
-
+                double maxCalculatedAvg;
+                if (toReturn[1] != null) {
+                    maxCalculatedAvg = (toReturn[0].getDistance()+toReturn[1].getDistance())/2;
+                } else {
+                    maxCalculatedAvg = toReturn[0].getDistance();
+                }
+                if ((toReturn[0] == null || toReturn[1] == null) || avgDistance < maxCalculatedAvg) {
                     System.arraycopy(temp, 0, toReturn, 0, 2);
                     Log.i("set md: 1", tempEvent);
                     md[0].setBaseline(speedBaseline);
