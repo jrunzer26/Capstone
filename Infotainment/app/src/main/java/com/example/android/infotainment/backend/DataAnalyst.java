@@ -50,7 +50,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private SlidingWindow sw = new SlidingWindow(WINDOW);
     private ArrayList<Double> mean = new ArrayList<Double>();
     private ArrayList<Double> stdDev = new ArrayList<Double>();
-    private static final double PERCENT_THRESHOLD = 0.9;
+    private static final double PERCENT_THRESHOLD = 0.1;
     public static final int RADIUS = 30;
     public static final DistanceFunction distFn = DistanceFunctionFactory.getDistFnByName("EuclideanDistance");
     private String[] drivingEvent = new String[2];
@@ -327,16 +327,19 @@ public class DataAnalyst extends Thread implements DataReceiver {
             Log.i("data: ", i+ " " + (Integer)twi.getPath().getTS1().get(i) + " " + (Integer)twi.getPath().getTS2().get(i));
         }
         */
-        for (int i = 0; i < twi.getPath().getTS1().size(); i++){
+        for (int i = 0; i < twi.getPath().getTS1().size(); i++) {
 
-            sum1 += (double)series.getVData().get((Integer)twi.getPath().getTS1().get(i));
-            sum2 += series.getBaseline()[(Integer)twi.getPath().getTS2().get(i)];
+            sum1 += (double) series.getVData().get((Integer) twi.getPath().getTS1().get(i));
+            sum2 += series.getBaseline()[(Integer) twi.getPath().getTS2().get(i)];
         }
         average1 = (sum1/twi.getPath().getTS1().size());
+        if (average1 == 0) {
+            return 0;
+        }
         average2 = (sum2/twi.getPath().getTS2().size());
         Util.printArray(series.getBaseline(), "BASELINE RATIO");
         Util.printList(series.getVData(), "VEHICLE DATA");
-        return ((average1<average2) ? (average1/average2): (average2/average1));
+        return Math.abs((average1/average2) - 1);
     }
 
     private TimeWarpInfo[] minSim_doubleDimension(Baselines b, List speedHist, List steeringHist, int events, FastDTW dtw){
@@ -417,7 +420,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         average1_1 = sum1_1 / twi[0].getPath().getTS1().size();
         average1_2 = sum1_2 / twi[0].getPath().getTS2().size();
 
-        set1 = ((average1_1<average1_2) ? average1_1/average1_2 : average1_2 / average1_1);
+        set1 = Math.abs((average1_1/average1_2) - 1);
 
         for (int j = 0; j< twi[1].getPath().getTS2().size(); j++) {
             sum2_1 += (Double) series[1].getVData().get((Integer)twi[1].getPath().getTS1().get(j));
@@ -426,7 +429,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         average2_1 = sum2_1 / twi[1].getPath().getTS1().size();
         average2_2 = sum2_2 / twi[1].getPath().getTS2().size();
 
-        set2 = ((average2_1<average2_2) ? average2_1/average2_2 : average2_2 / average2_1);
+        set2 = Math.abs((average2_1/average2_2) - 1);
         return ((set1 > set2) ? set1 : set2);
     }
 
