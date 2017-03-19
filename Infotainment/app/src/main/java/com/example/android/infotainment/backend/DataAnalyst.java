@@ -40,7 +40,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private Queue<UserData> userDataLinkedList;
     private int userAverage = 70;
     private Double steering;
-    private final int SIMILARITY_UP_BOUND = 500;
+    private final int SIMILARITY_UP_BOUND = 2000;
 
     //VARIABLES AND STRUCTURES REQUIRED FOR THE ALGORITHM;
     private final int WINDOW = 50; //Size of the sliding window
@@ -239,7 +239,14 @@ public class DataAnalyst extends Thread implements DataReceiver {
             }
         }
 
-        List<Double> turningHistory = new ArrayList<>(history.getTurningHistory());
+        List<Double> turningHistory = new ArrayList<>();
+        for(int i = 0; i < history.getTurningHistory().size(); i++) {
+            try {
+                turningHistory.add(history.getTurningHistory().get(i));
+            } catch(IndexOutOfBoundsException e) {
+                turningHistory.add(history.getTurningHistory().get(i-1));
+            }
+        }
 
         minSingle = minSim_singleDimension(b, speedHistory, speedDevHistory, SINGLE_DIM_EVENTS, dtw);
         minDouble = minSim_doubleDimension(b, speedHistory, turningHistory, TWO_DIM_EVENTS, dtw);
@@ -251,12 +258,12 @@ public class DataAnalyst extends Thread implements DataReceiver {
         }
 
         if( minSingle != null) {
-            Log.i("minSingle not null", ratioDistance_singleDimension(minSingle, minDataSingleDim)+" < "+PERCENT_THRESHOLD);
+            Log.i("minSingle not null", ratioDistance_singleDimension(minSingle, minDataSingleDim)+" > "+PERCENT_THRESHOLD);
             Log.i(" event", drivingEvent[0]);
         }
         if (minSingle == null) {
             alertCheck("none");
-        } else if (ratioDistance_singleDimension(minSingle, minDataSingleDim) < PERCENT_THRESHOLD) {
+        } else if (ratioDistance_singleDimension(minSingle, minDataSingleDim) > PERCENT_THRESHOLD) {
                 Log.i(" driving event 0", drivingEvent[0]);
                 alertCheck(drivingEvent[0]);
         }
@@ -264,11 +271,12 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
         if (minDouble[0] == null && minDouble[1] == null) {
             alertCheck("none");
-        } else if (minDouble[0] != null && minDouble[1] == null) {
-            if (ratioDistance_singleDimension(minDouble[0], md[1]) < PERCENT_THRESHOLD) {
+        } else if (minDouble[1] != null && minDouble[0] == null) {
+            Log.i("in minDouble[1]", "test");
+            if (ratioDistance_singleDimension(minDouble[1], md[1]) > PERCENT_THRESHOLD) {
                 alertCheck(drivingEvent[1]);
             }
-        } else if (ratioDistance_doubleDimension(minDouble, md) < PERCENT_THRESHOLD) {
+        } else if (ratioDistance_doubleDimension(minDouble, md) > PERCENT_THRESHOLD) {
             alertCheck(drivingEvent[1]);
         }
 
@@ -315,21 +323,28 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 }
             }
             //Log.i(" minSingle " + i, sHist.size() + " " + baseline.length);
-            Log.i("temp event", tempEvent + " length: " + history.size());
-            /*
-            for(int j =0; j < history.size(); j++) {
-                Log.i(tempEvent, "" + history.get(j));
+            Log.i(" temp event", tempEvent + " length: " + history.size());
+            String baselineString = "";
+            String eventString = "";
+            for(int j =0; j < baseline.length; j++) {
+                baselineString += baseline[j] + "\t";
             }
-            */
+            Log.i(tempEvent + " baseline", baselineString);
+            for(int j =0; j < history.size(); j++) {
+                eventString += history.get(j) + "\t";
+
+            }
+            Log.i(tempEvent + "veh", eventString);
+
             temp = dtw.getWarpInfoBetween(new TimeSeries(history), new TimeSeries(baseline), RADIUS, distFn);
-            Log.i(" dtw", tempEvent + " sim: " + temp.getDistance());
+            Log.i(" dtw", tempEvent + " sim: " + temp.getDistance() + " < " + SIMILARITY_UP_BOUND);
             if (temp.getDistance() <  SIMILARITY_UP_BOUND) {
                 if ((toReturn == null) || temp.getDistance() < toReturn.getDistance()) {
                     toReturn = temp;
                     //Log.i(" toReturn", temp.getPath().toString()+"");
                     minDataSingleDim.setBaseline(Arrays.copyOf(baseline, baseline.length));
                     minDataSingleDim.setEvent(tempEvent);
-                    minDataSingleDim.setVData(sHist);
+                    minDataSingleDim.setVData(history);
                     drivingEvent[0]= tempEvent;
                     Log.i("event changed", tempEvent);
                     //Log.i(" in if", minDataSingleDim.getBaseline().length+"" + " event: " + tempEvent);
@@ -348,11 +363,13 @@ public class DataAnalyst extends Thread implements DataReceiver {
         double sum2 = 0.0;
         double average1;
         double average2;
-        /*
+
         Log.i(" print", series.toString());
         Log.i(" twi", "vehicle: " + series.getVData().size() + " baseline: " + series.getBaseline().length);
         Log.i(" ts", "ts1: " + twi.getPath().getTS1().size() + " ts2: " + twi.getPath().getTS2().size());
-
+        Util.printArray(series.getBaseline(), "BASELINE RATIO");
+        Util.printList(series.getVData(), "VEHICLE DATA");
+        /*
         for(int i = 0; i < twi.getPath().getTS1().size(); i++) {
             Log.i("data: ", i+ " " + (Integer)twi.getPath().getTS1().get(i) + " " + (Integer)twi.getPath().getTS2().get(i));
         }
@@ -363,12 +380,13 @@ public class DataAnalyst extends Thread implements DataReceiver {
             sum2 += series.getBaseline()[(Integer) twi.getPath().getTS2().get(i)];
         }
         average1 = (sum1/twi.getPath().getTS1().size());
+        Log.i(" average 1", average1 + " == 0" );
         if (average1 == 0) {
+
             return 0;
         }
         average2 = (sum2/twi.getPath().getTS2().size());
-        Util.printArray(series.getBaseline(), "BASELINE RATIO");
-        Util.printList(series.getVData(), "VEHICLE DATA");
+
         return Math.abs((average1/average2) - 1);
     }
 
@@ -406,24 +424,26 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 }
             }
 
-            temp[0] = dtw.getWarpInfoBetween(new TimeSeries(speedHist), new TimeSeries(speedBaseline), RADIUS, distFn);
-            temp[1] = null;
+            temp[1] = dtw.getWarpInfoBetween(new TimeSeries(steeringHist), new TimeSeries(steeringBaseline), RADIUS, distFn);
+            temp[0] = null;
             if (!tempEvent.equals("cruising")) {
-                temp[0] = dtw.getWarpInfoBetween(new TimeSeries(steeringHist), new TimeSeries(steeringBaseline), RADIUS, distFn);
+                temp[0] = dtw.getWarpInfoBetween(new TimeSeries(speedHist), new TimeSeries(speedBaseline), RADIUS, distFn);
                 avgDistance = (temp[0].getDistance() + temp[1].getDistance())/2;
             } else {
-                avgDistance = temp[0].getDistance();
+                avgDistance = temp[1].getDistance();
             }
 
             Log.i("avg dist", avgDistance + "");
             if (avgDistance < SIMILARITY_UP_BOUND) {
                 double maxCalculatedAvg;
-                if (toReturn[1] != null) {
+                if (toReturn[0] != null) {
                     maxCalculatedAvg = (toReturn[0].getDistance()+toReturn[1].getDistance())/2;
+                } else if (toReturn[1] != null) {
+                    maxCalculatedAvg = toReturn[1].getDistance();
                 } else {
-                    maxCalculatedAvg = toReturn[0].getDistance();
+                    maxCalculatedAvg = 0;
                 }
-                if ((toReturn[0] == null || toReturn[1] == null) || avgDistance < maxCalculatedAvg) {
+                if ((toReturn[1] == null) || avgDistance < maxCalculatedAvg) {
                     System.arraycopy(temp, 0, toReturn, 0, 2);
                     Log.i("set md: 1", tempEvent);
                     md[0].setBaseline(speedBaseline);
@@ -490,7 +510,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         } else if (event.equals("brake")) {
             eventCounter[1]++;
             incomingEvent = 1;
-        } else if (event.equals("cruise")) {
+        } else if (event.equals("cruising")) {
             eventCounter[2]++;
             incomingEvent = 2;
         } else if (event.equals("speeding")) {
@@ -503,7 +523,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
             eventCounter[5]++;
             incomingEvent = 5;
         } else {
-            System.out.println("ERROR IN ALERTCHECK: String invalid!");
+            System.out.println("ERROR IN ALERTCHECK: String invalid! " + event);
             return ;
         }
         System.out.println("------------------------EVENT: " + event +" " + incomingEvent + " " + eventCounter[incomingEvent]);
