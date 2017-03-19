@@ -27,19 +27,10 @@ public class MockCarBluetoothHandler {
     private int index = 0;
     private BufferedReader br;
     private AssetManager AM;
+    private final boolean EXIT = true;
     public MockCarBluetoothHandler(BluetoothSocket socket, Context mainContext, DataParser dataParser){
         AM = mainContext.getAssets();
-
         this.dataParser = dataParser;
-        try {
-            InputStream is = AM.open("test1.csv");
-            br= new BufferedReader(new InputStreamReader(is));
-        } catch(FileNotFoundException e){
-            System.out.println("File not found!\n" + e);
-        } catch (IOException e){
-            System.out.println("Inputstream failed\n" + e);
-        }
-
         simDataCreator();
     }
 
@@ -50,8 +41,17 @@ public class MockCarBluetoothHandler {
         SimData simData = simDatas.get(index);
         dataParser.sendSimData(simData);
         index++;
-        if (index == simDatas.size())
+        if (index == simDatas.size()) {
             index = 0;
+            if (EXIT) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.exit(0);
+            }
+        }
     }
 
     /**
@@ -60,8 +60,53 @@ public class MockCarBluetoothHandler {
     public void simDataCreator() {
         simDatas = new ArrayList<>();
 
-
+        //insertData("baselineInput.csv");
+        insertData("brakeInput.csv");
+        //constantSpeed(50, 10);
         /*
+
+        SimData speed70 = new SimData();
+        speed70.setSpeed(70);
+        speed70.setAcceleration(0);
+        speed70.setPause(false);
+        simDatas.add(speed70);
+        simDatas.add(speed70);
+        SimData speedOver = new SimData();
+        speedOver.setSpeed(150);
+        simDatas.add(speedOver);
+
+         */
+        //baselineInit();
+
+        /* ACCELERATION TESTS */
+        //fromNearStopAccelTest();
+        //fromSpeedAccelTest();
+        //fromSpeedAccelRandomLengths();
+        //slowAccelerationTest();
+
+
+        /* Steering Tests */
+        //steeringLeftTest();
+        //steeringRightTest();
+
+        /* Braking Tests */
+        //brakingTest();
+        //brakingTest2();
+
+        /* Cruising Tests */
+        //crusingTest();
+        //constantSpeed(100, 10);
+    }
+
+    private void insertData(String file) {
+        try {
+            InputStream is = AM.open(file);
+            br= new BufferedReader(new InputStreamReader(is));
+        } catch(FileNotFoundException e){
+            System.out.println("File not found!\n" + e);
+        } catch (IOException e){
+            System.out.println("Inputstream failed\n" + e);
+        }
         try{
             String line;
 
@@ -78,24 +123,10 @@ public class MockCarBluetoothHandler {
         } catch (IOException e){
 
         }
+    }
 
-*/
-        //constantSpeed(50, 10);
-        /*
-
-        SimData speed70 = new SimData();
-        speed70.setSpeed(70);
-        speed70.setAcceleration(0);
-        speed70.setPause(false);
-        simDatas.add(speed70);
-        simDatas.add(speed70);
-        SimData speedOver = new SimData();
-        speedOver.setSpeed(150);
-        simDatas.add(speedOver);
-
-         */
-
-        /* ACCELERATION TESTS */
+    private void baselineInit() {
+                /* ACCELERATION TESTS */
         fromNearStopAccelTest();
         fromSpeedAccelTest();
         //fromSpeedAccelRandomLengths();
@@ -108,11 +139,9 @@ public class MockCarBluetoothHandler {
 
         /* Braking Tests */
         brakingTest();
-        //brakingTest2();
 
         /* Cruising Tests */
         crusingTest();
-        //constantSpeed(100, 10);
     }
 
 
@@ -140,18 +169,18 @@ public class MockCarBluetoothHandler {
     }
     private void brakingTest() {
         constantSpeed(60, 10);
-        for (int i = 0; i < 10; i++) {
+        for (int i = 1; i <= 50; i++) {
             SimData simData = new SimData();
-            simData.setSpeed(60 - i * 5);
+            simData.setSpeed(60 - i * 1.2);
             simDatas.add(simData);
         }
     }
 
     private void brakingTest2() {
-        constantSpeed(100, 10);
-        for (int i = 0; i < 20; i++) {
+        constantSpeed(60, 10);
+        for (int i = 1; i <= 50; i++) {
             SimData simData = new SimData();
-            simData.setSpeed(100 - i * 8);
+            simData.setSpeed(100 - i * 2);
             simDatas.add(simData);
         }
     }
@@ -164,29 +193,29 @@ public class MockCarBluetoothHandler {
         for (int i = 0; i < 30; i++) {
             SimData simData2 = new SimData();
             simData2.setSteering(-40 - i * 3);
-            simData2.setSpeed(100);
+            simData2.setSpeed(60);
             simDatas.add(simData2);
         }
         SimData simData = new SimData();
         simData.setSteering(0);
-        simData.setSpeed(100);
+        simData.setSpeed(60);
         simDatas.add(simData);
     }
 
     private void steeringRightTest() {
         SimData simData = new SimData();
         simData.setSteering(0);
-        simData.setSpeed(100);
+        simData.setSpeed(60);
         simDatas.add(simData);
         for (int i = 0; i < 30; i++) {
             SimData simData2 = new SimData();
             simData2.setSteering(40 + i * 3);
-            simData2.setSpeed(100);
+            simData2.setSpeed(60);
             simDatas.add(simData2);
         }
         SimData simData3 = new SimData();
         simData3.setSteering(0);
-        simData3.setSpeed(100);
+        simData3.setSpeed(60);
         simDatas.add(simData3);
     }
 

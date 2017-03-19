@@ -25,7 +25,7 @@ import static com.example.android.simulator.backend.models.SimData.*; // import 
 
 public class Simulator implements Runnable, Car {
 
-    private final int SENDING_SIZE = 5;
+    private final int SENDING_SIZE = 10;
     private ArrayList<SimData> simDataArrayList = new ArrayList<>();
     private SimData currentSimData;
     private ThreadConnectBTdevice blueTooth;

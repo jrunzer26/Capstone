@@ -13,6 +13,7 @@ import com.example.android.infotainment.backend.FastDTW.util.Arrays;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -65,11 +66,11 @@ public class TimeSeries {
 	 * Custom constructor made by the Capstone Project team
 	 * @param data: ArrayList of data points
 	 */
-	public TimeSeries(ArrayList<Object> data) {
+	public TimeSeries(List<Object> data) {
 		this();
 		TimeSeriesPoint tsp;
 		labels.add("Time");
-
+		Log.i("data size: ", " "+data.size());
 		for (Object i : data) {
 			try {
 				tsp = new TimeSeriesPoint(new double[] { (Double)i });

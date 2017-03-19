@@ -72,7 +72,7 @@ public class WatchBluetoothHandler extends Thread {
             try {
                 bytes = mmInStream.read(buffer);
                 // read in the packaged data from the watch
-                for (int i = 0; i < 5; i++) {
+                for (int i = 0; i < 10; i++) {
                     if (bytes > 0) {
                         byte[] bfcopy = new byte[bytes];
                         System.arraycopy(buffer, 0, bfcopy, 0, bytes);

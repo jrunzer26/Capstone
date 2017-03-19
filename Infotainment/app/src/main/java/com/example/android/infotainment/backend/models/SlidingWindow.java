@@ -1,5 +1,9 @@
 package com.example.android.infotainment.backend.models;
 
+import android.util.Log;
+
+import com.example.android.infotainment.utils.Util;
+
 /**
  * Created by 100514374 on 2/9/2017.
  */
@@ -29,10 +33,11 @@ public class SlidingWindow {
     public double getAverage(){
         return average;
     }
+
     public double getStdDev(){
         double rollingSum=0.0;
         for (int i = 0; i < window.length; i++){
-            rollingSum+=((window[i]-average)*window[i]-average);
+            rollingSum+=((window[i]-average)*(window[i]-average));
         }
         return Math.sqrt(rollingSum/window.length);
     }

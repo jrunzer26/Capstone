@@ -43,7 +43,7 @@ public class SensorData implements  Runnable{
     public void run() {
         ByteArrayOutputStream boas = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(boas);
-        for(int i = 0; i < 5; i++) {
+        for(int i = 0; i < 10; i++) {
             try {
                 dos.writeInt(heartRate.get(i));
             } catch(IOException e) {e.printStackTrace();}
