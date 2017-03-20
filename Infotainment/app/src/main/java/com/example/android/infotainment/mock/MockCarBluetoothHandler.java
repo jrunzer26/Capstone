@@ -63,7 +63,9 @@ public class MockCarBluetoothHandler {
         //insertData("baselineInput.csv");
         //insertData("brakeInput.csv");
         //insertData("brakeInput2.csv");
-        insertData("rightTurn.csv");
+        //insertData("rightTurn.csv");
+        //insertData("hardRightTurn.csv");
+        insertData("cruising.csv");
         //constantSpeed(50, 10);
         /*
 

@@ -255,7 +255,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
 
         if( minSingle != null) {
-            Log.i("minSingle not null", ratioDistance_singleDimension(minSingle, minDataSingleDim)+" > "+PERCENT_THRESHOLD);
+            Log.i("minSingle not null", ratioDistance_singleDimension(minSingle, minDataSingleDim, false)+" > "+PERCENT_THRESHOLD);
             Log.i(" event", drivingEvent[0]);
         }
         if (minSingle == null) {
@@ -264,7 +264,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 alertCheck(drivingEvent[0]);
             } else
                 alertCheck("none");
-        } else if (ratioDistance_singleDimension(minSingle, minDataSingleDim) > PERCENT_THRESHOLD) {
+        } else if (ratioDistance_singleDimension(minSingle, minDataSingleDim, false) > PERCENT_THRESHOLD) {
                 Log.i(" driving event 0", drivingEvent[0]);
                 alertCheck(drivingEvent[0]);
         }
@@ -273,13 +273,13 @@ public class DataAnalyst extends Thread implements DataReceiver {
         if (minDouble[0] != null && minDouble[1] != null) {
             Log.i("comparison", drivingEvent[1] + " " + ratioDistance_doubleDimension(minDouble, md) +" > " + PERCENT_THRESHOLD);
         } else if (minDouble[1] != null && minDouble[0] == null) {
-            Log.i("comparison",  drivingEvent[1] + " " +ratioDistance_singleDimension(minDouble[0], md[1]) +" > " + PERCENT_THRESHOLD);
+            Log.i("comparison",  drivingEvent[1] + " " +ratioDistance_singleDimension(minDouble[1], md[1], true) +" > " + PERCENT_THRESHOLD);
         }
         if (minDouble[0] == null && minDouble[1] == null) {
             alertCheck("none");
         } else if (minDouble[1] != null && minDouble[0] == null) {
             Log.i("in minDouble[1]", "test");
-            if (ratioDistance_singleDimension(minDouble[1], md[1]) > PERCENT_THRESHOLD) {
+            if (ratioDistance_singleDimension(minDouble[1], md[1], true) > PERCENT_THRESHOLD) {
                 alertCheck(drivingEvent[1]);
             }
         } else if (ratioDistance_doubleDimension(minDouble, md) > PERCENT_THRESHOLD) {
@@ -318,7 +318,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 //Log.i(" in if", minDataSingleDim.getBaseline().length+"" + " event: " + tempEvent);
             }
         }
-        return ratioDistance_singleDimension(toReturn, minDataSingleDim);
+        return ratioDistance_singleDimension(toReturn, minDataSingleDim, false);
     }
 
 
@@ -391,7 +391,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     }
 
 
-    private double ratioDistance_singleDimension(TimeWarpInfo twi, MinData series){
+    private double ratioDistance_singleDimension(TimeWarpInfo twi, MinData series, boolean cruise){
         double sum1 = 0.0;
         double sum2 = 0.0;
         double average1;
@@ -414,9 +414,11 @@ public class DataAnalyst extends Thread implements DataReceiver {
         }
         average1 = (sum1/twi.getPath().getTS1().size());
         Log.i(" average 1", average1 + " == 0" );
-        if (average1 == 0) {
+        if (average1 == 0 & !cruise) {
 
             return 0;
+        } else if (average1 == 0 & cruise) {
+            return 1;
         }
         average2 = (sum2/twi.getPath().getTS2().size());
 
