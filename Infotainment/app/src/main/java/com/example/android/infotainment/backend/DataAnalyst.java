@@ -40,7 +40,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private Queue<UserData> userDataLinkedList;
     private int userAverage = 70;
     private Double steering;
-    private final int SIMILARITY_UP_BOUND = 1000;
+    private final int SIMILARITY_UP_BOUND = 2000;
 
     //VARIABLES AND STRUCTURES REQUIRED FOR THE ALGORITHM;
     private final int WINDOW = 50; //Size of the sliding window

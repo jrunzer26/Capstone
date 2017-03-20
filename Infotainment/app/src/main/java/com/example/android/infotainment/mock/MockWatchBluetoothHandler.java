@@ -42,7 +42,10 @@ public class MockWatchBluetoothHandler {
             //InputStream is = AM.open("brakeInput2.csv");
             //InputStream is = AM.open("rightTurn.csv");
             //InputStream is = AM.open("hardRightTurn.csv");
-            InputStream is = AM.open("cruising.csv");
+            //InputStream is = AM.open("cruising.csv");
+            //InputStream is = AM.open("cruising2.csv");
+            //InputStream is = AM.open("slowRightTurn.csv");
+            InputStream is = AM.open("lightRightTurn.csv");
             br= new BufferedReader(new InputStreamReader(is));
         } catch(FileNotFoundException e){
             System.out.println("File not found!\n" + e);
