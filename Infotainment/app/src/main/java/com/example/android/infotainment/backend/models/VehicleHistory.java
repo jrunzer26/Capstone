@@ -35,7 +35,6 @@ public class VehicleHistory {
             currentSize--;
         }
         speedList.add(simData.getSpeed());
-        Log.i("speed list add", speedList.size()+"");
         steeringList.add(simData.getSteering());
         speedingDevList.add(simData.getSpeedingDevPercent());
     }

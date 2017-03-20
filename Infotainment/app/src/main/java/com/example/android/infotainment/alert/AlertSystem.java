@@ -27,7 +27,8 @@ public class AlertSystem {
             "cruise",
             "speeding",
             "right",
-            "left"
+            "left",
+            "accelNearStop"
     };
 
     /**
