@@ -40,7 +40,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private Queue<UserData> userDataLinkedList;
     private int userAverage = 70;
     private Double steering;
-    private final int SIMILARITY_UP_BOUND = 500;
+    private final int SIMILARITY_UP_BOUND = 1000;
 
     //VARIABLES AND STRUCTURES REQUIRED FOR THE ALGORITHM;
     private final int WINDOW = 50; //Size of the sliding window
@@ -270,7 +270,11 @@ public class DataAnalyst extends Thread implements DataReceiver {
         }
 
         minDouble = minSim_doubleDimension(b, speedHistory, turningHistory, TWO_DIM_EVENTS, dtw);
-
+        if (minDouble[0] != null && minDouble[1] != null) {
+            Log.i("comparison", drivingEvent[1] + " " + ratioDistance_doubleDimension(minDouble, md) +" > " + PERCENT_THRESHOLD);
+        } else if (minDouble[1] != null && minDouble[0] == null) {
+            Log.i("comparison",  drivingEvent[1] + " " +ratioDistance_singleDimension(minDouble[0], md[1]) +" > " + PERCENT_THRESHOLD);
+        }
         if (minDouble[0] == null && minDouble[1] == null) {
             alertCheck("none");
         } else if (minDouble[1] != null && minDouble[0] == null) {
@@ -416,7 +420,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         }
         average2 = (sum2/twi.getPath().getTS2().size());
 
-        return Math.abs((average1/average2) - 1);
+        return Math.abs((average1/average2));
     }
 
     private TimeWarpInfo[] minSim_doubleDimension(Baselines b, List speedHist, List steeringHist, int events, FastDTW dtw){
@@ -430,15 +434,15 @@ public class DataAnalyst extends Thread implements DataReceiver {
             switch (i) {
                 case 0: {
                     //Left Turns
-                    speedBaseline=b.getLeft()[0]; // speed
-                    steeringBaseline=b.getLeft()[1]; // steering
+                    speedBaseline=b.getLeft()[1]; // speed
+                    steeringBaseline=b.getLeft()[0]; // steering
                     tempEvent = "left";
                     break;
                 }
                 case 1: {
                     //Right Turns
-                    speedBaseline=b.getRight()[0];
-                    steeringBaseline=b.getRight()[1];
+                    speedBaseline=b.getRight()[1];
+                    steeringBaseline=b.getRight()[0];
                     tempEvent="right";
                     break;
                 }
@@ -462,7 +466,16 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 avgDistance = temp[1].getDistance();
             }
 
-            Log.i("avg dist", avgDistance + "");
+            Log.i(" temp event", tempEvent);
+
+            if (temp[0] != null) {
+                Util.printArray(speedBaseline, "speed Baseline");
+                Util.printList(speedHist, "speed history");
+            }
+            Util.printArray(steeringBaseline, "steering Baseline");
+            Util.printList(steeringHist, "steering history");
+            Log.i(" avg distance comp", avgDistance+ " < " + SIMILARITY_UP_BOUND);
+
             if (avgDistance < SIMILARITY_UP_BOUND) {
                 double maxCalculatedAvg;
                 if (toReturn[0] != null) {
@@ -514,7 +527,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         average1_1 = sum1_1 / twi[0].getPath().getTS1().size();
         average1_2 = sum1_2 / twi[0].getPath().getTS2().size();
 
-        set1 = Math.abs((average1_1/average1_2) - 1);
+        set1 = Math.abs((average1_1/average1_2));
 
         for (int j = 0; j< twi[1].getPath().getTS2().size(); j++) {
             sum2_1 += (Double) series[1].getVData().get((Integer)twi[1].getPath().getTS1().get(j));
@@ -523,7 +536,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
         average2_1 = sum2_1 / twi[1].getPath().getTS1().size();
         average2_2 = sum2_2 / twi[1].getPath().getTS2().size();
 
-        set2 = Math.abs((average2_1/average2_2) - 1);
+        set2 = Math.abs((average2_1/average2_2));
+        Log.i("sets", "set1: " + set1 + " set2: " + set2);
         return ((set1 > set2) ? set1 : set2);
     }
 

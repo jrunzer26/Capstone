@@ -45,7 +45,7 @@ public class MockCarBluetoothHandler {
             index = 0;
             if (EXIT) {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -62,7 +62,8 @@ public class MockCarBluetoothHandler {
 
         //insertData("baselineInput.csv");
         //insertData("brakeInput.csv");
-        insertData("brakeInput2.csv");
+        //insertData("brakeInput2.csv");
+        insertData("rightTurn.csv");
         //constantSpeed(50, 10);
         /*
 
