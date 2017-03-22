@@ -27,7 +27,7 @@ public class MockCarBluetoothHandler {
     private int index = 0;
     private BufferedReader br;
     private AssetManager AM;
-    private final boolean EXIT = false;
+    private final boolean EXIT = true;
     public MockCarBluetoothHandler(BluetoothSocket socket, Context mainContext, DataParser dataParser){
         AM = mainContext.getAssets();
         this.dataParser = dataParser;

@@ -40,7 +40,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private Queue<UserData> userDataLinkedList;
     private int userAverage = 70;
     private Double steering;
-    private final int SIMILARITY_UP_BOUND = 2000;
+    private final int SINGLE_SIMILARITY_BOUND = 400;
+    private final int DOUBLE_SIMILARITY_BOUND = 1000;
 
 
     //VARIABLES AND STRUCTURES REQUIRED FOR THE ALGORITHM;
@@ -334,8 +335,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
         }
         Log.i("Speeding veh", eventString);
         temp = dtw.getWarpInfoBetween(new TimeSeries(history), new TimeSeries(baseline), RADIUS, distFn);
-        Log.i(" dtw", "speeding sim: " + temp.getDistance() + " < " + SIMILARITY_UP_BOUND);
-        if (temp.getDistance() <  SIMILARITY_UP_BOUND) {
+        Log.i(" dtw", "speeding sim: " + temp.getDistance() + " < " + SINGLE_SIMILARITY_BOUND);
+        if (temp.getDistance() <  SINGLE_SIMILARITY_BOUND) {
             if ((toReturn == null) || temp.getDistance() < toReturn.getDistance()) {
                 toReturn = temp;
                 //Log.i(" toReturn", temp.getPath().toString()+"");
@@ -399,8 +400,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
             Log.i(tempEvent + "veh", eventString);
 
             temp = dtw.getWarpInfoBetween(new TimeSeries(history), new TimeSeries(baseline), RADIUS, distFn);
-            Log.i(" dtw", tempEvent + " sim: " + temp.getDistance() + " < " + SIMILARITY_UP_BOUND);
-            if (temp.getDistance() <  SIMILARITY_UP_BOUND) {
+            Log.i(" dtw", tempEvent + " sim: " + temp.getDistance() + " < " + SINGLE_SIMILARITY_BOUND);
+            if (temp.getDistance() <  SINGLE_SIMILARITY_BOUND) {
                 if ((toReturn == null) || temp.getDistance() < toReturn.getDistance()) {
                     toReturn = temp;
                     //Log.i(" toReturn", temp.getPath().toString()+"");
@@ -511,9 +512,9 @@ public class DataAnalyst extends Thread implements DataReceiver {
             }
             Util.printArray(steeringBaseline, "steering Baseline");
             Util.printList(steeringHist, "steering history");
-            Log.i(" avg distance comp", avgDistance+ " < " + SIMILARITY_UP_BOUND);
+            Log.i(" avg distance comp", avgDistance+ " < " + DOUBLE_SIMILARITY_BOUND);
 
-            if (avgDistance < SIMILARITY_UP_BOUND) {
+            if (avgDistance < DOUBLE_SIMILARITY_BOUND) {
                 double maxCalculatedAvg;
                 if (toReturn[0] != null) {
                     maxCalculatedAvg = (toReturn[0].getDistance()+toReturn[1].getDistance())/2;
