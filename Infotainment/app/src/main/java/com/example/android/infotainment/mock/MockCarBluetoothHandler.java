@@ -27,7 +27,7 @@ public class MockCarBluetoothHandler {
     private int index = 0;
     private BufferedReader br;
     private AssetManager AM;
-    private final boolean EXIT = true;
+    private final boolean EXIT = false;
     public MockCarBluetoothHandler(BluetoothSocket socket, Context mainContext, DataParser dataParser){
         AM = mainContext.getAssets();
         this.dataParser = dataParser;
@@ -64,11 +64,11 @@ public class MockCarBluetoothHandler {
         //insertData("brakeInput.csv");
         //insertData("brakeInput2.csv");
         //insertData("rightTurn.csv");
-        //insertData("hardRightTurn.csv");
+        insertData("hardRightTurn.csv");
         //insertData("cruising.csv");
         //insertData("cruising2.csv");
         //insertData("slowRightTurn.csv");
-        insertData("lightRightTurn.csv");
+        //insertData("lightRightTurn.csv");
         //constantSpeed(50, 10);
         /*
 
