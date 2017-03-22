@@ -37,7 +37,7 @@ public class MockWatchBluetoothHandler {
         sensorDatas = new ArrayList<>();
         AM = mainContext.getAssets();
         try {
-            InputStream is = AM.open("baselineInput.csv");
+            //InputStream is = AM.open("baselineInput.csv");
             //InputStream is = AM.open("brakeInput.csv");
             //InputStream is = AM.open("brakeInput2.csv");
             //InputStream is = AM.open("rightTurn.csv");
@@ -46,6 +46,7 @@ public class MockWatchBluetoothHandler {
             //InputStream is = AM.open("cruising2.csv");
             //InputStream is = AM.open("slowRightTurn.csv");
             //InputStream is = AM.open("lightRightTurn.csv");
+            InputStream is = AM.open("CombinedAccelBrake.csv");
             br= new BufferedReader(new InputStreamReader(is));
         } catch(FileNotFoundException e){
             System.out.println("File not found!\n" + e);

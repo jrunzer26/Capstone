@@ -40,7 +40,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private Queue<UserData> userDataLinkedList;
     private int userAverage = 70;
     private Double steering;
-    private final int SINGLE_SIMILARITY_BOUND = 400;
+    private final int SINGLE_SIMILARITY_BOUND = 500;
     private final int DOUBLE_SIMILARITY_BOUND = 1000;
 
 
