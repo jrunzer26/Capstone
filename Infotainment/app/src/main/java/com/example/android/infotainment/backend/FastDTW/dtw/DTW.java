@@ -162,7 +162,7 @@ catch (Exception e)
  */
       // Minimum Cost is at (maxIi,maxJ)
       final double minimumCost = costMatrix[maxI][maxJ];
-      System.out.println(minimumCost);
+      //System.out.println(minimumCost);
 
 
       // Find the Warp Path by searching the matrix from the solution at

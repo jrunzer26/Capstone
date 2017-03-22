@@ -27,7 +27,7 @@ public class MockCarBluetoothHandler {
     private int index = 0;
     private BufferedReader br;
     private AssetManager AM;
-    private final boolean EXIT = true;
+    private final boolean EXIT = false;
     public MockCarBluetoothHandler(BluetoothSocket socket, Context mainContext, DataParser dataParser){
         AM = mainContext.getAssets();
         this.dataParser = dataParser;
@@ -45,7 +45,7 @@ public class MockCarBluetoothHandler {
             index = 0;
             if (EXIT) {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -59,9 +59,24 @@ public class MockCarBluetoothHandler {
      */
     public void simDataCreator() {
         simDatas = new ArrayList<>();
-
+        //insertData("BrakingInput.csv");
+        //insertData("BrakingDevious.csv");
         //insertData("baselineInput.csv");
-        insertData("brakeInput.csv");
+        //insertData("brakeInput.csv");
+        //insertData("brakeInput2.csv");
+        //insertData("AccelInput.csv");
+        //insertData("AccelDevious.csv");
+        //insertData("NearStop.csv");
+        //insertData("NearStopDevious.csv");
+        //insertData("Speeding.csv");
+        //insertData("SpeedingDevious.csv");
+        //insertData("rightTurn.csv");
+        //insertData("hardRightTurn.csv");
+        //insertData("cruising.csv");
+        //insertData("cruising2.csv");
+        insertData("slowRightTurn.csv");
+        //insertData("lightRightTurn.csv");
+
         //constantSpeed(50, 10);
         /*
 

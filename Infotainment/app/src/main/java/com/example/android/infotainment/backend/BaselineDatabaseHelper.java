@@ -127,7 +127,6 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
             cursor = db.rawQuery("SELECT * from " + table + " where \"flag\" = ?", where);
             //cursor = db.query(table, columns, selection, where, null, null, null);
         } catch (SQLiteException e) {
-            e.printStackTrace();
             onCreate(getWritableDatabase());
             cursor = db.rawQuery("SELECT * from " + table + " where flag = ?", where);
         }
@@ -268,7 +267,6 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         try {
             cursor = db.rawQuery("SELECT * from " + tableName, where);
         } catch (SQLiteException e) {
-            e.printStackTrace();
             onCreate(getWritableDatabase());
             cursor = db.rawQuery("SELECT * from " + tableName, where);
         }

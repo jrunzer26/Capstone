@@ -21,14 +21,32 @@ public class AlertSystem {
     private final int ALERT_TIME = 10000; // seconds
     private SoundPool soundPool;
     private int fatalSound;
+    private final int RIGHT_AGRESSIVE = 10, RIGHT = 5;
     private final String [] MESSAGES_DRIVING = {
             "accel",
             "braking",
             "cruise",
             "speeding",
-            "right",
-            "left"
+            "left",
+            "Attention, your right turn driving habits seem to be abnormal, please be safe on the road.",
+            "accelNearStop"
     };
+
+    private final String [] MESSAGES_RIGHT_TURN = {
+            "Attention, your right turn driving habits seem to be abnormal, please be safe on the road."
+    };
+
+    private final String [] MESSAGES_LEFT_TURN = {
+            "Attention, your left turn driving habits seem to be abnormal, please be safe on the road."
+    };
+
+
+    private final String[] MESSAGES_CRUISE = {
+            "Cruise. Please be alert and pay attention to the road."
+    };
+
+
+
 
     /**
      * Creates an alert system to manage the alerts.
@@ -50,6 +68,15 @@ public class AlertSystem {
         String message =  context.getResources().getString(R.string.alertSystem_default_warning);
         alert(context, type, -1);
     }
+
+    private String getMessage(int incomingEvent) {
+        if (incomingEvent == RIGHT) {
+            return MESSAGES_RIGHT_TURN[0];
+        } else {
+            return MESSAGES_DRIVING[incomingEvent];
+        }
+    }
+
     /**
      * Alerts the driver.
      * @param context the current context
@@ -59,7 +86,8 @@ public class AlertSystem {
     public void alert(final Context context, int type, int incomingEvent){
         String message;
         try{
-            message = "Attention weird driving detected in " + MESSAGES_DRIVING[incomingEvent];
+            //message = MESSAGES_DRIVING[incomingEvent];
+            message = getMessage(incomingEvent);
         }catch(ArrayIndexOutOfBoundsException e){
             message = "WARNING";
         }
