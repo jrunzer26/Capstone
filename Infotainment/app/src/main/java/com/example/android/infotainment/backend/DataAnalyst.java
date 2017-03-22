@@ -34,6 +34,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 
 public class DataAnalyst extends Thread implements DataReceiver {
+
+
+
     private String TAG = "Analyst";
     private Context applicationContext;
     private AlertSystem alertSystem;
@@ -42,6 +45,18 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private Double steering;
     private final int SINGLE_SIMILARITY_BOUND = 500;
     private final int DOUBLE_SIMILARITY_BOUND = 1000;
+
+    // cruise
+    private static final double PERCENT_THRESHOLD_CRUISE_UPPER = 1.1;
+    private static final double PERCENT_THRESHOLD_CRUISE_LOWER = 0.9;
+
+    // left steering
+    private static final double PERCENT_THRESHOLD_LEFT_UPPER = 1.05;
+    private static final double PERCENT_THRESHOLD_LEFT_LOWER = 0.83;
+
+    // right steering
+    private static final double PERCENT_THRESHOLD_RIGHT_UPPER = 1.05;
+    private static final double PERCENT_THRESHOLD_RIGHT_LOWER = 0.83;
 
 
     //VARIABLES AND STRUCTURES REQUIRED FOR THE ALGORITHM;
@@ -52,7 +67,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private SlidingWindow sw = new SlidingWindow(WINDOW);
     private ArrayList<Double> mean = new ArrayList<Double>();
     private ArrayList<Double> stdDev = new ArrayList<Double>();
-    private static final double PERCENT_THRESHOLD = 0.1;
+    private static final double PERCENT_THRESHOLD = 1.1;
     public static final int RADIUS = 30;
     public static final DistanceFunction distFn = DistanceFunctionFactory.getDistFnByName("EuclideanDistance");
     private String[] drivingEvent = new String[2];
@@ -283,12 +298,16 @@ public class DataAnalyst extends Thread implements DataReceiver {
             //alertCheck("none");
         } else if (minDouble[1] != null && minDouble[0] == null) {
             Log.i("in minDouble[1]", "test");
-            if (ratioDistance_singleDimension(minDouble[1], md[1], true) > PERCENT_THRESHOLD) {
-                alertCheck(drivingEvent[1]);
-                alertDetected = false;
+            double ratioDistance = ratioDistance_singleDimension(minDouble[1], md[1], true);
+            if (ratioDistance < PERCENT_THRESHOLD_CRUISE_LOWER && ratioDistance > PERCENT_THRESHOLD_CRUISE_UPPER) {
+                if (!alertDetected || (alertDetected && drivingEvent[0].equals("speeding"))) {
+                    alertCheck(drivingEvent[1]);
+                }
             }
         } else {
-            turningAlertCheck(ratioDistance_doubleDimension(minDouble, md));
+            if (turningAlertCheck(ratioDistance_doubleDimension(minDouble, md))) {
+                alertDetected = false;
+            }
         }
         if (alertDetected) {
             alertCheck(drivingEvent[0]);
@@ -298,7 +317,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
     // [0] = speeding
     // [1] = steering
-    private void turningAlertCheck(double[] set) {
+    private boolean turningAlertCheck(double[] set) {
         Util.printArray(set, "sets lol");
         double turningRatio = set[1];
         double speedingRatio = set[0];
@@ -306,17 +325,20 @@ public class DataAnalyst extends Thread implements DataReceiver {
         double lowerThresholdSteering, upperThresholdSteering, lowerThresholdSpeed, upperThresholdSpeed;
 
         if(drivingEvent[1].equals("left")) {
-            lowerThresholdSteering = 0.83;
-            upperThresholdSteering = 1.05;
+            lowerThresholdSteering = PERCENT_THRESHOLD_LEFT_LOWER;
+            upperThresholdSteering = PERCENT_THRESHOLD_LEFT_UPPER;
         } else { // right
-            lowerThresholdSteering = 0.83;
-            upperThresholdSteering = 1.05;
+            lowerThresholdSteering = PERCENT_THRESHOLD_RIGHT_LOWER;
+            upperThresholdSteering = PERCENT_THRESHOLD_RIGHT_UPPER;
         }
         if (turningRatio < lowerThresholdSteering) {
             alertCheck(drivingEvent[1]);
+            return true;
         } else if (turningRatio > upperThresholdSteering) {
             alertCheck(drivingEvent[1]);
+            return true;
         }
+        return false;
     }
 
     private double checkSpeeding(Baselines b, List speedDevHistory, FastDTW dtw) {

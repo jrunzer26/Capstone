@@ -70,10 +70,10 @@ public class Baselines {
         userDatabaseHelper = new UserDatabaseHelper(context);
         // init the baselines depending on the current trip id.
 
-        if (userDatabaseHelper.getNextTripID() == 2) {
+        if (userDatabaseHelper.getNextTripID() == 1) {
             System.out.println("Here");
             dbaFirstTimeInit();
-        } else if (userDatabaseHelper.getNextTripID() > 2) {
+        } else if (userDatabaseHelper.getNextTripID() > 1) {
             dbaInitPreviousSavedTrip();
         } // else : baselines are all size 0, not enough data
     }
