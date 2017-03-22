@@ -133,7 +133,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
             if (userDataLinkedList.size() > 0) {
                 counter++;
                 UserData userData = userDataLinkedList.remove();
-                System.out.println(userData.toString());
+                //System.out.println(userData.toString());
+                System.out.println("=======================NEXT STEP==================");
                 SensorData sensorData = userData.getSensorData();
                 SimData simData = userData.getSimData();
 
@@ -255,6 +256,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
 
         if( minSingle != null) {
+
             Log.i("minSingle not null", ratioDistance_singleDimension(minSingle, minDataSingleDim)+" > "+PERCENT_THRESHOLD);
             Log.i(" event", drivingEvent[0]);
         }
@@ -262,6 +264,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
             Log.i("minSingle null", checkSpeeding(b, speedDevHistory, dtw)+" > "+PERCENT_THRESHOLD);
             if(checkSpeeding(b, speedDevHistory, dtw) > PERCENT_THRESHOLD) {
                 alertCheck(drivingEvent[0]);
+                System.out.println(speedDevHistory);
             } else
                 alertCheck("none");
         } else if (ratioDistance_singleDimension(minSingle, minDataSingleDim) > PERCENT_THRESHOLD) {
@@ -376,6 +379,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
                     minDataSingleDim.setVData(history);
                     drivingEvent[0]= tempEvent;
                     Log.i("event changed", tempEvent);
+                    System.out.println("Array");
+                    System.out.println(history.toArray());
                     //Log.i(" in if", minDataSingleDim.getBaseline().length+"" + " event: " + tempEvent);
                 }
             }
@@ -416,7 +421,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         }
         average2 = (sum2/twi.getPath().getTS2().size());
 
-        return Math.abs((average1/average2) - 1);
+        return Math.abs((average1/average2));
     }
 
     private TimeWarpInfo[] minSim_doubleDimension(Baselines b, List speedHist, List steeringHist, int events, FastDTW dtw){
@@ -514,7 +519,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         average1_1 = sum1_1 / twi[0].getPath().getTS1().size();
         average1_2 = sum1_2 / twi[0].getPath().getTS2().size();
 
-        set1 = Math.abs((average1_1/average1_2) - 1);
+        set1 = Math.abs((average1_1/average1_2));
 
         for (int j = 0; j< twi[1].getPath().getTS2().size(); j++) {
             sum2_1 += (Double) series[1].getVData().get((Integer)twi[1].getPath().getTS1().get(j));
@@ -523,7 +528,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         average2_1 = sum2_1 / twi[1].getPath().getTS1().size();
         average2_2 = sum2_2 / twi[1].getPath().getTS2().size();
 
-        set2 = Math.abs((average2_1/average2_2) - 1);
+        set2 = Math.abs((average2_1/average2_2));
         return ((set1 > set2) ? set1 : set2);
     }
 
