@@ -94,7 +94,7 @@ public class SimulatedActivity extends Activity{
             public void run() {
                 sim.setHeartRate(Integer.parseInt(seekBarHeartValue.getText().toString()));
                 count++;
-                if (count == 5) {
+                if (count == 10) {
                     count = 0;
                     sim.run();
                 }

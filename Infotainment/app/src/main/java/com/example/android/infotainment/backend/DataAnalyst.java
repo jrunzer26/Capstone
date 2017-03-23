@@ -76,8 +76,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
     //VARIABLES AND STRUCTURES REQUIRED FOR THE ALGORITHM;
     private final int WINDOW = 50; //Size of the sliding window
-    //private final int THRESHOLD = 0; //Difference between window and overall needed to trigger DTW
-    private final int THRESHOLD = -1;
+    private final int THRESHOLD = 35; //Difference between window and overall needed to trigger DTW
+
 
     private SlidingWindow sw = new SlidingWindow(WINDOW);
     private ArrayList<Double> mean = new ArrayList<Double>();
@@ -242,9 +242,10 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private boolean step2_HRComparison(double window, double threshold){
         Log.i(" window", window+"");
         Log.i(" threshold", threshold+"");
+        Log.i(" return", window - threshold + " > " + THRESHOLD);
         //####################################### UNCOMMENT IN REAL IMPLEMENTATION
-        //return ((window - threshold) > THRESHOLD);
-        return true;
+        return ((window - threshold) > THRESHOLD);
+        //return true;
     }
 
     /**
