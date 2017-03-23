@@ -176,12 +176,13 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
     /** DEPRECIATED
      * Determines deviations in the driver's behaviours
-     * TODO: This function should use pattern data matching or alternative learning algorithms in the next semester
+     * TODO: Handle 0 Heart Rates
      * @param sensorData: The sensor data
      * @return Deviations in the heart rate
      */
     private int determineHRDeviation(SensorData sensorData) {
         int stdDev = 0;
+
         //Determine the estimated weighted average
         userAverage = (int)Math.round((0.9*userAverage)+(0.1*sensorData.getHeartRate()));
         stdDev = Math.abs(sensorData.getHeartRate() - userAverage);
@@ -203,6 +204,9 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private void step1_HeartRateDeviations(SensorData sensorData, int dataCounter){
         System.out.println("Step1");
         double rollingStdDev = 0;
+        if (sensorData.getHeartRate() == 0) {
+            return;
+        }
         sw.add(sensorData.getHeartRate());
         mean.add(findMean(sensorData.getHeartRate()));
         Log.i("sensor data", sensorData.getHeartRate()+"");
@@ -275,6 +279,14 @@ public class DataAnalyst extends Thread implements DataReceiver {
         if( minSingle != null) {
             Log.i("minSingle not null", ratioDistance_singleDimension(minSingle, minDataSingleDim, false)+" > "+PERCENT_THRESHOLD);
             Log.i(" event", drivingEvent[0]);
+            String vehWarped = "";
+            String baseWarped = "";
+            for (int counterI = 0; counterI < minSingle.getPath().size(); counterI++){
+                vehWarped = vehWarped + minDataSingleDim.getVData().get((Integer)minSingle.getPath().getTS1().get(counterI))+" ";
+                baseWarped = baseWarped + minDataSingleDim.getBaseline()[(Integer) minSingle.getPath().getTS2().get(counterI)]+" ";
+            }
+            Log.i("VehWarped", vehWarped);
+            Log.i("BaselineWarped", baseWarped);
         }
         if (minSingle == null) {
             Log.i("minSingle null", checkSpeeding(b, speedDevHistory, dtw)+" > "+PERCENT_THRESHOLD);
@@ -305,7 +317,9 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 }
             }
         } else {
+            Log.i("turningAlertCheck", turningAlertCheck(ratioDistance_doubleDimension(minDouble, md))+"");
             if (turningAlertCheck(ratioDistance_doubleDimension(minDouble, md))) {
+
                 alertDetected = false;
             }
         }
@@ -461,12 +475,24 @@ public class DataAnalyst extends Thread implements DataReceiver {
             Log.i("data: ", i+ " " + (Integer)twi.getPath().getTS1().get(i) + " " + (Integer)twi.getPath().getTS2().get(i));
         }
         */
+
+        /*
         for (int i = 0; i < twi.getPath().getTS1().size(); i++) {
 
             sum1 += (double) series.getVData().get((Integer) twi.getPath().getTS1().get(i));
             sum2 += series.getBaseline()[(Integer) twi.getPath().getTS2().get(i)];
         }
-        average1 = (sum1/twi.getPath().getTS1().size());
+        */
+
+        for (int i = 0; i < series.getVData().size(); i++){
+            sum1+=(double)series.getVData().get(i);
+        }
+        for (int j = 0; j < series.getBaseline().length; j++){
+            sum2+=series.getBaseline()[j];
+        }
+
+        //average1 = (sum1/twi.getPath().getTS1().size());
+        average1 = (sum1/series.getVData().size());
         Log.i(" average 1", average1 + " == 0" );
         if (average1 == 0 & !cruise) {
 
@@ -474,8 +500,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
         } else if (average1 == 0 & cruise) {
             return 1;
         }
-        average2 = (sum2/twi.getPath().getTS2().size());
-
+        //average2 = (sum2/twi.getPath().getTS2().size());
+        average2 = (sum2/series.getBaseline().length);
         return Math.abs((average1/average2));
     }
 
