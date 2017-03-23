@@ -58,6 +58,21 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private static final double PERCENT_THRESHOLD_RIGHT_UPPER = 1.05;
     private static final double PERCENT_THRESHOLD_RIGHT_LOWER = 0.83;
 
+    // accel near stop upper
+    private static final double PERCENT_THRESHOLD_ACCEL_NEAR_STOP_UPPER = 1.1;
+    private static final double PERCENT_THRESHOLD_ACCEL_NEAR_STOP_LOWER= 0.9;
+
+    // accel from speed
+    private static final double PERCENT_THRESHOLD_ACCEL_FROM_SPEED_UPPER = 1.1;
+    private static final double PERCENT_THRESHOLD_ACCEL_FROM_SPEED_LOWER= 0.9;
+
+    // speeding
+    private static final double PERCENT_THRESHOLD_SPEEDING_UPPER = 1.1;
+    private static final double PERCENT_THRESHOLD_SPEEDING_LOWER= 0.9;
+
+    // brake
+    private static final double PERCENT_THRESHOLD_BRAKE_UPPER = 1.1;
+    private static final double PERCENT_THRESHOLD_BRAKE_LOWER= 0.9;
 
     //VARIABLES AND STRUCTURES REQUIRED FOR THE ALGORITHM;
     private final int WINDOW = 50; //Size of the sliding window
@@ -67,7 +82,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private SlidingWindow sw = new SlidingWindow(WINDOW);
     private ArrayList<Double> mean = new ArrayList<Double>();
     private ArrayList<Double> stdDev = new ArrayList<Double>();
-    private static final double PERCENT_THRESHOLD = 1.1;
+
     public static final int RADIUS = 30;
     public static final DistanceFunction distFn = DistanceFunctionFactory.getDistFnByName("EuclideanDistance");
     private String[] drivingEvent = new String[2];
@@ -87,12 +102,13 @@ public class DataAnalyst extends Thread implements DataReceiver {
             500,
             500
     };
+    // 2 - cruising
     // 3 - speeding
     private final int WARNING_THRESHHOLD [] ={
             1,
             1,
-            1,
-            100,
+            2,
+            15,
             1,
             1,
             1,
@@ -276,42 +292,68 @@ public class DataAnalyst extends Thread implements DataReceiver {
         minSingle = minSim_singleDimension(b, speedHistory, speedDevHistory, SINGLE_DIM_EVENTS, dtw);
 
         boolean alertDetected = false;
-        if( minSingle != null) {
-            Log.i("minSingle not null", ratioDistance_singleDimension(minSingle, minDataSingleDim, false)+" > "+PERCENT_THRESHOLD);
-            Log.i(" event", drivingEvent[0]);
-            String vehWarped = "";
-            String baseWarped = "";
-            for (int counterI = 0; counterI < minSingle.getPath().size(); counterI++){
-                vehWarped = vehWarped + minDataSingleDim.getVData().get((Integer)minSingle.getPath().getTS1().get(counterI))+" ";
-                baseWarped = baseWarped + minDataSingleDim.getBaseline()[(Integer) minSingle.getPath().getTS2().get(counterI)]+" ";
+        double percentThresholdUpper, percentThresholdLower;
+        if (drivingEvent[0] == null)
+            drivingEvent[0] = "";
+        switch (drivingEvent[0]) {
+            case "speeding": {
+                percentThresholdLower = PERCENT_THRESHOLD_SPEEDING_LOWER;
+                percentThresholdUpper = PERCENT_THRESHOLD_SPEEDING_UPPER;
+                break;
             }
-            Log.i("VehWarped", vehWarped);
-            Log.i("BaselineWarped", baseWarped);
+            case "brake" : {
+                percentThresholdLower = PERCENT_THRESHOLD_BRAKE_LOWER;
+                percentThresholdUpper = PERCENT_THRESHOLD_BRAKE_UPPER;
+                break;
+            }
+            case "accelNearStop" : {
+                percentThresholdLower = PERCENT_THRESHOLD_ACCEL_NEAR_STOP_LOWER;
+                percentThresholdUpper = PERCENT_THRESHOLD_ACCEL_NEAR_STOP_UPPER;
+                break;
+            }
+            case "accel" : {
+                percentThresholdLower = PERCENT_THRESHOLD_ACCEL_FROM_SPEED_LOWER;
+                percentThresholdUpper = PERCENT_THRESHOLD_ACCEL_FROM_SPEED_UPPER;
+                break;
+            }
+            default : {
+                percentThresholdLower = 0.9;
+                percentThresholdUpper = 1.1;
+                break;
+            }
+        }
+
+        if( minSingle != null) {
+            Log.i("minSingle not null", percentThresholdLower +  "<" + ratioDistance_singleDimension(minSingle, minDataSingleDim, false)+" > "+ percentThresholdUpper);
+            Log.i(" event", drivingEvent[0]);
         }
         if (minSingle == null) {
-            Log.i("minSingle null", checkSpeeding(b, speedDevHistory, dtw)+" > "+PERCENT_THRESHOLD);
-            if(checkSpeeding(b, speedDevHistory, dtw) > PERCENT_THRESHOLD) {
+            Log.i("minSingle null", percentThresholdLower + " < " + checkSpeeding(b, speedDevHistory, dtw)+" > "+ percentThresholdUpper);
+            if(checkSpeeding(b, speedDevHistory, dtw) > percentThresholdUpper) {
                 //alertCheck(drivingEvent[0]);
                 alertDetected = true;
             }
-        } else if (ratioDistance_singleDimension(minSingle, minDataSingleDim, false) > PERCENT_THRESHOLD) {
-            Log.i(" driving event 0", drivingEvent[0]);
-            //alertCheck(drivingEvent[0]);
-            alertDetected = true;
+        } else {
+            double ratioDistance = ratioDistance_singleDimension(minSingle, minDataSingleDim, false);
+            if (ratioDistance > percentThresholdUpper || ratioDistance < percentThresholdLower) {
+                Log.i(" driving event 0", drivingEvent[0]);
+                //alertCheck(drivingEvent[0]);
+                alertDetected = true;
+            }
         }
 
         minDouble = minSim_doubleDimension(b, speedHistory, turningHistory, TWO_DIM_EVENTS, dtw);
         if (minDouble[0] != null && minDouble[1] != null) {
-            Log.i("comparison", drivingEvent[1] + " " + ratioDistance_doubleDimension(minDouble, md) +" > " + PERCENT_THRESHOLD);
+            Log.i("comparison", drivingEvent[1] + " ratio distance:" + ratioDistance_doubleDimension(minDouble, md));
         } else if (minDouble[1] != null && minDouble[0] == null) {
-            Log.i("comparison",  drivingEvent[1] + " " +ratioDistance_singleDimension(minDouble[1], md[1], true) +" > " + PERCENT_THRESHOLD);
+            Log.i("comparison",  drivingEvent[1] + " " + PERCENT_THRESHOLD_CRUISE_LOWER + " <" +ratioDistance_singleDimension(minDouble[1], md[1], true) +" > " + PERCENT_THRESHOLD_CRUISE_UPPER);
         }
         if (minDouble[0] == null && minDouble[1] == null) {
             //alertCheck("none");
         } else if (minDouble[1] != null && minDouble[0] == null) {
             Log.i("in minDouble[1]", "test");
             double ratioDistance = ratioDistance_singleDimension(minDouble[1], md[1], true);
-            if (ratioDistance < PERCENT_THRESHOLD_CRUISE_LOWER && ratioDistance > PERCENT_THRESHOLD_CRUISE_UPPER) {
+            if (ratioDistance < PERCENT_THRESHOLD_CRUISE_LOWER || ratioDistance > PERCENT_THRESHOLD_CRUISE_UPPER) {
                 if (!alertDetected || (alertDetected && drivingEvent[0].equals("speeding"))) {
                     alertCheck(drivingEvent[1]);
                 }
@@ -322,6 +364,9 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
                 alertDetected = false;
             }
+
+            Log.i("alert detected", alertDetected + "");
+
         }
         if (alertDetected) {
             alertCheck(drivingEvent[0]);
@@ -336,6 +381,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         double turningRatio = set[1];
         double speedingRatio = set[0];
         Log.i("ratios", "turning: " + turningRatio + " speedingRatio: " + speedingRatio);
+
         double lowerThresholdSteering, upperThresholdSteering, lowerThresholdSpeed, upperThresholdSpeed;
 
         if(drivingEvent[1].equals("left")) {
@@ -345,11 +391,10 @@ public class DataAnalyst extends Thread implements DataReceiver {
             lowerThresholdSteering = PERCENT_THRESHOLD_RIGHT_LOWER;
             upperThresholdSteering = PERCENT_THRESHOLD_RIGHT_UPPER;
         }
-        if (turningRatio < lowerThresholdSteering) {
+        Log.i("if statement", turningRatio+ " < " + lowerThresholdSteering + " || " + turningRatio + " > " + upperThresholdSteering);
+        if (turningRatio < lowerThresholdSteering || turningRatio > upperThresholdSteering) {
             alertCheck(drivingEvent[1]);
-            return true;
-        } else if (turningRatio > upperThresholdSteering) {
-            alertCheck(drivingEvent[1]);
+            Log.i("turn alert", "turning Check");
             return true;
         }
         return false;
