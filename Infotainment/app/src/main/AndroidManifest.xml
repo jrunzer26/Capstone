@@ -15,6 +15,7 @@
         <activity android:name=".backend.ConnectingActivity">
             <!-- For the real implementation -->
 
+
         </activity>
         <activity android:name=".MainActivity"></activity>
         <activity android:name=".mock.MockMainActivity"/>

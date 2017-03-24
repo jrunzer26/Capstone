@@ -29,6 +29,7 @@ public class SlidingWindow {
         window[counter%window.length] = element;
         average = (sum/window.length);
         counter++;
+
     }
     public double getAverage(){
         return average;
