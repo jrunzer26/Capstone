@@ -61,7 +61,7 @@ public class MockCarBluetoothHandler {
         simDatas = new ArrayList<>();
         //insertData("BrakingInput.csv");
         //insertData("BrakingDevious.csv");
-        //insertData("baselineInput.csv");
+        insertData("baselineInput.csv");
         //insertData("brakeInput.csv");
         //insertData("brakeInput2.csv");
         //insertData("BrakeHigh.csv");
@@ -74,10 +74,15 @@ public class MockCarBluetoothHandler {
         //insertData("rightTurn.csv");
         //insertData("hardRightTurn.csv");
         //insertData("cruising.csv");
-        insertData("cruising2.csv");
+        //insertData("cruising2.csv");
         //insertData("slowRightTurn.csv");
         //insertData("lightRightTurn.csv");
         //insertData("CombinedAccelBrake.csv");
+        //insertData("cruising2.csv");
+        //insertData("slowRightTurn.csv");
+        //insertData("lightRightTurn.csv");
+        //insertData("CombinedAccelBrake.csv");
+        //insertData("HRTest.csv");
         //constantSpeed(50, 10);
         /*
 

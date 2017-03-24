@@ -71,7 +71,6 @@ public class Baselines {
         // init the baselines depending on the current trip id.
 
         if (userDatabaseHelper.getNextTripID() == 1) {
-            System.out.println("Here");
             dbaFirstTimeInit();
         } else if (userDatabaseHelper.getNextTripID() > 1) {
             dbaInitPreviousSavedTrip();
@@ -785,7 +784,6 @@ public class Baselines {
 
     private void startSpeedingBaseline(ArrayList<UserData> data) {
         ArrayList<ArrayList<UserData>> extractedSpeeding = extractSpeedingData(data);
-        System.out.println("HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
         Util.print2dUserDataListSpeed(extractedSpeeding, "extracted speeding");
         dbaSpeeding(extractedSpeeding);
     }

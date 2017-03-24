@@ -43,10 +43,11 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private Queue<UserData> userDataLinkedList;
     private int userAverage = 70;
     private Double steering;
-    private final int SINGLE_SIMILARITY_BOUND = 500;
-    private final int DOUBLE_SIMILARITY_BOUND = 2500;
+    private final int SINGLE_SIMILARITY_BOUND = 700;
+    private final int DOUBLE_SIMILARITY_BOUND = 2600;
 
     // cruise
+
     private static final double PERCENT_THRESHOLD_CRUISE_UPPER = 3;
     private static final double PERCENT_THRESHOLD_CRUISE_LOWER = 0.00;
 
@@ -59,20 +60,20 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private static final double PERCENT_THRESHOLD_RIGHT_LOWER = 0.80;
 
     // accel near stop upper
-    private static final double PERCENT_THRESHOLD_ACCEL_NEAR_STOP_UPPER = 1.1;
-    private static final double PERCENT_THRESHOLD_ACCEL_NEAR_STOP_LOWER= 0.9;
+    private static final double PERCENT_THRESHOLD_ACCEL_NEAR_STOP_UPPER = 1.3;
+    private static final double PERCENT_THRESHOLD_ACCEL_NEAR_STOP_LOWER= 0.7;
 
     // accel from speed
-    private static final double PERCENT_THRESHOLD_ACCEL_FROM_SPEED_UPPER = 1.1;
-    private static final double PERCENT_THRESHOLD_ACCEL_FROM_SPEED_LOWER= 0.9;
+    private static final double PERCENT_THRESHOLD_ACCEL_FROM_SPEED_UPPER = 1.3;
+    private static final double PERCENT_THRESHOLD_ACCEL_FROM_SPEED_LOWER= 0.7;
 
-    // speeding
-    private static final double PERCENT_THRESHOLD_SPEEDING_UPPER = 1.1;
+    // speeding0
+    private static final double PERCENT_THRESHOLD_SPEEDING_UPPER = 1.2;
     private static final double PERCENT_THRESHOLD_SPEEDING_LOWER= 0.9;
 
     // brake
     private static final double PERCENT_THRESHOLD_BRAKE_UPPER = 1.1;
-    private static final double PERCENT_THRESHOLD_BRAKE_LOWER= 0.9;
+    private static final double PERCENT_THRESHOLD_BRAKE_LOWER= 0.0;
 
     //VARIABLES AND STRUCTURES REQUIRED FOR THE ALGORITHM;
     private final int WINDOW = 50; //Size of the sliding window
@@ -108,7 +109,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
             1,
             1,
             2,
-            15,
+            10,
             1,
             1,
             1,
@@ -179,9 +180,9 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 Log.i(" isDone: ", isDoneSetup + "");
                 Log.i(" hasEnoughData: ", vehicleHistory.hasEnoughData() +"");
 
-                if (stdDev.size() > WINDOW) {
-                    Log.i(" hrCompare", step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() -1)) + "");
-                    if (isDoneSetup && step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() - 1)) && vehicleHistory.hasEnoughData()) {
+
+                if (stdDev.size() > WINDOW){
+                    if(isDoneSetup && step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() -1)) && vehicleHistory.hasEnoughData()) {
                         step3_GetMinSimilarity(baselines, vehicleHistory);
                         //We now know what is the most similar
                         //Pass this into a ratio checker
@@ -189,6 +190,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
                         //Record to the database
                     }
                 }
+
             }
         }
     }
@@ -222,7 +224,6 @@ public class DataAnalyst extends Thread implements DataReceiver {
     }
 
     private void step1_HeartRateDeviations(SensorData sensorData, int dataCounter){
-        System.out.println("Step1");
         double rollingStdDev = 0;
         if (sensorData.getHeartRate() == 0) {
             return;
@@ -248,6 +249,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         Log.i(" window", window+"");
         Log.i(" threshold", threshold+"");
         Log.i(" return", window - threshold + " > " + THRESHOLD);
+        Log.i("difference", (window-threshold)+"");
         //####################################### UNCOMMENT IN REAL IMPLEMENTATION
         return ((window - threshold) > THRESHOLD);
         //return true;
@@ -330,19 +332,19 @@ public class DataAnalyst extends Thread implements DataReceiver {
         }
 
         if( minSingle != null) {
-            Log.i("minSingle not null", percentThresholdLower +  "<" + ratioDistance_singleDimension(minSingle, minDataSingleDim, false)+" > "+ percentThresholdUpper);
-            Log.i(" event", drivingEvent[0]);
+            //Log.i("minSingle not null", percentThresholdLower +  "<" + ratioDistance_singleDimension(minSingle, minDataSingleDim, false)+" > "+ percentThresholdUpper);
+            //Log.i(" event", drivingEvent[0]);
         }
         if (minSingle == null) {
-            Log.i("minSingle null", percentThresholdLower + " < " + checkSpeeding(b, speedDevHistory, dtw)+" > "+ percentThresholdUpper);
+            Log.i("No Event/Speeding", percentThresholdLower + " < " + checkSpeeding(b, speedDevHistory, dtw)+" > "+ percentThresholdUpper);
             if(checkSpeeding(b, speedDevHistory, dtw) > percentThresholdUpper) {
                 //alertCheck(drivingEvent[0]);
                 alertDetected = true;
             }
         } else {
+            Log.i("Single Event", percentThresholdLower +  "<" + ratioDistance_singleDimension(minSingle, minDataSingleDim, false)+" > "+ percentThresholdUpper);
             double ratioDistance = ratioDistance_singleDimension(minSingle, minDataSingleDim, false);
             if (ratioDistance > percentThresholdUpper || ratioDistance < percentThresholdLower) {
-                Log.i(" driving event 0", drivingEvent[0]);
                 //alertCheck(drivingEvent[0]);
                 alertDetected = true;
             }
@@ -350,28 +352,30 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
         minDouble = minSim_doubleDimension(b, speedHistory, turningHistory, TWO_DIM_EVENTS, dtw);
         if (minDouble[0] != null && minDouble[1] != null) {
-            Log.i("comparison", drivingEvent[1] + " ratio distance:" + ratioDistance_doubleDimension(minDouble, md));
+            //Log.i("comparison", drivingEvent[1] + " ratio distance:" + ratioDistance_doubleDimension(minDouble, md));
         } else if (minDouble[1] != null && minDouble[0] == null) {
-            Log.i("comparison",  drivingEvent[1] + " " + PERCENT_THRESHOLD_CRUISE_LOWER + " <" +ratioDistance_singleDimension(minDouble[1], md[1], true) +" > " + PERCENT_THRESHOLD_CRUISE_UPPER);
+            //Log.i("comparison",  drivingEvent[1] + " " + PERCENT_THRESHOLD_CRUISE_LOWER + " <" +ratioDistance_singleDimension(minDouble[1], md[1], true) +" > " + PERCENT_THRESHOLD_CRUISE_UPPER);
         }
         if (minDouble[0] == null && minDouble[1] == null) {
             //alertCheck("none");
         } else if (minDouble[1] != null && minDouble[0] == null) {
-            Log.i("in minDouble[1]", "test");
+            //Log.i("in minDouble[1]", "test");
+
             double ratioDistance = ratioDistance_singleDimension(minDouble[1], md[1], true);
+            Log.i("Cruising", PERCENT_THRESHOLD_CRUISE_LOWER + " < " + ratioDistance + " > " + PERCENT_THRESHOLD_CRUISE_UPPER);
             if ((ratioDistance < PERCENT_THRESHOLD_CRUISE_LOWER || ratioDistance > PERCENT_THRESHOLD_CRUISE_UPPER) && ratioDistance < 10) {
                 if (!alertDetected || (alertDetected && drivingEvent[0].equals("speeding"))) {
                     alertCheck(drivingEvent[1]);
                 }
             }
         } else {
-            Log.i("turningAlertCheck", turningAlertCheck(ratioDistance_doubleDimension(minDouble, md))+"");
+            //Log.i("turningAlertCheck", turningAlertCheck(ratioDistance_doubleDimension(minDouble, md))+"");
             if (turningAlertCheck(ratioDistance_doubleDimension(minDouble, md))) {
 
                 alertDetected = false;
             }
 
-            Log.i("alert detected", alertDetected + "");
+            //Log.i("alert detected", alertDetected + "");
 
         }
         if (alertDetected) {
@@ -383,10 +387,10 @@ public class DataAnalyst extends Thread implements DataReceiver {
     // [0] = speeding
     // [1] = steering
     private boolean turningAlertCheck(double[] set) {
-        Util.printArray(set, "sets lol");
+        //Util.printArray(set, "sets lol");
         double turningRatio = set[1];
         double speedingRatio = set[0];
-        Log.i("ratios", "turning: " + turningRatio + " speedingRatio: " + speedingRatio);
+        //Log.i("ratios", "turning: " + turningRatio + " speedingRatio: " + speedingRatio);
 
         double lowerThresholdSteering, upperThresholdSteering, lowerThresholdSpeed, upperThresholdSpeed;
 
@@ -397,10 +401,10 @@ public class DataAnalyst extends Thread implements DataReceiver {
             lowerThresholdSteering = PERCENT_THRESHOLD_RIGHT_LOWER;
             upperThresholdSteering = PERCENT_THRESHOLD_RIGHT_UPPER;
         }
-        Log.i("if statement", turningRatio+ " < " + lowerThresholdSteering + " || " + turningRatio + " > " + upperThresholdSteering);
+        Log.i("Turning", turningRatio+ " < " + lowerThresholdSteering + " || " + turningRatio + " > " + upperThresholdSteering);
         if (turningRatio < lowerThresholdSteering || turningRatio > upperThresholdSteering) {
             alertCheck(drivingEvent[1]);
-            Log.i("turn alert", "turning Check");
+            //Log.i("turn alert", "turning Check");
             return true;
         }
         return false;
@@ -416,13 +420,13 @@ public class DataAnalyst extends Thread implements DataReceiver {
         for(int j =0; j < baseline.length; j++) {
             baselineString += baseline[j] + "\t";
         }
-        Log.i("Speeding baseline", baselineString);
+        //Log.i("Speeding baseline", baselineString);
         for(int j =0; j < history.size(); j++) {
             eventString += history.get(j) + "\t";
         }
-        Log.i("Speeding veh", eventString);
+        //Log.i("Speeding veh", eventString);
         temp = dtw.getWarpInfoBetween(new TimeSeries(history), new TimeSeries(baseline), RADIUS, distFn);
-        Log.i(" dtw", "speeding sim: " + temp.getDistance() + " < " + SINGLE_SIMILARITY_BOUND);
+        //Log.i(" dtw", "speeding sim: " + temp.getDistance() + " < " + SINGLE_SIMILARITY_BOUND);
         if (temp.getDistance() <  SINGLE_SIMILARITY_BOUND) {
             if ((toReturn == null) || temp.getDistance() < toReturn.getDistance()) {
                 toReturn = temp;
@@ -431,7 +435,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 minDataSingleDim.setEvent("speeding");
                 minDataSingleDim.setVData(history);
                 drivingEvent[0]= "speeding";
-                Log.i("event changed", "speeding");
+                //Log.i("event changed", "speeding");
                 //Log.i(" in if", minDataSingleDim.getBaseline().length+"" + " event: " + tempEvent);
             }
         }
@@ -445,7 +449,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         String tempEvent="";
         double[] baseline;
         List history = sHist;
-        Log.i("sHist length: ", sHist.size()+"");
+        //Log.i("sHist length: ", sHist.size()+"");
         for (int i = 0; i< events; i++){
             switch (i) {
                 case 0: {
@@ -473,21 +477,21 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 }
             }
             //Log.i(" minSingle " + i, sHist.size() + " " + baseline.length);
-            Log.i(" temp event", tempEvent + " length: " + history.size());
+            //Log.i(" temp event", tempEvent + " length: " + history.size());
             String baselineString = "";
             String eventString = "";
             for(int j =0; j < baseline.length; j++) {
                 baselineString += baseline[j] + "\t";
             }
-            Log.i(tempEvent + " baseline", baselineString);
+            //Log.i(tempEvent + " baseline", baselineString);
             for(int j =0; j < history.size(); j++) {
                 eventString += history.get(j) + "\t";
 
             }
-            Log.i(tempEvent + "veh", eventString);
+            //Log.i(tempEvent + "veh", eventString);
 
             temp = dtw.getWarpInfoBetween(new TimeSeries(history), new TimeSeries(baseline), RADIUS, distFn);
-            Log.i(" dtw", tempEvent + " sim: " + temp.getDistance() + " < " + SINGLE_SIMILARITY_BOUND);
+            Log.i("DTW Similarity", tempEvent + " sim: " + temp.getDistance() + " < " + SINGLE_SIMILARITY_BOUND);
             if (temp.getDistance() <  SINGLE_SIMILARITY_BOUND) {
                 if ((toReturn == null) || temp.getDistance() < toReturn.getDistance()) {
                     toReturn = temp;
@@ -496,9 +500,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
                     minDataSingleDim.setEvent(tempEvent);
                     minDataSingleDim.setVData(history);
                     drivingEvent[0]= tempEvent;
-                    Log.i("event changed", tempEvent);
-                    System.out.println("Array");
-                    System.out.println(history.toArray());
+                    Log.i("Event changed to", tempEvent);
+
                     //Log.i(" in if", minDataSingleDim.getBaseline().length+"" + " event: " + tempEvent);
                 }
             }
@@ -544,7 +547,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
         //average1 = (sum1/twi.getPath().getTS1().size());
         average1 = (sum1/series.getVData().size());
-        Log.i(" average 1", average1 + " == 0" );
+        //Log.i(" average 1", average1 + " == 0" );
         if (average1 == 0 & !cruise) {
 
             return 0;
@@ -603,7 +606,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 avgDistance = temp[1].getDistance();
             }
 
-            Log.i(" temp event", tempEvent);
+            Log.i("temp event", tempEvent);
 
             if (temp[0] != null) {
                 Util.printArray(speedBaseline, "speed Baseline");
@@ -611,7 +614,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
             }
             Util.printArray(steeringBaseline, "steering Baseline");
             Util.printList(steeringHist, "steering history");
-            Log.i(" avg distance comp", avgDistance+ " < " + DOUBLE_SIMILARITY_BOUND);
+            Log.i("DTW Similarity", avgDistance+ " < " + DOUBLE_SIMILARITY_BOUND);
 
             if (avgDistance < DOUBLE_SIMILARITY_BOUND) {
                 double maxCalculatedAvg;
@@ -624,7 +627,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 }
                 if ((toReturn[1] == null) || avgDistance < maxCalculatedAvg) {
                     System.arraycopy(temp, 0, toReturn, 0, 2);
-                    Log.i("set md: 1", tempEvent);
+                    //Log.i("set md: 1", tempEvent);
                     md[0].setBaseline(speedBaseline);
                     md[0].setVData(speedHist);
                     md[0].setEvent(tempEvent);
@@ -632,7 +635,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
                     md[1].setBaseline(steeringBaseline);
                     md[1].setVData(steeringHist);
                     md[1].setEvent(tempEvent);
-
+                    Log.i("Event changed to ", tempEvent);
                     drivingEvent[1] = tempEvent;
                 }
 
@@ -674,7 +677,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         average2_2 = sum2_2 / twi[1].getPath().getTS2().size();
 
         set2 = Math.abs((average2_1/average2_2));
-        Log.i("sets", "set1: " + set1 + " set2: " + set2);
+        //Log.i("sets", "set1: " + set1 + " set2: " + set2);
         double [] sets = {set1, set2};
         return sets;
     }
@@ -714,11 +717,12 @@ public class DataAnalyst extends Thread implements DataReceiver {
         Log.i("event if", eventCounter[incomingEvent]  + " >= " +  FATAL_THRESHHOLD[incomingEvent] * repeatSevere[incomingEvent]);
         Log.i("event if2", eventCounter[incomingEvent]+" >= "+WARNING_THRESHHOLD[incomingEvent]);
         if(eventCounter[incomingEvent] >= FATAL_THRESHHOLD[incomingEvent] * repeatSevere[incomingEvent] ){
-            repeatSevere[incomingEvent]++;
+            repeatSevere[incomingEvent] += 4;
             Log.i(" alert", "FATAL");
             alertSystem.alert(applicationContext, alertSystem.ALERT_TYPE_FATAL, incomingEvent);
         }else if(eventCounter[incomingEvent] >= WARNING_THRESHHOLD[incomingEvent]){
             Log.i(" alert", "WARNING");
+            WARNING_THRESHHOLD[incomingEvent] += eventCounter[incomingEvent] * 2;
             alertSystem.alert(applicationContext, alertSystem.ALERT_TYPE_WARNING, incomingEvent);
         } else
             Log.i(" alert", "NONE");

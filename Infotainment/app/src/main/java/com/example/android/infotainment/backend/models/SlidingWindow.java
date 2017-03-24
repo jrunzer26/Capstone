@@ -34,6 +34,7 @@ public class SlidingWindow {
             test = test + window[i] + ", ";
         }
         Log.i("Window contents", test);
+
     }
     public double getAverage(){
         return average;
