@@ -27,9 +27,9 @@ public class UserData {
 
 
     private void initFlags() {
-        if (simData.getSteering() > 10) {
+        if (simData.getSteering() > 20) {
             turnFlag = FLAG_RIGHT_TURN;
-        } else if(simData.getSteering() < -10) {
+        } else if(simData.getSteering() < -20) {
             turnFlag = FLAG_LEFT_TURN;
         } else {
             turnFlag = FLAG_NONE;

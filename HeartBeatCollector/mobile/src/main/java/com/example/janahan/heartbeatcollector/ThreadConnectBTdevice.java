@@ -31,10 +31,13 @@ public class ThreadConnectBTdevice extends Thread {
 
         bluetoothDevice = device;
         try {
+            Log.i("test", "in btdevice");
             //Trys to create a socket based off of the UUID and device object you passed in
             bluetoothSocket = device.createRfcommSocketToServiceRecord(myUUID);
             System.out.println(bluetoothSocket.toString());
-        } catch (Exception e) { }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**

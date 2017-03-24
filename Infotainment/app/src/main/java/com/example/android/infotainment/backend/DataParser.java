@@ -36,7 +36,7 @@ public class DataParser {
         carData = new LinkedList<>();
         heartRateData = new LinkedList<>();
         this.tripID = tripID;
-        userDatabaseHelper.printRelevantDataSet();
+        //userDatabaseHelper.printRelevantDataSet();
     }
 
     /**

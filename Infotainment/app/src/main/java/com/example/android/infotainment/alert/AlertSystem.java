@@ -25,7 +25,7 @@ public class AlertSystem {
     private final String [] MESSAGES_DRIVING = {
             "accel",
             "braking",
-            "cruise",
+            "Cruise. Please be alert and pay attention to the road.",
             "speeding",
             "left",
             "Attention, your right turn driving habits seem to be abnormal, please be safe on the road.",
@@ -42,7 +42,7 @@ public class AlertSystem {
 
 
     private final String[] MESSAGES_CRUISE = {
-            "Cruise. Please be alert and pay attention to the road."
+
     };
 
 

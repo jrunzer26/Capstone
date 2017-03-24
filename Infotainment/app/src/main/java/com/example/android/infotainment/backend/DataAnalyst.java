@@ -44,19 +44,19 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private int userAverage = 70;
     private Double steering;
     private final int SINGLE_SIMILARITY_BOUND = 500;
-    private final int DOUBLE_SIMILARITY_BOUND = 1000;
+    private final int DOUBLE_SIMILARITY_BOUND = 2500;
 
     // cruise
-    private static final double PERCENT_THRESHOLD_CRUISE_UPPER = 1.1;
-    private static final double PERCENT_THRESHOLD_CRUISE_LOWER = 0.9;
+    private static final double PERCENT_THRESHOLD_CRUISE_UPPER = 3;
+    private static final double PERCENT_THRESHOLD_CRUISE_LOWER = 0.00;
 
     // left steering
     private static final double PERCENT_THRESHOLD_LEFT_UPPER = 1.05;
     private static final double PERCENT_THRESHOLD_LEFT_LOWER = 0.83;
 
     // right steering
-    private static final double PERCENT_THRESHOLD_RIGHT_UPPER = 1.05;
-    private static final double PERCENT_THRESHOLD_RIGHT_LOWER = 0.83;
+    private static final double PERCENT_THRESHOLD_RIGHT_UPPER = 1.4;
+    private static final double PERCENT_THRESHOLD_RIGHT_LOWER = 0.80;
 
     // accel near stop upper
     private static final double PERCENT_THRESHOLD_ACCEL_NEAR_STOP_UPPER = 1.1;
@@ -76,7 +76,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
     //VARIABLES AND STRUCTURES REQUIRED FOR THE ALGORITHM;
     private final int WINDOW = 50; //Size of the sliding window
-    private final int THRESHOLD = 35; //Difference between window and overall needed to trigger DTW
+    private final int THRESHOLD = 0; //Difference between window and overall needed to trigger DTW
 
 
     private SlidingWindow sw = new SlidingWindow(WINDOW);
@@ -126,7 +126,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
         baselines = new Baselines(applicationContext);
         baselines.printBaselines();
         isDoneSetup = baselines.isSetup();
-        vehicleHistory = new VehicleHistory(baselines.maxBaselineSize());
+        //vehicleHistory = new VehicleHistory(baselines.maxBaselineSize());
+        vehicleHistory = new VehicleHistory(50);
         for(int i = 0; i < md.length; i++) {
             md[i] = new MinData();
         }
@@ -166,7 +167,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
             if (userDataLinkedList.size() > 0) {
                 counter++;
                 UserData userData = userDataLinkedList.remove();
-                //System.out.println(userData.toString());
+                System.out.println(userData.toString());
                 System.out.println("=======================NEXT STEP==================");
                 SensorData sensorData = userData.getSensorData();
                 SimData simData = userData.getSimData();
@@ -177,13 +178,16 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
                 Log.i(" isDone: ", isDoneSetup + "");
                 Log.i(" hasEnoughData: ", vehicleHistory.hasEnoughData() +"");
-                Log.i(" hrCompare", step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() -1)) + "");
-                if(isDoneSetup && step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() -1)) && vehicleHistory.hasEnoughData()) {
-                    step3_GetMinSimilarity(baselines, vehicleHistory);
-                    //We now know what is the most similar
-                    //Pass this into a ratio checker
-                } else { //Setup not done, or no deviation
-                    //Record to the database
+
+                if (stdDev.size() > WINDOW) {
+                    Log.i(" hrCompare", step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() -1)) + "");
+                    if (isDoneSetup && step2_HRComparison(sw.getStdDev(), stdDev.get(stdDev.size() - 1)) && vehicleHistory.hasEnoughData()) {
+                        step3_GetMinSimilarity(baselines, vehicleHistory);
+                        //We now know what is the most similar
+                        //Pass this into a ratio checker
+                    } else { //Setup not done, or no deviation
+                        //Record to the database
+                    }
                 }
             }
         }
@@ -233,6 +237,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
             double step2 = (dataCounter-1)*((mean.get(dataCounter-2) - mean.get(dataCounter-1)) * (mean.get(dataCounter-2) - mean.get(dataCounter-1)));
             double step3 = (sensorData.getHeartRate() - mean.get(dataCounter-1)) * (sensorData.getHeartRate() - mean.get(dataCounter-1));
             rollingStdDev = Math.sqrt((step1 + step2 + step3) / (dataCounter-1));
+            Log.i("Pushed stdDev", rollingStdDev+"");
             stdDev.add(rollingStdDev);
             //System.out.println(rollingStdDev);
         }
@@ -354,7 +359,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         } else if (minDouble[1] != null && minDouble[0] == null) {
             Log.i("in minDouble[1]", "test");
             double ratioDistance = ratioDistance_singleDimension(minDouble[1], md[1], true);
-            if (ratioDistance < PERCENT_THRESHOLD_CRUISE_LOWER || ratioDistance > PERCENT_THRESHOLD_CRUISE_UPPER) {
+            if ((ratioDistance < PERCENT_THRESHOLD_CRUISE_LOWER || ratioDistance > PERCENT_THRESHOLD_CRUISE_UPPER) && ratioDistance < 10) {
                 if (!alertDetected || (alertDetected && drivingEvent[0].equals("speeding"))) {
                     alertCheck(drivingEvent[1]);
                 }
