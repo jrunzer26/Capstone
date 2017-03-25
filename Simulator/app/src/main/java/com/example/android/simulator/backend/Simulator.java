@@ -68,6 +68,7 @@ public class Simulator implements Runnable, Car {
         currentSimData.setClimateVisibility(EnvironmentSimulatorFragment.visibility);
         // send a copy of the current state to the output queue
         simDataArrayList.add(currentSimData.copy());
+
         count++;
         if (count == SENDING_SIZE) {
             count = 0;
