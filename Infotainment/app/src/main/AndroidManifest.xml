@@ -2,9 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.android.infotainment">
 
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:allowBackup="true"
@@ -13,13 +13,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".backend.ConnectingActivity">
+
             <!-- For the real implementation -->
 
         </activity>
-        <activity android:name=".MainActivity"></activity>
-        <activity android:name=".mock.MockMainActivity"/>
+        <activity android:name=".MainActivity" />
+        <activity android:name=".mock.MockMainActivity" />
         <activity android:name=".mock.MockConnectingActivity">
+
             <!-- Insert Intent Filter From Connecting activity here for simulation -->
+
+        </activity>
+        <activity android:name=".OptionsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

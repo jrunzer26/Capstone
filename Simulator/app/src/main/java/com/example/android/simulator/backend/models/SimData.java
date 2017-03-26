@@ -309,6 +309,7 @@ public class SimData {
         copiedData.setRoadCondition(roadCondition);
         copiedData.setRoadType(roadType);
         copiedData.setSpeedLimit(speedLimit);
+        copiedData.setSteering(steering);
         return copiedData;
     }
 

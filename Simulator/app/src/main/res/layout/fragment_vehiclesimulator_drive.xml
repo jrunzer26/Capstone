@@ -125,19 +125,13 @@
             android:layout_centerHorizontal="true"
             android:id="@+id/textView_vehicleSimulatorDrive_steering" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/vehicleSimulatorDrive_positiveMaxSteering"
-            android:layout_alignEnd="@id/seekBar_vehicleSimulatorDrive_steering"/>
-
 
         <SeekBar android:id="@+id/seekBar_vehicleSimulatorDrive_steering"
-            android:progress="31"
-            android:layout_width="450dp"
+            android:progress="180"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_below="@id/textview_vehicleSimulatorDrive_maxNegativeSteering"/>
+            android:layout_below="@id/textview_vehicleSimulatorDrive_maxNegativeSteering"
+            android:layout_width="1000dp" />
 
         <TextView android:id="@+id/vehicleSimulatorDrive_steering"
             android:layout_width="wrap_content"
@@ -146,6 +140,13 @@
             android:layout_marginStart="@dimen/margin_all_betweenButtons"
             android:layout_alignParentStart="true"
             android:layout_below="@id/textview_vehicleSimulatorDrive_maxNegativeSteering"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/vehicleSimulatorDrive_positiveMaxSteering"
+            android:layout_alignParentTop="true"
+            android:layout_alignEnd="@+id/seekBar_vehicleSimulatorDrive_steering" />
     </RelativeLayout>
 
     <RelativeLayout

@@ -1,6 +1,7 @@
 package com.example.android.simulator.backend;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -13,6 +14,7 @@ import com.example.android.simulator.backend.models.Time;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.security.Timestamp;
 import java.util.ArrayList;
 import static com.example.android.simulator.backend.models.SimData.*; // import all constants
 
@@ -66,6 +68,7 @@ public class Simulator implements Runnable, Car {
         currentSimData.setClimateVisibility(EnvironmentSimulatorFragment.visibility);
         // send a copy of the current state to the output queue
         simDataArrayList.add(currentSimData.copy());
+
         count++;
         if (count == SENDING_SIZE) {
             count = 0;
@@ -90,6 +93,7 @@ public class Simulator implements Runnable, Car {
         final TextView seekBarDegValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_steering);
         double steering = Double.parseDouble(seekBarDegValue.getText().toString()
                 .substring(0, seekBarDegValue.getText().toString().indexOf(' ')));
+        Log.i("steering", steering+"");
         currentSimData.setSteering(steering);
     }
 
@@ -128,7 +132,7 @@ public class Simulator implements Runnable, Car {
         ByteArrayOutputStream boas = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(boas);
         //Run 5 times each time grabbing that element in the array's and turning them into bytes
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 10; i++) {
             SimData iteratedSimData = simDataArrayList.get(i);
             try {
                 writeSimDataToDos(dos, iteratedSimData);
@@ -162,6 +166,7 @@ public class Simulator implements Runnable, Car {
         dos.writeBoolean(iteratedSimData.isPaused());
         dos.writeDouble(iteratedSimData.getSpeed());
         dos.writeDouble(iteratedSimData.getAcceleration());
+        Log.i("steering1111", iteratedSimData.getSteering() +"");
         dos.writeDouble(iteratedSimData.getSteering());
         dos.writeInt(iteratedSimData.getSignal());
         dos.writeInt(iteratedSimData.getClimate());

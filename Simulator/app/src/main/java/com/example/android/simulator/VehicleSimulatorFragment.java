@@ -43,8 +43,8 @@ public class VehicleSimulatorFragment extends Fragment {
     final int STEP = 1;
     final int ACC_MAX = 50;
     final int ACC_MIN = -15;
-    final int DEG_MAX = 30;
-    final int DEG_MIN = -30;
+    final int DEG_MAX = 180;
+    final int DEG_MIN = -180;
     final int REFRESH_RATE = 100;
     private Simulator sim;
     private ThreadConnectBTdevice BTdevice;
@@ -81,6 +81,7 @@ public class VehicleSimulatorFragment extends Fragment {
         //Sets the maximum value for the Accleration and Degree slider
         seekBarAcc.setMax((ACC_MAX-ACC_MIN)/STEP);
         seekBarDeg.setMax((DEG_MAX-DEG_MIN)/STEP);
+        seekBarDeg.setProgress(181);
 
         connectButton = (Button)view.findViewById(R.id.button_reConnect);
         incSpeedLimit = (Button)view.findViewById(R.id.button_incSpeedLimit);

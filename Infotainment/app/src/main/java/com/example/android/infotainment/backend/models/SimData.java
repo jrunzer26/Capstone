@@ -76,7 +76,6 @@ public class SimData {
         if (speedLimit != 0) {
             return speed / (speedLimit + 0.0);
         } else {
-            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!PRINT 0 !!!!!!!!!!!!!!!!!!!!!!!!!!!!1");
             return 0;
         }
     }

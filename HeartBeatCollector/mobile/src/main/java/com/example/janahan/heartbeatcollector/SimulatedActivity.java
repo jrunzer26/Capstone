@@ -94,7 +94,7 @@ public class SimulatedActivity extends Activity{
             public void run() {
                 sim.setHeartRate(Integer.parseInt(seekBarHeartValue.getText().toString()));
                 count++;
-                if (count == 5) {
+                if (count == 10) {
                     count = 0;
                     sim.run();
                 }
@@ -116,8 +116,10 @@ public class SimulatedActivity extends Activity{
                 BluetoothDevice device;
                 if(pairedDevices.size() > 0) {
                     for (BluetoothDevice dev: pairedDevices) {
+                        Log.i("print", "hi");
                         device = dev;
                         if(device.getName().equals("Jason R (Galaxy Tab4)")){
+                            Log.i("print", "lol");
                             myThreadConnectBTdevice.reconnect(device, myUUID);
                             break;
                         }

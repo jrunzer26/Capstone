@@ -302,13 +302,26 @@ public class BaselineDatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void clearAllTables() {
+        clearTable(ACCEL_FROM_SPEED);
+        clearTable(ACCEL_NEAR_STOPTABLE);
+        clearTable(BRAKE_TABLE);
+        clearTable(CRUISE_TABLE);
+        clearTable(SPEEDING_TABLE);
+        clearTable(LEFT_TURN);
+        clearTable(RIGHT_TURN);
+    }
     /**
      * Clears a table.
      * @param tableName the table name.
      */
     private void clearTable(String tableName) {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("delete from " + tableName);
+        try {
+            db.execSQL("delete from " + tableName);
+        } catch (SQLiteException e) {
+            Log.i("baseline", "no table" + tableName);
+        }
     }
 
     /**

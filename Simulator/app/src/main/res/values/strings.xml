@@ -18,8 +18,8 @@
     <string name="vehicleSimulatorDrive_negativeMaxAcceleration">-15km/h/s</string>
     <string name="vehicleSimulatorDrive_positiveMaxAcceleration">50km/h/s</string>
     <string name="vehicleSimulatorDrive_zeroAcceleration">0 km/h/s</string>
-    <string name="vehicleSimulatorDrive_negativeMaxSteering">-30 Deg</string>
-    <string name="vehicleSimulatorDrive_positiveMaxSteering">30 Deg</string>
+    <string name="vehicleSimulatorDrive_negativeMaxSteering">-180 Deg</string>
+    <string name="vehicleSimulatorDrive_positiveMaxSteering">180 Deg</string>
     <string name="vehicleSimulatorDrive_zeroSteering">0 Deg</string>
     <string name="vehicleSimulatorDrive_signalLeft">Signal Left</string>
     <string name="vehicleSimulatorDrive_signalRight">Signal Right</string>
