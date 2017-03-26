@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class DataAnalyst extends Thread implements DataReceiver {
 
 
-
+    private static final double CRUISE_RATIO_MAX = 11;
     private String TAG = "Analyst";
     private Context applicationContext;
     private AlertSystem alertSystem;
@@ -251,8 +251,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
         Log.i(" return", window - threshold + " > " + THRESHOLD);
         Log.i("difference", (window-threshold)+"");
         //####################################### UNCOMMENT IN REAL IMPLEMENTATION
-        return ((window - threshold) > THRESHOLD);
-        //return true;
+        //return ((window - threshold) > THRESHOLD);
+        return true;
     }
 
     /**
@@ -362,8 +362,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
             //Log.i("in minDouble[1]", "test");
 
             double ratioDistance = ratioDistance_singleDimension(minDouble[1], md[1], true);
-            Log.i("Cruising", PERCENT_THRESHOLD_CRUISE_LOWER + " < " + ratioDistance + " > " + PERCENT_THRESHOLD_CRUISE_UPPER);
-            if ((ratioDistance < PERCENT_THRESHOLD_CRUISE_LOWER || ratioDistance > PERCENT_THRESHOLD_CRUISE_UPPER) && ratioDistance < 10) {
+            Log.i("Cruising", PERCENT_THRESHOLD_CRUISE_LOWER + " > " + ratioDistance + " > " + PERCENT_THRESHOLD_CRUISE_UPPER);
+            if ((ratioDistance < PERCENT_THRESHOLD_CRUISE_LOWER || ratioDistance > PERCENT_THRESHOLD_CRUISE_UPPER) && ratioDistance < CRUISE_RATIO_MAX) {
                 if (!alertDetected || (alertDetected && drivingEvent[0].equals("speeding"))) {
                     alertCheck(drivingEvent[1]);
                 }
@@ -626,17 +626,33 @@ public class DataAnalyst extends Thread implements DataReceiver {
                     maxCalculatedAvg = 0;
                 }
                 if ((toReturn[1] == null) || avgDistance < maxCalculatedAvg) {
-                    System.arraycopy(temp, 0, toReturn, 0, 2);
-                    //Log.i("set md: 1", tempEvent);
-                    md[0].setBaseline(speedBaseline);
-                    md[0].setVData(speedHist);
-                    md[0].setEvent(tempEvent);
 
-                    md[1].setBaseline(steeringBaseline);
-                    md[1].setVData(steeringHist);
-                    md[1].setEvent(tempEvent);
-                    Log.i("Event changed to ", tempEvent);
-                    drivingEvent[1] = tempEvent;
+                   boolean cruisingPass = false;
+
+                    if (tempEvent.equals("cruising")) {
+                        MinData minData = new MinData();
+                        minData.setBaseline(steeringBaseline);
+                        minData.setEvent(tempEvent);
+                        minData.setVData(steeringHist);
+                        double ratioDistance = ratioDistance_singleDimension(temp[1], minData, true);
+                        Log.i("Cruising", PERCENT_THRESHOLD_CRUISE_LOWER + " < " + ratioDistance + " > " + PERCENT_THRESHOLD_CRUISE_UPPER);
+                        if ((ratioDistance < PERCENT_THRESHOLD_CRUISE_LOWER || ratioDistance > PERCENT_THRESHOLD_CRUISE_UPPER) && ratioDistance < CRUISE_RATIO_MAX) {
+                            cruisingPass = true;
+                        }
+                    }
+                    if (!tempEvent.equals("cruising") || cruisingPass) {
+                        System.arraycopy(temp, 0, toReturn, 0, 2);
+                        //Log.i("set md: 1", tempEvent);
+                        md[0].setBaseline(speedBaseline);
+                        md[0].setVData(speedHist);
+                        md[0].setEvent(tempEvent);
+
+                        md[1].setBaseline(steeringBaseline);
+                        md[1].setVData(steeringHist);
+                        md[1].setEvent(tempEvent);
+                        Log.i("Event changed to ", tempEvent);
+                        drivingEvent[1] = tempEvent;
+                    }
                 }
 
             }

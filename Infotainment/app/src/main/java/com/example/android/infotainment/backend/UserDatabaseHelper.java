@@ -244,4 +244,13 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         return userDatas;
     }
+
+    public void clearAll() {
+        SQLiteDatabase db = getWritableDatabase();
+        try {
+            db.execSQL("delete from data");
+        } catch (SQLiteException e) {
+
+        }
+    }
 }
