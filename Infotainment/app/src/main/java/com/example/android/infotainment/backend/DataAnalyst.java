@@ -44,7 +44,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private int userAverage = 70;
     private Double steering;
     private final int SINGLE_SIMILARITY_BOUND = 700;
-    private final int DOUBLE_SIMILARITY_BOUND = 2600;
+    private final int DOUBLE_SIMILARITY_BOUND = 1350;
 
     // cruise
 
@@ -57,7 +57,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
     // right steering
     private static final double PERCENT_THRESHOLD_RIGHT_UPPER = 1.4;
-    private static final double PERCENT_THRESHOLD_RIGHT_LOWER = 0.80;
+    private static final double PERCENT_THRESHOLD_RIGHT_LOWER = 0.50;
 
     // accel near stop upper
     private static final double PERCENT_THRESHOLD_ACCEL_NEAR_STOP_UPPER = 1.3;

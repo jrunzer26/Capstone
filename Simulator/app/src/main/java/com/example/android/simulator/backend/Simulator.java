@@ -76,6 +76,10 @@ public class Simulator implements Runnable, Car {
         }
     }
 
+    public void close() {
+        blueTooth.connectedThread.cancel();
+    }
+
     /**
      * Sets the SimData Time.
      */
