@@ -102,7 +102,13 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         // sensor data
         values.put("heartRate", sensorData.getHeartRate());
         SQLiteDatabase db = getWritableDatabase();
-        db.insert("Data", null, values);
+        try{
+            db.insert("Data", null, values);
+        } catch (SQLiteException e) {
+            onCreate(getWritableDatabase());
+            db.insert("Data", null, values);
+        }
+
         db.close();
     }
 

@@ -82,7 +82,7 @@ public class WatchBluetoothHandler extends Thread {
                         SensorData sensorData = new SensorData();
                         sensorData.setHeartRate(dis.readInt());
                         // send the data each time to the analyst
-                        System.out.println(sensorData);
+                        //System.out.println(sensorData);
                         dataParser.sendHRData(sensorData);
                     }
                 } else{

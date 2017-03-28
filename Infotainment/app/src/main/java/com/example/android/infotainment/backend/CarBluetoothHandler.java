@@ -71,7 +71,6 @@ public class CarBluetoothHandler extends Thread {
         while (true) {
             try {
                 bytes = mmInStream.read(buffer);
-                Log.i("bytes", bytes + "");
                 if(bytes> 0){
                     byte[] bfcopy = new byte[bytes];
                     System.arraycopy(buffer, 0, bfcopy, 0, bytes);
