@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     final int REFRESH_RATE = 100;
     private Simulator sim;
     Button connectButton;
+    private String fileName = "";
 
     /**
      * Initialize bluetooth variables and set up Toolbar
@@ -55,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         View view = findViewById(android.R.id.content);
+
+        fileName = getIntent().getStringExtra("FILE_NAME");
 
         //Assigning the UUID key
         myUUID = UUID.fromString("5fadfabe-166f-4607-a872-4a84c3546adb");
@@ -90,6 +93,14 @@ public class MainActivity extends AppCompatActivity {
             }
         }, 2000, REFRESH_RATE);
 
+    }
+
+    public void stopSimulator() {
+        sim.close();
+    }
+
+    public String getFileName() {
+        return fileName;
     }
 
     /**

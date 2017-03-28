@@ -3,6 +3,7 @@ package com.example.android.simulator;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
@@ -18,12 +19,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.simulator.backend.Simulator;
+import com.example.android.simulator.backend.models.SimData;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Handler;
 
 
@@ -54,6 +63,15 @@ public class VehicleSimulatorFragment extends Fragment {
     Button connectButton;
     Button incSpeedLimit;
     Button decSpeedLimit;
+    SeekBar seekBarAcc, seekBarDeg;
+    TextView speedValue;
+    final int DEG_SEEK_MID = 180;
+
+    private final boolean EXIT = true;
+    private AssetManager AM;
+    private BufferedReader br;
+    ArrayList<SimData> simDatas = new ArrayList<>();
+    boolean connected = false;
 
     /**
      * Creates the savedInstanceState
@@ -73,15 +91,16 @@ public class VehicleSimulatorFragment extends Fragment {
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
+        AM = getContext().getAssets();
         final View view = inflater.inflate(R.layout.fragment_vehiclesimulator, container, false);
 
-        final SeekBar seekBarAcc = (SeekBar)view.findViewById(R.id.seekBar_vehicleSimulatorDrive_acceleration);
-        SeekBar seekBarDeg = (SeekBar)view.findViewById(R.id.seekBar_vehicleSimulatorDrive_steering);
+
+        seekBarAcc = (SeekBar)view.findViewById(R.id.seekBar_vehicleSimulatorDrive_acceleration);
+        seekBarDeg = (SeekBar)view.findViewById(R.id.seekBar_vehicleSimulatorDrive_steering);
         //Sets the maximum value for the Accleration and Degree slider
         seekBarAcc.setMax((ACC_MAX-ACC_MIN)/STEP);
         seekBarDeg.setMax((DEG_MAX-DEG_MIN)/STEP);
-        seekBarDeg.setProgress(181);
+        seekBarDeg.setProgress(DEG_SEEK_MID);
 
         connectButton = (Button)view.findViewById(R.id.button_reConnect);
         incSpeedLimit = (Button)view.findViewById(R.id.button_incSpeedLimit);
@@ -96,7 +115,7 @@ public class VehicleSimulatorFragment extends Fragment {
         final TextView seekBarAccValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_acceleration);
         final TextView seekBarDegValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_steering);
         final TextView currentSpeedLimit = (TextView)view.findViewById(R.id.textView5);
-
+        speedValue = (TextView)view.findViewById(R.id.textView_vehicleSimulatorDrive_speed);
 
         buttonListenerInit(view);
 
@@ -124,6 +143,13 @@ public class VehicleSimulatorFragment extends Fragment {
             }
         });
 
+        MainActivity mainActivity = (MainActivity) getActivity();
+        String file = mainActivity.getFileName();
+
+        if (file != null && !file.equals("")) {
+            insertData(file);
+            csv();
+        }
 
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -226,6 +252,46 @@ public class VehicleSimulatorFragment extends Fragment {
         return view;
     }
 
+    private void csv() {
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            int i = 0;
+
+            @Override
+            public void run() {
+                if (connected) {
+                    Log.i("tag", i + " < " + simDatas.size());
+                    if (i < simDatas.size()) {
+                        seekBarDeg.setProgress(DEG_SEEK_MID + ((int) simDatas.get(i).getSteering()));
+
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    speedValue.setText(String.valueOf(simDatas.get(i).getSpeed()) + " Km/h");
+                                } catch (Exception e) {
+                                }
+                            }
+                        });
+
+
+                        i++;
+                    } else {
+                        if (EXIT) {
+                            try {
+                                Thread.sleep(2000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            MainActivity mainActivity = (MainActivity) getActivity();
+                            mainActivity.stopSimulator();
+                            System.exit(0);
+                        }
+                    }
+                }
+            }
+        }, 2000, REFRESH_RATE);
+    }
+
 
     /**
      * This method calculates the speed based off of the accleration and the current speed
@@ -249,8 +315,10 @@ public class VehicleSimulatorFragment extends Fragment {
             public void run() {
                 if(BTdevice.getIsConnected()) {
                     connectButton.setText("Connected");
+                    connected = true;
                 } else {
                     connectButton.setText("Connect");
+                    connected = false;
                 }
             }
         });
@@ -310,5 +378,33 @@ public class VehicleSimulatorFragment extends Fragment {
      */
     public void pause() {
         Toast.makeText(getContext(),"Pause", Toast.LENGTH_SHORT).show();
+    }
+
+    private void insertData(String file) {
+        Toast.makeText(getContext(), "Running: " + file, Toast.LENGTH_LONG).show();
+        try {
+            InputStream is = AM.open(file);
+            br= new BufferedReader(new InputStreamReader(is));
+        } catch(FileNotFoundException e){
+            System.out.println("File not found!\n" + e);
+        } catch (IOException e){
+            System.out.println("Inputstream failed\n" + e);
+        }
+        try{
+            String line;
+
+            br.readLine();
+            int lineCount = 0;
+            while((line = br.readLine())!= null){
+                simDatas.add(lineCount, new SimData());
+                String[] RowData = line.split(",");
+                simDatas.get(lineCount).setSpeed((int)Math.round(Double.parseDouble(RowData[0])));
+                simDatas.get(lineCount).setSteering(Double.parseDouble(RowData[1]));
+                lineCount++;
+            }
+            lineCount=0;
+        } catch (IOException e){
+
+        }
     }
 }

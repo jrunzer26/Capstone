@@ -3,6 +3,7 @@ package com.example.android.infotainment.backend;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.util.Log;
 
 import com.example.android.infotainment.backend.models.SimData;
 import com.example.android.infotainment.backend.models.Time;
@@ -70,6 +71,7 @@ public class CarBluetoothHandler extends Thread {
         while (true) {
             try {
                 bytes = mmInStream.read(buffer);
+                Log.i("bytes", bytes + "");
                 if(bytes> 0){
                     byte[] bfcopy = new byte[bytes];
                     System.arraycopy(buffer, 0, bfcopy, 0, bytes);

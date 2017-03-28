@@ -15,5 +15,23 @@
             android:id="@+id/connect_button"
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true" />
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/button_CSV"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="30dp"
+            android:id="@+id/spinner_csv" />
+
+        <Button
+            android:text="CSV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="26dp"
+            android:id="@+id/button_CSV"
+            android:layout_below="@+id/connect_button"
+            android:layout_alignStart="@+id/connect_button"
+            android:onClick="csvConnect" />
     </RelativeLayout>
 </LinearLayout>
