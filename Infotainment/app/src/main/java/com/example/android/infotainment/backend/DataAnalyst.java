@@ -354,12 +354,17 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
     }
 
+    /**
+     *
+     * @param set Index 0 is steering, index 1 is speed
+     * @return
+     */
     private boolean turningAlertCheck(double[] set) {
-        double turningRatio = set[1];
-        double speedingRatio = set[0];
+        double turningRatio = set[0];
+        double speedingRatio = set[1];
         //Log.i("ratios", "turning: " + turningRatio + " speedingRatio: " + speedingRatio);
 
-        double lowerThresholdSteering, upperThresholdSteering, lowerThresholdSpeed=0.0, upperThresholdSpeed= 1.5;
+        double lowerThresholdSteering, upperThresholdSteering, lowerThresholdSpeed, upperThresholdSpeed;
 
         if(drivingEvent[1].equals("left")) {
             lowerThresholdSteering = PERCENT_THRESHOLD_LEFT_LOWER;
