@@ -94,13 +94,13 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
     //Variables for alert system the threshholds follow the case statements
     private final int FATAL_THRESHHOLD[] ={
-            500,
-            500,
-            500,
-            500,
-            500,
-            500,
-            500
+            100,
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
     };
     // 2 - cruising
     // 3 - speeding
