@@ -23,12 +23,12 @@ public class AlertSystem {
     private int fatalSound;
     private final int RIGHT_AGRESSIVE = 10, RIGHT = 5;
     private final String [] MESSAGES_DRIVING = {
-            "accel",
-            "braking",
-            "Cruise. Please be alert and pay attention to the road.",
-            "speeding",
-            "left",
-            "Attention, your right turn driving habits seem to be abnormal, please be safe on the road.",
+            "Aggressive Acceleration Detected. ",
+            "Aggressive Braking Detected. Are you OK?",
+            "Lane Drifting. Please be alert, and pay attention to the road.",
+            "Speeding. Please drive at a suitable speed.",
+            "Aggressive left turn detected. Please be safe on the road.",
+            "Aggressive right turn detected. Please be safe on the road.",
             //"accelNearStop"
     };
 
