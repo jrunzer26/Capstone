@@ -29,7 +29,7 @@ public class AlertSystem {
             "speeding",
             "left",
             "Attention, your right turn driving habits seem to be abnormal, please be safe on the road.",
-            "accelNearStop"
+            //"accelNearStop"
     };
 
     private final String [] MESSAGES_RIGHT_TURN = {

@@ -36,13 +36,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class DataAnalyst extends Thread implements DataReceiver {
 
 
-    private static final double CRUISE_RATIO_MAX = 11;
+    private static final double CRUISE_RATIO_MAX = 5;
     private Context applicationContext;
     private AlertSystem alertSystem;
     private Queue<UserData> userDataLinkedList;
     private Double steering;
-    private final int SINGLE_SIMILARITY_BOUND = 700;
-    private final int DOUBLE_SIMILARITY_BOUND = 1350;
+    private final int SINGLE_SIMILARITY_BOUND = 650;
+    private final int DOUBLE_SIMILARITY_BOUND = 1400;
 
 
     // cruise
@@ -51,31 +51,31 @@ public class DataAnalyst extends Thread implements DataReceiver {
     private static final double PERCENT_THRESHOLD_CRUISE_LOWER = 0.00;
 
     // left steering
-    private static final double PERCENT_THRESHOLD_LEFT_UPPER = 1.05;
+    private static final double PERCENT_THRESHOLD_LEFT_UPPER = 1.10;
     private static final double PERCENT_THRESHOLD_LEFT_LOWER = 0.83;
 
     // right steering
-    private static final double PERCENT_THRESHOLD_RIGHT_UPPER = 1.4;
-    private static final double PERCENT_THRESHOLD_RIGHT_LOWER = 0.50;
+    private static final double PERCENT_THRESHOLD_RIGHT_UPPER = 1.10;
+    private static final double PERCENT_THRESHOLD_RIGHT_LOWER = 0.45;
 
-    // accel near stop upper
+    /* accel near stop upper
     private static final double PERCENT_THRESHOLD_ACCEL_NEAR_STOP_UPPER = 1.3;
-    private static final double PERCENT_THRESHOLD_ACCEL_NEAR_STOP_LOWER= 0.7;
-
+    private static final double PERCENT_THRESHOLD_ACCEL_NEAR_STOP_LOWER= 0.5;
+    */
     // accel from speed
     private static final double PERCENT_THRESHOLD_ACCEL_FROM_SPEED_UPPER = 1.3;
-    private static final double PERCENT_THRESHOLD_ACCEL_FROM_SPEED_LOWER= 0.7;
+    private static final double PERCENT_THRESHOLD_ACCEL_FROM_SPEED_LOWER= 0.6;
 
     // speeding0
     private static final double PERCENT_THRESHOLD_SPEEDING_UPPER = 1.2;
     private static final double PERCENT_THRESHOLD_SPEEDING_LOWER= 0.9;
 
     // brake
-    private static final double PERCENT_THRESHOLD_BRAKE_UPPER = 1.1;
+    private static final double PERCENT_THRESHOLD_BRAKE_UPPER = 1.3;
     private static final double PERCENT_THRESHOLD_BRAKE_LOWER= 0.0;
 
     //VARIABLES AND STRUCTURES REQUIRED FOR THE ALGORITHM;
-    private final int WINDOW = 50; //Size of the sliding window
+    private final int WINDOW = 100; //Size of the sliding window
     private final int THRESHOLD = 0; //Difference between window and overall needed to trigger DTW
 
 
@@ -167,6 +167,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
             if (userDataLinkedList.size() > 0) {
                 counter++;
                 UserData userData = userDataLinkedList.remove();
+                System.out.println(userData.toString());
                 System.out.println("=======================NEXT STEP==================");
                 SensorData sensorData = userData.getSensorData();
 
@@ -239,7 +240,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
 
     private void step3_GetMinSimilarity(Baselines b, VehicleHistory history){
 
-        final int SINGLE_DIM_EVENTS = 3;
+        final int SINGLE_DIM_EVENTS = 2;
         final int TWO_DIM_EVENTS = 3;
         TimeWarpInfo minSingle;
         TimeWarpInfo[] minDouble;
@@ -287,11 +288,13 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 percentThresholdUpper = PERCENT_THRESHOLD_BRAKE_UPPER;
                 break;
             }
+            /*
             case "accelNearStop" : {
                 percentThresholdLower = PERCENT_THRESHOLD_ACCEL_NEAR_STOP_LOWER;
                 percentThresholdUpper = PERCENT_THRESHOLD_ACCEL_NEAR_STOP_UPPER;
                 break;
             }
+            */
             case "accel" : {
                 percentThresholdLower = PERCENT_THRESHOLD_ACCEL_FROM_SPEED_LOWER;
                 percentThresholdUpper = PERCENT_THRESHOLD_ACCEL_FROM_SPEED_UPPER;
@@ -324,6 +327,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         if (minDouble[0] == null && minDouble[1] == null) {
             //No event should happen
         } else if (minDouble[1] != null && minDouble[0] == null) {
+            //Cruising
             //Log.i("in minDouble[1]", "test");
 
             double ratioDistance = ratioDistance_singleDimension(minDouble[1], md[1], true);
@@ -334,6 +338,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
                 }
             }
         } else {
+            //Turning
             //Log.i("turningAlertCheck", turningAlertCheck(ratioDistance_doubleDimension(minDouble, md))+"");
             if (turningAlertCheck(ratioDistance_doubleDimension(minDouble, md))) {
                 alertDetected = false;
@@ -350,12 +355,11 @@ public class DataAnalyst extends Thread implements DataReceiver {
     }
 
     private boolean turningAlertCheck(double[] set) {
-        //Util.printArray(set, "sets lol");
         double turningRatio = set[1];
         double speedingRatio = set[0];
         //Log.i("ratios", "turning: " + turningRatio + " speedingRatio: " + speedingRatio);
 
-        double lowerThresholdSteering, upperThresholdSteering, lowerThresholdSpeed, upperThresholdSpeed;
+        double lowerThresholdSteering, upperThresholdSteering, lowerThresholdSpeed=0.0, upperThresholdSpeed= 1.5;
 
         if(drivingEvent[1].equals("left")) {
             lowerThresholdSteering = PERCENT_THRESHOLD_LEFT_LOWER;
@@ -364,6 +368,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
             lowerThresholdSteering = PERCENT_THRESHOLD_RIGHT_LOWER;
             upperThresholdSteering = PERCENT_THRESHOLD_RIGHT_UPPER;
         }
+
+
         //Log.i("Turning", turningRatio+ " < " + lowerThresholdSteering + " || " + turningRatio + " > " + upperThresholdSteering);
         if (turningRatio < lowerThresholdSteering || turningRatio > upperThresholdSteering) {
             alertCheck(drivingEvent[1]);
@@ -417,12 +423,13 @@ public class DataAnalyst extends Thread implements DataReceiver {
                     history = sHist;
                     break;
                 }
+                /*
                 case 2: {
                     baseline = b.getNearStopAccel();
                     tempEvent="accelNearStop";
                     history = sHist;
                     break;
-                }
+                }*/
                 default: {
                     continue;
                 }
@@ -443,7 +450,8 @@ public class DataAnalyst extends Thread implements DataReceiver {
             //Log.i(tempEvent + "veh", eventString);
 
             temp = dtw.getWarpInfoBetween(new TimeSeries(history), new TimeSeries(baseline), RADIUS, distFn);
-
+            System.out.println("EVENT: " + tempEvent);
+            System.out.println("SIMILARITY: " + temp.getDistance());
             //Log.i("DTW Similarity", tempEvent + " sim: " + temp.getDistance() + " < " + SINGLE_SIMILARITY_BOUND);
             if (temp.getDistance() <  SINGLE_SIMILARITY_BOUND) {
                 if ((toReturn == null) || temp.getDistance() < toReturn.getDistance()) {
@@ -500,7 +508,7 @@ public class DataAnalyst extends Thread implements DataReceiver {
         TimeWarpInfo[] temp = new TimeWarpInfo[2];
         TimeWarpInfo[] toReturn = new TimeWarpInfo[2];
         double avgDistance;
-        String tempEvent;
+        String tempEvent = "";
         double[] speedBaseline;
         double[] steeringBaseline;
         for (int i = 0; i< events; i++){
@@ -536,16 +544,18 @@ public class DataAnalyst extends Thread implements DataReceiver {
             avgDistance = temp[1].getDistance();
             if (!tempEvent.equals("cruising")) {
                 temp[0] = dtw.getWarpInfoBetween(new TimeSeries(speedHist), new TimeSeries(speedBaseline), RADIUS, distFn);
+                //avgDistance = (temp[0].getDistance() + temp[1].getDistance())/2;
             } else {
                 avgDistance = temp[1].getDistance();
             }
-
+            System.out.println("Double Event:" + tempEvent);
+            System.out.println("Similarity: " + avgDistance);
 
             if (avgDistance < DOUBLE_SIMILARITY_BOUND) {
                 double maxCalculatedAvg;
-                if (toReturn[0] != null) {
+                if (toReturn[0] != null) {//Is a turn
                     maxCalculatedAvg = (toReturn[0].getDistance()+toReturn[1].getDistance())/2;
-                } else if (toReturn[1] != null) {
+                } else if (toReturn[1] != null && toReturn[0] == null) {//Is cruise & turn while speed not considered
                     maxCalculatedAvg = toReturn[1].getDistance();
                 } else {
                     maxCalculatedAvg = 0;
@@ -577,16 +587,21 @@ public class DataAnalyst extends Thread implements DataReceiver {
                         md[1].setEvent(tempEvent);
                         //Log.i("Event changed to ", tempEvent);
                         drivingEvent[1] = tempEvent;
-                        Log.i("temp0 sim", temp[0].getDistance() + "");
-                        Log.i("temp1 sim", temp[1].getDistance() + "");
+                        if (temp[0] != null){
+                            Log.i("temp0 sim", temp[0].getDistance() + "");
+                        }
+                        if (temp[1] != null){
+                            Log.i("temp1 sim", temp[1].getDistance() + "");
+                        }
+
 
                     }
                 }
 
             }
-            Log.i("Final Double event", tempEvent);
-        }
 
+        }
+        Log.i("Final Double event", tempEvent);
         return toReturn;
     }
 
@@ -614,6 +629,9 @@ public class DataAnalyst extends Thread implements DataReceiver {
         average1_2 = sum1_2 / twi[0].getPath().getTS2().size();
 
         set1 = Math.abs((average1_1/average1_2));
+        if (set1 == 0){
+            set1 = 1;
+        }
 
         for (int j = 0; j< twi[1].getPath().getTS2().size(); j++) {
             sum2_1 += (Double) series[1].getVData().get((Integer)twi[1].getPath().getTS1().get(j));
@@ -623,10 +641,13 @@ public class DataAnalyst extends Thread implements DataReceiver {
         average2_2 = sum2_2 / twi[1].getPath().getTS2().size();
 
         set2 = Math.abs((average2_1/average2_2));
+        if (set2 == 0){
+            set2 = 1;
+        }
         //Log.i("sets", "set1: " + set1 + " set2: " + set2);
         double [] sets = {set1, set2};
-        Log.i("Set1", set1 + "");
-        Log.i("Set2", set2 + "");
+        Log.i("Double Ratio 1", set1 + "");
+        Log.i("Double Ratio 2", set2 + "");
         return sets;
     }
 
@@ -654,9 +675,9 @@ public class DataAnalyst extends Thread implements DataReceiver {
         } else if (event.equals("right")) {
             eventCounter[5]++;
             incomingEvent = 5;
-        } else if(event.equals("accelNearStop")) {
+        /*} else if(event.equals("accelNearStop")) {
             eventCounter[6]++;
-            incomingEvent = 6;
+            incomingEvent = 6; */
         } else {
             System.out.println("ERROR IN ALERTCHECK: String invalid! " + event);
             return ;
