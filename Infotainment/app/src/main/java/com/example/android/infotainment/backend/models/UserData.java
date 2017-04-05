@@ -25,7 +25,9 @@ public class UserData {
     private SensorData sensorData;
     private int turnFlag = FLAG_NONE;
 
-
+    /**
+     * Initializes the flags of the turn for the user data.
+     */
     private void initFlags() {
         if (simData.getSteering() > 20) {
             turnFlag = FLAG_RIGHT_TURN;
@@ -36,11 +38,18 @@ public class UserData {
         }
     }
 
-
+    /**
+     * Gets the turn flag for the data.
+     * @return the turn flag.
+     */
     public int getTurnFlag() {
         return turnFlag;
     }
 
+    /**
+     * Sets the turn flag.
+     * @param turnFlag the type of turn.
+     */
     public void setTurnFlag(int turnFlag) {
         this.turnFlag = turnFlag;
     }

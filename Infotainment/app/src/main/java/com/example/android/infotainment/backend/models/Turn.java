@@ -28,6 +28,12 @@ public class Turn {
         flag = UserData.FLAG_NONE;
     }
 
+    /**
+     * Creates a turn
+     * @param id the id of the turn
+     * @param turnType TURN_LEFT or TURN_RIGHT
+     * @param flag the flag
+     */
     public Turn(int id, int turnType, int flag) {
         this.id = id;
         this.turnType = turnType;
@@ -35,18 +41,34 @@ public class Turn {
         this.flag = flag;
     }
 
+    /**
+     * Returns the multiplicity of the baseline.
+     * @return the number of times to dba
+     */
     public int getMulti() {
         return multi;
     }
 
+    /**
+     * Sets the multi parameter
+     * @param multi the int value
+     */
     public void setMulti(int multi) {
         this.multi = multi;
     }
 
+    /**
+     * Gets the flag of the turn.
+     * @return the flag
+     */
     public int getFlag() {
         return flag;
     }
 
+    /**
+     * Sets the flag of the turn.
+     * @param flag the flag.
+     */
     public void setFlag(int flag) {
         this.flag = flag;
     }

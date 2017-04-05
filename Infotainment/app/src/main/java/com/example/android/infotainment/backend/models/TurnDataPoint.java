@@ -13,10 +13,18 @@ public class TurnDataPoint {
         this.steering = steering;
     }
 
+    /**
+     * Gets the steering data for the point.
+     * @return the steering data.
+     */
     public double getSteering() {
         return steering;
     }
 
+    /**
+     * Sets the steering data of the turn point.
+     * @param steering
+     */
     public void setSteering(double steering) {
         this.steering = steering;
     }

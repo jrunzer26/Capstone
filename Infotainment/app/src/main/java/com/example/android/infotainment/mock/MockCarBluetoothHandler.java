@@ -162,11 +162,11 @@ public class MockCarBluetoothHandler {
         brakingTest();
 
         /* Cruising Tests */
-        crusingTest();
+        cruisingTest();
     }
 
 
-    private void crusingTest() {
+    private void cruisingTest() {
         for(int i = 0; i < 10; i++) {
             SimData simData = new SimData();
             simData.setSpeed(60);
