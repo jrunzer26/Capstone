@@ -7,6 +7,7 @@ package com.example.android.infotainment.backend;
  // TODO: Ensuring times are synced to data. 
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.android.infotainment.backend.models.SensorData;
 import com.example.android.infotainment.backend.models.SimData;
@@ -24,6 +25,7 @@ public class DataParser {
     private Queue<SimData> carData;
     private Queue<SensorData> heartRateData;
     public static final double pollTimeSeconds = 0.1; // seconds
+    private boolean locked = false;
 
 
     /**
@@ -44,11 +46,13 @@ public class DataParser {
      * @param simData the sim data
      */
     public void sendSimData(SimData simData) {
+
         if (carData.size() == 5) {
             carData.remove();
         }
         carData.add(simData);
         trySend();
+
     }
     
 
@@ -58,10 +62,13 @@ public class DataParser {
      */
      // TODO: Fail case for when data fails to send when it should fail
     private void trySend() {
-        if (carData.size() > 0  && heartRateData.size() > 0) {
+        if (carData.size() > 0  && heartRateData.size() > 0 && !locked) {
+            locked = true;
+            Log.i("size of data before: ", ""+carData.size() +" " +heartRateData.size());
             UserData userData = createUser();
             dataReceiver.onReceive(userData);
             saveData(userData);
+            locked = false;
         }
     }
 
@@ -85,6 +92,7 @@ public class DataParser {
         userData.setSimData(carData.remove());
         userData.setSensorData(heartRateData.remove());
         userData.setTripID(tripID);
+        Log.i("size of data after: ", ""+carData.size() +" " +heartRateData.size());
         return userData;
     }
 
