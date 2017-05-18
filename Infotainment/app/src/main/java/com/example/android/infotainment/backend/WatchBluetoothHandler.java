@@ -68,6 +68,8 @@ public class WatchBluetoothHandler extends Thread {
 
         byte[] buffer = new byte[1024];
         int bytes;
+        ByteArrayInputStream bais;
+        DataInputStream dis;
         while (true) {
             try {
                 bytes = mmInStream.read(buffer);
@@ -75,14 +77,14 @@ public class WatchBluetoothHandler extends Thread {
                     // read in the packaged data from the watch
                     byte[] bfcopy = new byte[bytes];
                     System.arraycopy(buffer, 0, bfcopy, 0, bytes);
-                    ByteArrayInputStream bais = new ByteArrayInputStream(bfcopy);
-                    DataInputStream dis = new DataInputStream(bais);
+                    bais = new ByteArrayInputStream(bfcopy);
+                    dis = new DataInputStream(bais);
                     for (int i = 0; i < 10; i++) {
                         // package the data into an object
                         SensorData sensorData = new SensorData();
                         sensorData.setHeartRate(dis.readInt());
                         // send the data each time to the analyst
-                        System.out.println(sensorData);
+                        //System.out.println(sensorData);
                         dataParser.sendHRData(sensorData);
                     }
                 } else{
@@ -91,6 +93,8 @@ public class WatchBluetoothHandler extends Thread {
             } catch (IOException e) {
                 try {
                     System.out.println("Waiting for a connection");
+                    e.printStackTrace();
+                    System.out.println(e.getMessage());
                     mmSocket = bluetoothServerSocket.accept();
                     mmInStream = mmSocket.getInputStream();
                     mmOutStream = mmSocket.getOutputStream();

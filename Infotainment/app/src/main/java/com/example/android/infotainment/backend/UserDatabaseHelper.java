@@ -102,7 +102,13 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         // sensor data
         values.put("heartRate", sensorData.getHeartRate());
         SQLiteDatabase db = getWritableDatabase();
-        db.insert("Data", null, values);
+        try{
+            db.insert("Data", null, values);
+        } catch (SQLiteException e) {
+            onCreate(getWritableDatabase());
+            db.insert("Data", null, values);
+        }
+
         db.close();
     }
 
@@ -195,6 +201,10 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
     }
 
+    /**
+     * Gets the last trip data from the database.
+     * @return the last trip data.
+     */
     public ArrayList<UserData> getLastTripData() {
         String[] where = new String[1];
         where[0] = getCurrentTripID() +"";
@@ -204,7 +214,11 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         return getAllDataFromCursor(cursor);
     }
 
-
+    /**
+     * Gets all data from a database cursor
+     * @param cursor the user database cursor
+     * @return the user data.
+     */
     private ArrayList<UserData> getAllDataFromCursor(Cursor cursor) {
         cursor.moveToFirst();
         ArrayList<UserData> userDatas = new ArrayList<>();
@@ -245,6 +259,9 @@ public class UserDatabaseHelper extends SQLiteOpenHelper {
         return userDatas;
     }
 
+    /**
+     * Clears all the data in the user database.
+     */
     public void clearAll() {
         SQLiteDatabase db = getWritableDatabase();
         try {

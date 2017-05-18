@@ -77,6 +77,10 @@ public class Baselines {
         } // else : baselines are all size 0, not enough data
     }
 
+    /**
+     * Returns the max maseline size.
+     * @return the max length
+     */
     public int maxBaselineSize() {
         int max = 0;
         if (rightTurnBaseline.length > max)
@@ -121,8 +125,6 @@ public class Baselines {
         startSpeedingBaseline(allData);
     }
 
-
-
     /**
      * Gathers the last trip data and performs dba on the average on the gathered last trip data.
      */
@@ -137,6 +139,10 @@ public class Baselines {
 
     // ######################### Turn Baselines #########################
 
+    /**
+     * Starts both turn dba's.
+     * @param lastTripData the user data from the database
+     */
     private void startTurnDba(ArrayList<UserData> lastTripData) {
         ArrayList<Turn> turns = getTurnData(lastTripData);
         Log.i("turns extracted: ", turns.size()+"");
@@ -367,6 +373,10 @@ public class Baselines {
 
     // ######################### Acceleration Baselines #########################
 
+    /**
+     * Performs DBA on the acceleration data
+     * @param lastTripData all data to convert to baseline
+     */
     private void startAccelerationDba(ArrayList<UserData> lastTripData) {
         ArrayList<ArrayList<UserData>> accelTimeseries = getAccelTimeSeries(lastTripData);
         Log.i(TAG, "accel time series length: " + accelTimeseries.size());
@@ -682,6 +692,10 @@ public class Baselines {
 
     // ###### Cruising Baseline #############
 
+    /**
+     * Turns data into a baseline for crusing.
+     * @param data the data from the user baseline.
+     */
     private void startCruisingDba(ArrayList<UserData> data) {
         ArrayList<ArrayList<UserData>> extractedData = extractCruisingData(data);
         Util.print2dUserDataListSteering(extractedData, "extracted cruising");
@@ -689,7 +703,11 @@ public class Baselines {
 
     }
 
-
+    /**
+     * Extracts cruising raw time series
+     * @param data the data to extract from
+     * @return the extracted timeseries
+     */
     private ArrayList<ArrayList<UserData>> extractCruisingData(ArrayList<UserData> data) {
         ArrayList<ArrayList<UserData>> extractedData = new ArrayList<>();
         ArrayList<UserData> currentUserData = null;
@@ -717,6 +735,10 @@ public class Baselines {
         return extractedData;
     }
 
+    /**
+     * DBA the cruise data.
+     * @param cruiseData the extracted cruise series
+     */
     private void dbaCruise(ArrayList<ArrayList<UserData>> cruiseData) {
         int totalTimeSeries = cruiseData.size();
 
@@ -782,12 +804,21 @@ public class Baselines {
     }
     // ##### Speeding Baseline ###########
 
+    /**
+     * Starts the speeding event dba baseline
+     * @param data the data from the user database.
+     */
     private void startSpeedingBaseline(ArrayList<UserData> data) {
         ArrayList<ArrayList<UserData>> extractedSpeeding = extractSpeedingData(data);
         Util.print2dUserDataListSpeed(extractedSpeeding, "extracted speeding");
         dbaSpeeding(extractedSpeeding);
     }
 
+    /**
+     * Extracts speeding data from the user data
+     * @param allData the data to extract from
+     * @return the extracted time series
+     */
     private ArrayList<ArrayList<UserData>> extractSpeedingData(ArrayList<UserData> allData) {
         boolean currentlyAccelerating = false;
         boolean currentlyDecelerating = false;
@@ -843,6 +874,10 @@ public class Baselines {
         return allSpeedingTimeseries;
     }
 
+    /**
+     * Finally DBA's the speeding data
+     * @param extractedSpeeding the extracted speeding data.
+     */
     private void dbaSpeeding(ArrayList<ArrayList<UserData>> extractedSpeeding) {
         int totalTimeSeries = extractedSpeeding.size();
 
@@ -947,6 +982,10 @@ public class Baselines {
         return speedingBaseline;
     }
 
+    /**
+     * Checks if all baselines are initialized.
+     * @return true if setup.
+     */
     public boolean isSetup() {
         return leftTurnBaseline[0].length != 0 &&
                 rightTurnBaseline[0].length != 0 &&

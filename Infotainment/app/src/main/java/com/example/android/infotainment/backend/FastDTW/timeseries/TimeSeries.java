@@ -70,7 +70,6 @@ public class TimeSeries {
 		this();
 		TimeSeriesPoint tsp;
 		labels.add("Time");
-		Log.i("data size: ", " "+data.size());
 		for (Object i : data) {
 			try {
 				tsp = new TimeSeriesPoint(new double[] { (Double)i });

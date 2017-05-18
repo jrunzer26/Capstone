@@ -13,6 +13,11 @@ import java.util.List;
 
 public class Util {
 
+    /**
+     * Prints a 2d double array.
+     * @param array the array
+     * @param tag the tag info
+     */
     public static void print2dArray(double[][] array, String tag) {
         try {
             Log.i(tag, "length: " + array.length + " length[0]: " + array[0].length);
@@ -29,6 +34,11 @@ public class Util {
         }
     }
 
+    /**
+     * Prints a single double array.
+     * @param array the single array.
+     * @param tag the string tag.
+     */
     public static void printArray(double[] array, String tag) {
         try {
             StringBuilder stringBuilder = new StringBuilder();
@@ -41,6 +51,11 @@ public class Util {
         }
     }
 
+    /**
+     * Prints the 2d user data list
+     * @param arrayList2D the data
+     * @param tag the tag
+     */
     public static void print2dUserDataListSpeed(ArrayList<ArrayList<UserData>> arrayList2D, String tag) {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < arrayList2D.size(); i++) {
@@ -53,6 +68,11 @@ public class Util {
         Log.i(tag, stringBuilder.toString());
     }
 
+    /**
+     * Prints a 2d user data array list
+     * @param arrayList2D the data
+     * @param tag the string tag
+     */
     public static void print2dUserDataListSteering(ArrayList<ArrayList<UserData>> arrayList2D, String tag) {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < arrayList2D.size(); i++) {
@@ -65,6 +85,11 @@ public class Util {
         Log.i(tag, stringBuilder.toString());
     }
 
+    /**
+     * Prints a list
+     * @param vData the list
+     * @param s the string tag
+     */
     public static void printList(List vData, String s) {
         StringBuilder stringBuilder = new StringBuilder();
         for(Object i : vData) {
